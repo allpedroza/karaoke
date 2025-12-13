@@ -1,8 +1,18 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// Cliente será criado sob demanda para garantir que dotenv já carregou
+let anthropicClient: Anthropic | null = null;
+
+function getAnthropicClient(): Anthropic {
+  if (!anthropicClient) {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error('ANTHROPIC_API_KEY não configurada no arquivo .env');
+    }
+    anthropicClient = new Anthropic({ apiKey });
+  }
+  return anthropicClient;
+}
 
 export interface EvaluationInput {
   transcription: string;
@@ -91,6 +101,7 @@ IMPORTANTE:
 - Se a transcrição estiver muito diferente da música, dê uma nota menor mas seja gentil.`;
 
   try {
+    const anthropic = getAnthropicClient();
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1024,
