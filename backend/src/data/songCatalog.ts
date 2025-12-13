@@ -33,6 +33,13 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'TGXkdU9S0OU', // Verificado
     language: 'pt-BR',
   },
+  {
+    code: '0003',
+    song: 'Você é Linda',
+    artist: 'Caetano Veloso',
+    youtubeId: 'Fr794p3aG-g', // Verificado
+    language: 'pt-BR',
+  },
 
   // ============================================
   // MÚSICAS INTERNACIONAIS (códigos 0100-0199)
