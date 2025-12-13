@@ -32,7 +32,7 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
     resumeRecording,
     resetRecording,
     error: recordingError,
-  } = useAudioRecorder();
+  } = useAudioRecorder({ language: video.language }); // Passa idioma da música!
 
   const [hasStarted, setHasStarted] = useState(false);
 

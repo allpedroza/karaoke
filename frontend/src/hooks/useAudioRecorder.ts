@@ -1,5 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
+interface UseAudioRecorderOptions {
+  language?: 'pt-BR' | 'en' | 'es';
+}
+
 interface UseAudioRecorderReturn {
   isRecording: boolean;
   isPaused: boolean;
@@ -14,7 +18,19 @@ interface UseAudioRecorderReturn {
   error: string | null;
 }
 
-export function useAudioRecorder(): UseAudioRecorderReturn {
+// Mapear idiomas para códigos do Web Speech API
+function getSpeechLang(lang: string): string {
+  switch (lang) {
+    case 'pt-BR': return 'pt-BR';
+    case 'en': return 'en-US';
+    case 'es': return 'es-ES';
+    default: return 'pt-BR';
+  }
+}
+
+export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudioRecorderReturn {
+  const { language = 'pt-BR' } = options;
+
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -28,7 +44,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   const timerRef = useRef<number | null>(null);
   const transcriptRef = useRef<string>('');
 
-  // Setup speech recognition
+  // Setup speech recognition com idioma dinâmico
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -36,7 +52,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
 
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = 'pt-BR';
+      recognition.lang = getSpeechLang(language); // Idioma dinâmico!
 
       recognition.onresult = (event) => {
         let finalTranscript = '';
@@ -83,7 +99,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
         recognitionRef.current.stop();
       }
     };
-  }, [isRecording, isPaused]);
+  }, [isRecording, isPaused, language]); // Adiciona language como dependência
 
   const startRecording = useCallback(async () => {
     try {
