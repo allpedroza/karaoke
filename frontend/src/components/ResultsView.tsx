@@ -1,4 +1,4 @@
-import { Trophy, Star, TrendingUp, MessageCircle, Lightbulb, Heart, RotateCcw, Home } from 'lucide-react';
+import { Star, Music2, FileText, Zap, RotateCcw, Home } from 'lucide-react';
 import { PerformanceEvaluation, KaraokeVideo } from '../types';
 
 interface ResultsViewProps {
@@ -38,6 +38,7 @@ export function ResultsView({ evaluation, video, onTryAgain, onNewSong }: Result
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="text-center mb-8">
+        <p className="text-karaoke-accent font-mono mb-2">#{video.code}</p>
         <h2 className="text-2xl font-bold text-white mb-2">
           Resultado da Performance
         </h2>
@@ -71,73 +72,32 @@ export function ResultsView({ evaluation, video, onTryAgain, onNewSong }: Result
         </div>
       </div>
 
-      {/* Categorias de Pontuação */}
+      {/* 3 Dimensões de Avaliação */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <CategoryCard
-          icon={<MessageCircle className="w-6 h-6" />}
+        <DimensionCard
+          icon={<Music2 className="w-6 h-6" />}
+          title="Tom"
+          score={evaluation.dimensions.pitch.score}
+          detail={evaluation.dimensions.pitch.detail}
+          color="text-purple-400"
+          bgColor="bg-purple-500"
+        />
+        <DimensionCard
+          icon={<FileText className="w-6 h-6" />}
           title="Letra"
-          score={evaluation.categories.lyrics.score}
-          maxScore={evaluation.categories.lyrics.maxScore}
-          feedback={evaluation.categories.lyrics.feedback}
+          score={evaluation.dimensions.lyrics.score}
+          detail={evaluation.dimensions.lyrics.detail}
+          color="text-blue-400"
+          bgColor="bg-blue-500"
         />
-        <CategoryCard
-          icon={<TrendingUp className="w-6 h-6" />}
-          title="Ritmo"
-          score={evaluation.categories.timing.score}
-          maxScore={evaluation.categories.timing.maxScore}
-          feedback={evaluation.categories.timing.feedback}
+        <DimensionCard
+          icon={<Zap className="w-6 h-6" />}
+          title="Animação"
+          score={evaluation.dimensions.energy.score}
+          detail={evaluation.dimensions.energy.detail}
+          color="text-orange-400"
+          bgColor="bg-orange-500"
         />
-        <CategoryCard
-          icon={<Heart className="w-6 h-6" />}
-          title="Expressão"
-          score={evaluation.categories.expression.score}
-          maxScore={evaluation.categories.expression.maxScore}
-          feedback={evaluation.categories.expression.feedback}
-        />
-      </div>
-
-      {/* Feedback Geral */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-karaoke-accent" />
-          Avaliação da IA
-        </h3>
-        <p className="text-gray-300 leading-relaxed">{evaluation.feedback}</p>
-      </div>
-
-      {/* Destaques e Melhorias */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Destaques */}
-        <div className="card">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Star className="w-5 h-5 text-yellow-400" />
-            Destaques
-          </h3>
-          <ul className="space-y-2">
-            {evaluation.highlights.map((highlight, index) => (
-              <li key={index} className="flex items-start gap-2 text-gray-300">
-                <span className="text-green-400 mt-1">✓</span>
-                {highlight}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Sugestões de Melhoria */}
-        <div className="card">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Lightbulb className="w-5 h-5 text-primary-400" />
-            Dicas de Melhoria
-          </h3>
-          <ul className="space-y-2">
-            {evaluation.improvements.map((improvement, index) => (
-              <li key={index} className="flex items-start gap-2 text-gray-300">
-                <span className="text-primary-400 mt-1">→</span>
-                {improvement}
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
 
       {/* Mensagem de Encorajamento */}
@@ -162,45 +122,44 @@ export function ResultsView({ evaluation, video, onTryAgain, onNewSong }: Result
   );
 }
 
-interface CategoryCardProps {
+interface DimensionCardProps {
   icon: React.ReactNode;
   title: string;
   score: number;
-  maxScore: number;
-  feedback: string;
+  detail: string;
+  color: string;
+  bgColor: string;
 }
 
-function CategoryCard({ icon, title, score, maxScore, feedback }: CategoryCardProps) {
-  const percentage = (score / maxScore) * 100;
-
-  const getBarColor = (pct: number): string => {
-    if (pct >= 80) return 'bg-green-500';
-    if (pct >= 60) return 'bg-yellow-500';
-    if (pct >= 40) return 'bg-orange-500';
+function DimensionCard({ icon, title, score, detail, color, bgColor }: DimensionCardProps) {
+  const getBarColor = (s: number): string => {
+    if (s >= 80) return 'bg-green-500';
+    if (s >= 60) return 'bg-yellow-500';
+    if (s >= 40) return 'bg-orange-500';
     return 'bg-red-500';
   };
 
   return (
     <div className="card">
       <div className="flex items-center gap-3 mb-4">
-        <div className="text-karaoke-accent">{icon}</div>
+        <div className={color}>{icon}</div>
         <h4 className="font-semibold text-white">{title}</h4>
       </div>
 
-      <div className="mb-3">
-        <div className="flex justify-between text-sm mb-1">
+      <div className="mb-4">
+        <div className="flex justify-between text-sm mb-2">
           <span className="text-gray-400">Pontuação</span>
-          <span className="text-white font-bold">{score}/{maxScore}</span>
+          <span className={`font-bold ${color}`}>{score}/100</span>
         </div>
-        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
           <div
-            className={`h-full ${getBarColor(percentage)} transition-all duration-1000`}
-            style={{ width: `${percentage}%` }}
+            className={`h-full ${getBarColor(score)} transition-all duration-1000`}
+            style={{ width: `${score}%` }}
           />
         </div>
       </div>
 
-      <p className="text-sm text-gray-400">{feedback}</p>
+      <p className="text-sm text-gray-300 leading-relaxed">{detail}</p>
     </div>
   );
 }

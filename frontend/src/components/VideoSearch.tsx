@@ -1,91 +1,69 @@
-import { useState } from 'react';
-import { Search, Play, Clock, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Play, User, Globe } from 'lucide-react';
 import { KaraokeVideo } from '../types';
+import { getCatalog, searchVideos } from '../services/api';
 
 interface VideoSearchProps {
   onVideoSelect: (video: KaraokeVideo) => void;
 }
 
-// Videos de karaokê populares para demonstração
-const DEMO_VIDEOS: KaraokeVideo[] = [
-  {
-    id: 'pXRviuL6vMY',
-    title: 'Evidências - Chitãozinho e Xororó (Karaokê)',
-    thumbnail: 'https://img.youtube.com/vi/pXRviuL6vMY/mqdefault.jpg',
-    duration: '4:32',
-    artist: 'Chitãozinho e Xororó',
-    song: 'Evidências',
-  },
-  {
-    id: '1jQFdz0FClE',
-    title: 'Anunciação - Alceu Valença (Karaokê)',
-    thumbnail: 'https://img.youtube.com/vi/1jQFdz0FClE/mqdefault.jpg',
-    duration: '4:18',
-    artist: 'Alceu Valença',
-    song: 'Anunciação',
-  },
-  {
-    id: 'hbzGGrHLUxw',
-    title: 'Let It Be - Beatles (Karaokê)',
-    thumbnail: 'https://img.youtube.com/vi/hbzGGrHLUxw/mqdefault.jpg',
-    duration: '4:03',
-    artist: 'Beatles',
-    song: 'Let It Be',
-  },
-  {
-    id: 'fJ9rUzIMcZQ',
-    title: 'Bohemian Rhapsody - Queen (Karaokê)',
-    thumbnail: 'https://img.youtube.com/vi/fJ9rUzIMcZQ/mqdefault.jpg',
-    duration: '5:55',
-    artist: 'Queen',
-    song: 'Bohemian Rhapsody',
-  },
-  {
-    id: 'YkgkThdzX-8',
-    title: 'Shallow - Lady Gaga (Karaokê)',
-    thumbnail: 'https://img.youtube.com/vi/YkgkThdzX-8/mqdefault.jpg',
-    duration: '3:35',
-    artist: 'Lady Gaga',
-    song: 'Shallow',
-  },
-  {
-    id: 'RBumgq5yVrA',
-    title: 'Perfect - Ed Sheeran (Karaokê)',
-    thumbnail: 'https://img.youtube.com/vi/RBumgq5yVrA/mqdefault.jpg',
-    duration: '4:23',
-    artist: 'Ed Sheeran',
-    song: 'Perfect',
-  },
-];
-
 export function VideoSearch({ onVideoSelect }: VideoSearchProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [videos, setVideos] = useState<KaraokeVideo[]>(DEMO_VIDEOS);
+  const [videos, setVideos] = useState<KaraokeVideo[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Carregar catálogo ao iniciar
+  useEffect(() => {
+    loadCatalog();
+  }, []);
+
+  const loadCatalog = async () => {
+    setIsLoading(true);
+    try {
+      const catalog = await getCatalog();
+      setVideos(catalog);
+    } catch (error) {
+      console.error('Erro ao carregar catálogo:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
-      setVideos(DEMO_VIDEOS);
+      loadCatalog();
       return;
     }
 
     setIsSearching(true);
-
-    // Filter demo videos based on search query
-    const filtered = DEMO_VIDEOS.filter(
-      video =>
-        video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        video.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        video.song.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    setVideos(filtered.length > 0 ? filtered : DEMO_VIDEOS);
-    setIsSearching(false);
+    try {
+      const results = await searchVideos(searchQuery);
+      setVideos(results);
+    } catch (error) {
+      console.error('Erro na busca:', error);
+    } finally {
+      setIsSearching(false);
+    }
   };
+
+  const getLanguageLabel = (lang: string) => {
+    switch (lang) {
+      case 'pt-BR': return '🇧🇷 PT';
+      case 'en': return '🇺🇸 EN';
+      case 'es': return '🇪🇸 ES';
+      default: return lang;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-karaoke-accent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -94,7 +72,7 @@ export function VideoSearch({ onVideoSelect }: VideoSearchProps) {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
           <input
             type="text"
-            placeholder="Buscar músicas de karaokê..."
+            placeholder="Buscar por música, artista ou código..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="input-field pl-12"
@@ -105,20 +83,21 @@ export function VideoSearch({ onVideoSelect }: VideoSearchProps) {
         </button>
       </form>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {videos.map((video) => (
           <VideoCard
-            key={video.id}
+            key={video.code}
             video={video}
             onSelect={() => onVideoSelect(video)}
+            languageLabel={getLanguageLabel(video.language)}
           />
         ))}
       </div>
 
       {videos.length === 0 && (
         <div className="text-center py-12 text-gray-400">
-          <Music className="w-16 h-16 mx-auto mb-4 opacity-50" />
-          <p>Nenhum vídeo encontrado</p>
+          <MusicIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          <p>Nenhuma música encontrada</p>
           <p className="text-sm mt-2">Tente buscar por outro termo</p>
         </div>
       )}
@@ -129,9 +108,10 @@ export function VideoSearch({ onVideoSelect }: VideoSearchProps) {
 interface VideoCardProps {
   video: KaraokeVideo;
   onSelect: () => void;
+  languageLabel: string;
 }
 
-function VideoCard({ video, onSelect }: VideoCardProps) {
+function VideoCard({ video, onSelect, languageLabel }: VideoCardProps) {
   return (
     <button
       onClick={onSelect}
@@ -146,9 +126,14 @@ function VideoCard({ video, onSelect }: VideoCardProps) {
         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <Play className="w-12 h-12 text-white" />
         </div>
-        <span className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-xs text-white flex items-center gap-1">
-          <Clock className="w-3 h-3" />
-          {video.duration}
+        {/* Código da música */}
+        <span className="absolute top-2 left-2 bg-karaoke-accent px-2 py-1 rounded text-xs text-white font-mono">
+          #{video.code}
+        </span>
+        {/* Idioma */}
+        <span className="absolute top-2 right-2 bg-black/80 px-2 py-1 rounded text-xs text-white flex items-center gap-1">
+          <Globe className="w-3 h-3" />
+          {languageLabel}
         </span>
       </div>
 
@@ -164,7 +149,7 @@ function VideoCard({ video, onSelect }: VideoCardProps) {
   );
 }
 
-function Music(props: { className?: string }) {
+function MusicIcon(props: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

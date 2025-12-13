@@ -4,9 +4,7 @@ const API_BASE = '/api';
 
 export async function evaluatePerformance(
   transcription: string,
-  songTitle: string,
-  artist: string,
-  originalLyrics?: string
+  songCode: string
 ): Promise<PerformanceEvaluation> {
   const response = await fetch(`${API_BASE}/evaluate`, {
     method: 'POST',
@@ -15,21 +13,29 @@ export async function evaluatePerformance(
     },
     body: JSON.stringify({
       transcription,
-      songTitle,
-      artist,
-      originalLyrics,
+      songCode,
     }),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Erro ao avaliar performance');
+    throw new Error(error.error || 'Erro ao avaliar performance');
   }
 
   return response.json();
 }
 
-export async function searchKaraokeVideos(query: string): Promise<KaraokeVideo[]> {
+export async function getCatalog(): Promise<KaraokeVideo[]> {
+  const response = await fetch(`${API_BASE}/videos/catalog`);
+
+  if (!response.ok) {
+    throw new Error('Erro ao buscar catálogo');
+  }
+
+  return response.json();
+}
+
+export async function searchVideos(query: string): Promise<KaraokeVideo[]> {
   const response = await fetch(`${API_BASE}/videos/search?q=${encodeURIComponent(query)}`);
 
   if (!response.ok) {
@@ -39,7 +45,7 @@ export async function searchKaraokeVideos(query: string): Promise<KaraokeVideo[]
   return response.json();
 }
 
-export async function getPopularKaraokeVideos(): Promise<KaraokeVideo[]> {
+export async function getPopularVideos(): Promise<KaraokeVideo[]> {
   const response = await fetch(`${API_BASE}/videos/popular`);
 
   if (!response.ok) {
@@ -47,17 +53,4 @@ export async function getPopularKaraokeVideos(): Promise<KaraokeVideo[]> {
   }
 
   return response.json();
-}
-
-export async function getLyrics(songTitle: string, artist: string): Promise<string> {
-  const response = await fetch(
-    `${API_BASE}/lyrics?song=${encodeURIComponent(songTitle)}&artist=${encodeURIComponent(artist)}`
-  );
-
-  if (!response.ok) {
-    return '';
-  }
-
-  const data = await response.json();
-  return data.lyrics || '';
 }

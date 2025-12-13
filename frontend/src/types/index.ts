@@ -1,29 +1,26 @@
 export interface KaraokeVideo {
   id: string;
+  code: string;
   title: string;
   thumbnail: string;
-  duration: string;
   artist: string;
   song: string;
+  language: 'pt-BR' | 'en' | 'es';
+}
+
+export interface DimensionScore {
+  score: number;
+  detail: string;
 }
 
 export interface PerformanceEvaluation {
   overallScore: number;
-  categories: {
-    lyrics: CategoryScore;
-    timing: CategoryScore;
-    expression: CategoryScore;
+  dimensions: {
+    pitch: DimensionScore;   // Tom
+    lyrics: DimensionScore;  // Letra
+    energy: DimensionScore;  // Animação
   };
-  feedback: string;
-  highlights: string[];
-  improvements: string[];
   encouragement: string;
-}
-
-export interface CategoryScore {
-  score: number;
-  maxScore: number;
-  feedback: string;
 }
 
 export interface RecordingState {
@@ -32,13 +29,6 @@ export interface RecordingState {
   duration: number;
   audioBlob: Blob | null;
   transcription: string;
-}
-
-export interface VideoState {
-  isPlaying: boolean;
-  currentTime: number;
-  duration: number;
-  videoId: string | null;
 }
 
 export interface AppState {

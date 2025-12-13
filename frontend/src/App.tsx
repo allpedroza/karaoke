@@ -31,10 +31,10 @@ function App() {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
+      // Usar o código da música para avaliação
       const evaluation = await evaluatePerformance(
         transcription,
-        state.selectedVideo.song,
-        state.selectedVideo.artist
+        state.selectedVideo.code
       );
 
       setState(prev => ({
@@ -98,9 +98,14 @@ function App() {
                 Bem-vindo ao <span className="text-karaoke-accent">Karaoke AI</span>
               </h2>
               <p className="text-gray-400 text-lg">
-                Escolha uma música, cante junto com o vídeo e receba uma avaliação
+                Escolha uma música do catálogo, cante junto com o vídeo e receba uma avaliação
                 personalizada da sua performance usando inteligência artificial.
               </p>
+              <div className="flex justify-center gap-4 mt-6 text-sm text-gray-500">
+                <span className="flex items-center gap-1">🎵 <strong>Tom</strong></span>
+                <span className="flex items-center gap-1">📝 <strong>Letra</strong></span>
+                <span className="flex items-center gap-1">🔥 <strong>Animação</strong></span>
+              </div>
             </div>
 
             <VideoSearch onVideoSelect={handleVideoSelect} />
