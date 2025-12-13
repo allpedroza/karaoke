@@ -37,7 +37,13 @@ export const SONG_CATALOG: KaraokeSong[] = [
   // ============================================
   // MÚSICAS INTERNACIONAIS (códigos 0100-0199)
   // ============================================
-  // TODO: Adicionar músicas internacionais com IDs verificados
+  {
+    code: '0100',
+    song: 'Rehab',
+    artist: 'Amy Winehouse',
+    youtubeId: 'KS7emVBQ368', // Verificado
+    language: 'en',
+  },
 ];
 
 // Funções auxiliares
