@@ -39,7 +39,7 @@
   --color-success: #16a34a;
   --color-warning: #ca8a04;
   --color-error: #dc2626;
-  --color-card-text: var(--color-flag-green);
+  --color-card-text: var(--color-text-muted);
 }
 
 :root.darkside {
@@ -110,20 +110,12 @@ body {
     color: var(--color-flag-green);
   }
 
-  .light .video-card:hover {
-    color: var(--color-flag-blue);
-  }
-
   .video-card-title {
     color: var(--color-card-text);
   }
 
   .video-card:hover .video-card-title {
     color: var(--color-flag-green);
-  }
-
-  .light .video-card:hover .video-card-title {
-    color: var(--color-flag-blue);
   }
 
   .input-field {

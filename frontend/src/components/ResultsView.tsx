@@ -89,7 +89,7 @@ export function ResultsView({ evaluation, video, onTryAgain, onNewSong }: Result
             icon={<Music2 className="w-5 h-5" />}
             label="Tom"
             score={evaluation.dimensions.pitch.score}
-            color="purple"
+            color="green"
           />
           <ScoreBar
             icon={<FileText className="w-5 h-5" />}
@@ -131,7 +131,7 @@ export function ResultsView({ evaluation, video, onTryAgain, onNewSong }: Result
               title="Tom"
               score={evaluation.dimensions.pitch.score}
               detail={evaluation.dimensions.pitch.detail}
-              color="text-purple-400"
+              color="text-[var(--color-flag-green)]"
             />
             <DetailCard
               icon={<FileText className="w-5 h-5" />}
@@ -170,14 +170,15 @@ interface ScoreBarProps {
   icon: React.ReactNode;
   label: string;
   score: number;
-  color: 'purple' | 'blue' | 'orange';
+  color: 'purple' | 'blue' | 'orange' | 'green';
 }
 
 function ScoreBar({ icon, label, score, color }: ScoreBarProps) {
   const colorClasses = {
-    purple: 'text-purple-400 bg-purple-500',
-    blue: 'text-blue-400 bg-blue-500',
-    orange: 'text-orange-400 bg-orange-500',
+    purple: 'text-purple-400',
+    blue: 'text-blue-400',
+    orange: 'text-orange-400',
+    green: 'text-[var(--color-flag-green)]',
   };
 
   const getBarColor = (s: number): string => {
@@ -189,14 +190,20 @@ function ScoreBar({ icon, label, score, color }: ScoreBarProps) {
 
   return (
     <div className="text-center">
-      <div className={`flex items-center justify-center gap-2 mb-2 ${colorClasses[color].split(' ')[0]}`}>
+      <div className={`flex items-center justify-center gap-2 mb-2 ${colorClasses[color]}`}>
         {icon}
         <span className="font-medium text-sm">{label}</span>
       </div>
-      <div className="text-2xl font-bold text-theme mb-2">{score}</div>
+      <div
+        className={`text-2xl font-bold mb-2 ${
+          color === 'green' ? 'text-[var(--color-flag-green)]' : 'text-theme'
+        }`}
+      >
+        {score}
+      </div>
       <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
         <div
-          className={`h-full ${getBarColor(score)} transition-all duration-1000`}
+          className={`h-full ${color === 'green' ? 'bg-[var(--color-flag-green)]' : getBarColor(score)} transition-all duration-1000`}
           style={{ width: `${score}%` }}
         />
       </div>
