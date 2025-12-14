@@ -127,7 +127,10 @@ function VideoCard({ video, onSelect, languageLabel }: VideoCardProps) {
           <Play className="w-12 h-12 text-white" />
         </div>
         {/* Código da música */}
-        <span className="absolute top-2 left-2 bg-karaoke-accent px-2 py-1 rounded text-xs text-white font-mono">
+        <span
+          className="absolute top-2 left-2 px-2 py-1 rounded text-xs text-white font-mono"
+          style={{ backgroundColor: 'var(--color-accent)' }}
+        >
           #{video.code}
         </span>
         {/* Idioma */}
@@ -147,10 +150,6 @@ function VideoCard({ video, onSelect, languageLabel }: VideoCardProps) {
       </p>
 
       <div className="flex flex-wrap gap-2 mt-3 text-xs text-theme-secondary">
-        <span className="flex items-center gap-1 bg-theme-secondary border border-theme px-2 py-1 rounded-full">
-          <Globe className="w-3 h-3" />
-          {languageLabel}
-        </span>
         <span className="flex items-center gap-1 bg-theme-secondary border border-theme px-2 py-1 rounded-full">
           <Tag className="w-3 h-3" />
           {video.genre}
