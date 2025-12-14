@@ -68,9 +68,18 @@ NODE_ENV=development
 
 ### Banco de dados (SQLite)
 
-O backend agora persiste o histórico de sessões em um banco SQLite local usando `better-sqlite3`:
+O backend agora persiste o histórico de sessões em um banco SQLite local usando `better-sqlite3`. Se o catálogo (`/api/videos/catalog`) não responde, normalmente é porque o binário nativo do `better-sqlite3` falhou na instalação por falta das dependências de compilação do SQLite.
 
-- O arquivo do banco é criado automaticamente em `backend/karaoke.db` na primeira execução do servidor, não sendo necessário rodar migrações manuais.
+1. **Instale o SQLite + toolchain de build** (necessários para compilar `better-sqlite3`):
+   - Ubuntu/Debian: `sudo apt-get update && sudo apt-get install -y sqlite3 libsqlite3-dev build-essential python3`
+   - macOS (Homebrew): `brew install sqlite`
+   - Windows (WSL): siga os passos do Ubuntu acima.
+2. **Reinstale as dependências do projeto** após instalar o SQLite para forçar a compilação do módulo: `rm -rf node_modules && npm install`.
+3. **Suba o backend** (`npm run dev:backend`) e verifique no log se não há erro de `better-sqlite3`.
+
+Sobre o arquivo do banco:
+
+- Ele é criado automaticamente em `backend/karaoke.db` na primeira execução, não sendo necessário rodar migrações manuais.
 - Garanta permissão de escrita na pasta `backend/` para que a aplicação consiga criar e atualizar o arquivo do banco.
 - Para inspecionar ou limpar os dados localmente, use o cliente do SQLite (`sqlite3 backend/karaoke.db`) ou simplesmente remova o arquivo para reiniciar o histórico.
 - Em produção, monte um volume persistente apontando para `backend/karaoke.db` para não perder o histórico de pontuações entre deploys.
