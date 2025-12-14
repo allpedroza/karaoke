@@ -45,6 +45,7 @@ karaoke-ai/
 - Node.js 18+
 - npm (o projeto usa workspaces)
 - Chave de API do Anthropic Claude
+- Ambiente com suporte a SQLite (o backend usa `better-sqlite3`)
 
 ### Instalação e ambiente
 
@@ -64,6 +65,15 @@ ANTHROPIC_API_KEY=sua-chave-aqui
 PORT=3001
 NODE_ENV=development
 ```
+
+### Banco de dados (SQLite)
+
+O backend agora persiste o histórico de sessões em um banco SQLite local usando `better-sqlite3`:
+
+- O arquivo do banco é criado automaticamente em `backend/karaoke.db` na primeira execução do servidor, não sendo necessário rodar migrações manuais.
+- Garanta permissão de escrita na pasta `backend/` para que a aplicação consiga criar e atualizar o arquivo do banco.
+- Para inspecionar ou limpar os dados localmente, use o cliente do SQLite (`sqlite3 backend/karaoke.db`) ou simplesmente remova o arquivo para reiniciar o histórico.
+- Em produção, monte um volume persistente apontando para `backend/karaoke.db` para não perder o histórico de pontuações entre deploys.
 
 ### Desenvolvimento
 
