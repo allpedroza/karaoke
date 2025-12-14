@@ -53,7 +53,11 @@ export function RankingsPanel() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'America/Sao_Paulo',
+    });
   };
 
   return (
@@ -117,7 +121,7 @@ export function RankingsPanel() {
           {currentRanking.map((entry, index) => (
             <div
               key={`${entry.player_name}-${entry.created_at}`}
-              className="dashboard-row"
+              className="dashboard-row justify-between items-start"
               style={{
                 background:
                   index === 0
@@ -137,7 +141,7 @@ export function RankingsPanel() {
                     : undefined,
               }}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="text-xl font-semibold w-10 text-center text-theme">
                   {getMedalEmoji(index)}
                 </div>
@@ -149,7 +153,7 @@ export function RankingsPanel() {
                 </div>
               </div>
 
-              <div className="text-right">
+              <div className="text-right ml-3">
                 <p className={`font-bold text-lg ${getScoreColor(entry.score)}`}>
                   {entry.score}
                 </p>

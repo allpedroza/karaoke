@@ -52,6 +52,8 @@ export interface TopSong {
   avg_score: number;
 }
 
+const TIMEZONE_OFFSET = '-3 hours';
+
 // Registrar uma sessão
 export function recordSession(
   playerName: string,
@@ -83,12 +85,12 @@ export function getDailyRanking(limit: number = 5): RankingEntry[] {
   const stmt = db.prepare(`
     SELECT player_name, song_title, artist, score, created_at
     FROM sessions
-    WHERE date(created_at) = date('now', 'localtime')
+    WHERE date(created_at, ?) = date('now', ?)
     ORDER BY score DESC
     LIMIT ?
   `);
 
-  return stmt.all(limit) as RankingEntry[];
+  return stmt.all(TIMEZONE_OFFSET, TIMEZONE_OFFSET, limit) as RankingEntry[];
 }
 
 // Ranking geral (Top 5)
@@ -113,13 +115,13 @@ export function getTopSongsLastMonth(limit: number = 5): TopSong[] {
       COUNT(*) as play_count,
       ROUND(AVG(score), 1) as avg_score
     FROM sessions
-    WHERE created_at >= datetime('now', '-30 days')
+    WHERE datetime(created_at, ?) >= datetime('now', '-30 days', ?)
     GROUP BY song_code
     ORDER BY play_count DESC
     LIMIT ?
   `);
 
-  return stmt.all(limit) as TopSong[];
+  return stmt.all(TIMEZONE_OFFSET, TIMEZONE_OFFSET, limit) as TopSong[];
 }
 
 // Histórico de um jogador
