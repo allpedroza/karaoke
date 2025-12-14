@@ -8,8 +8,8 @@
   --color-bg: #0f0f23;
   --color-card: #1a1a2e;
   --color-secondary: #16213e;
-  --color-accent: #e94560;
-  --color-accent-hover: #dc2626;
+  --color-accent: #009b3a;
+  --color-accent-hover: #00762c;
   --color-text: #ffffff;
   --color-text-muted: #9ca3af;
   --color-text-secondary: #6b7280;
@@ -25,8 +25,8 @@
   --color-bg: #f8fafc;
   --color-card: #ffffff;
   --color-secondary: #e2e8f0;
-  --color-accent: #e94560;
-  --color-accent-hover: #dc2626;
+  --color-accent: #009b3a;
+  --color-accent-hover: #00762c;
   --color-text: #1e293b;
   --color-text-muted: #64748b;
   --color-text-secondary: #94a3b8;
@@ -42,8 +42,8 @@
   --color-bg: #0f0f23;
   --color-card: #1a1a2e;
   --color-secondary: #16213e;
-  --color-accent: #e94560;
-  --color-accent-hover: #dc2626;
+  --color-accent: #009b3a;
+  --color-accent-hover: #00762c;
   --color-text: #ffffff;
   --color-text-muted: #9ca3af;
   --color-text-secondary: #6b7280;
@@ -164,7 +164,7 @@ body {
 }
 
 .animated-gradient {
-  background: linear-gradient(-45deg, #e94560, #0ea5e9, #e94560, #16213e);
+  background: linear-gradient(-45deg, #009b3a, #0ea5e9, #009b3a, #16213e);
   background-size: 400% 400%;
   animation: gradient 15s ease infinite;
 }

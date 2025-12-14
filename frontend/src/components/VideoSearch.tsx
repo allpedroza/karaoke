@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Play, User, Globe } from 'lucide-react';
+import { Search, Play, User, Globe, Clock3, Tag } from 'lucide-react';
 import { KaraokeVideo } from '../types';
 import { getCatalog, searchVideos } from '../services/api';
 
@@ -127,7 +127,10 @@ function VideoCard({ video, onSelect, languageLabel }: VideoCardProps) {
           <Play className="w-12 h-12 text-white" />
         </div>
         {/* Código da música */}
-        <span className="absolute top-2 left-2 bg-karaoke-accent px-2 py-1 rounded text-xs text-white font-mono">
+        <span
+          className="absolute top-2 left-2 px-2 py-1 rounded text-xs text-white font-mono"
+          style={{ backgroundColor: 'var(--color-accent)' }}
+        >
           #{video.code}
         </span>
         {/* Idioma */}
@@ -145,6 +148,17 @@ function VideoCard({ video, onSelect, languageLabel }: VideoCardProps) {
         <User className="w-4 h-4" />
         {video.artist}
       </p>
+
+      <div className="flex flex-wrap gap-2 mt-3 text-xs text-theme-secondary">
+        <span className="flex items-center gap-1 bg-theme-secondary border border-theme px-2 py-1 rounded-full">
+          <Tag className="w-3 h-3" />
+          {video.genre}
+        </span>
+        <span className="flex items-center gap-1 bg-theme-secondary border border-theme px-2 py-1 rounded-full">
+          <Clock3 className="w-3 h-3" />
+          {video.duration}
+        </span>
+      </div>
     </button>
   );
 }
