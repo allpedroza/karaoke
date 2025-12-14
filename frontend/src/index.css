@@ -8,7 +8,7 @@
   --color-flag-blue: #002776;
 
   /* Darkside Theme (default) */
-  --color-bg: #0b2a5c;
+  --color-bg: #0f0f23;
   --color-card: #1a1a2e;
   --color-secondary: #16213e;
   --color-accent: #009b3a;
@@ -44,7 +44,7 @@
 
 :root.darkside {
   /* Darkside Theme (explicit) */
-  --color-bg: #0b2a5c;
+  --color-bg: #0f0f23;
   --color-card: #1a1a2e;
   --color-secondary: #16213e;
   --color-accent: #009b3a;
