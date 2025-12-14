@@ -56,6 +56,8 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
   const timerRef = useRef<number | null>(null);
   const transcriptRef = useRef<string>('');
   const streamRef = useRef<MediaStream | null>(null);
+  const isRecordingRef = useRef(isRecording);
+  const isPausedRef = useRef(isPaused);
 
   // Pitch detection
   const {
@@ -65,6 +67,14 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
     stopAnalysis,
     resetAnalysis,
   } = usePitchDetection();
+
+  useEffect(() => {
+    isRecordingRef.current = isRecording;
+  }, [isRecording]);
+
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
 
   // Setup speech recognition com idioma dinâmico
   useEffect(() => {
@@ -104,7 +114,7 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
 
       recognition.onend = () => {
         // Restart if still recording
-        if (isRecording && !isPaused && recognitionRef.current) {
+        if (isRecordingRef.current && !isPausedRef.current && recognitionRef.current) {
           try {
             recognitionRef.current.start();
           } catch {
@@ -121,7 +131,7 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
         recognitionRef.current.stop();
       }
     };
-  }, [isRecording, isPaused, language]); // Adiciona language como dependência
+  }, [language]); // Adiciona language como dependência
 
   const startRecording = useCallback(async () => {
     try {

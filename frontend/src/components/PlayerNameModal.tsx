@@ -49,23 +49,23 @@ export function PlayerNameModal({ isOpen, video, onConfirm, onCancel }: PlayerNa
       onKeyDown={handleKeyDown}
     >
       <div
-        className="bg-gradient-to-br from-purple-900/90 to-indigo-900/90 border border-purple-500/30 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl"
+        className="bg-gradient-to-br from-[rgba(0,39,118,0.85)] to-[rgba(0,155,58,0.85)] border border-white/10 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="text-center mb-6">
           <div className="text-4xl mb-3">🎤</div>
           <h2 className="text-2xl font-bold text-white mb-2">Quem vai cantar?</h2>
-          <p className="text-purple-200 text-sm">
+          <p className="text-blue-50/90 text-sm">
             Digite seu nome para aparecer no ranking!
           </p>
         </div>
 
         {/* Song Info */}
-        <div className="bg-black/30 rounded-lg p-4 mb-6">
-          <p className="text-purple-300 text-xs uppercase tracking-wide mb-1">Música selecionada</p>
+        <div className="bg-black/30 rounded-lg p-4 mb-6 border border-white/10">
+          <p className="text-emerald-100 text-xs uppercase tracking-wide mb-1">Música selecionada</p>
           <p className="text-white font-semibold">{video.title}</p>
-          <p className="text-purple-200 text-sm">{video.artist}</p>
+          <p className="text-emerald-50/90 text-sm">{video.artist}</p>
         </div>
 
         {/* Form */}
@@ -77,7 +77,7 @@ export function PlayerNameModal({ isOpen, video, onConfirm, onCancel }: PlayerNa
             onChange={e => setName(e.target.value)}
             placeholder="Seu nome ou apelido"
             maxLength={30}
-            className="w-full px-4 py-3 bg-white/10 border border-purple-400/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent text-lg"
           />
 
           {/* Buttons */}
@@ -85,14 +85,14 @@ export function PlayerNameModal({ isOpen, video, onConfirm, onCancel }: PlayerNa
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 px-4 py-3 bg-gray-600/50 hover:bg-gray-600/70 text-white rounded-lg transition-colors"
+              className="flex-1 px-4 py-3 bg-white/10 hover:bg-white/15 text-white rounded-lg transition-colors border border-white/10"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={!name.trim()}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] hover:brightness-110 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-900/30"
             >
               Começar! 🎵
             </button>
