@@ -22,7 +22,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   // ============================================
   // MÚSICAS BRASILEIRAS (códigos 0001-0099)
   // ============================================
- [
+ 
   {
     code: '0001',
     song: 'Pais e Filhos',
