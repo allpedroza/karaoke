@@ -66,9 +66,9 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0005',
     song: 'Telefone Mudo',
-    artist: 'Roberto Carlos', // Nota: O ID e a música são clássicos do Trio Parada Dura
+    artist: 'Trio Parada Dura', // Nota: O ID e a música são clássicos do Trio Parada Dura
     youtubeId: 'nJR1pGpG7n0', // Verificado
-    OriginalSongId: '', 
+    OriginalSongId: 'pq2JKVI6F5s', 
     language: 'pt-BR',
     duration: '3:05',
     genre: 'Sertanejo',
@@ -78,7 +78,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Eva',
     artist: 'Ivete Sangalo',
     youtubeId: 'ArQA_uAVPac', // Verificado
-    OriginalSongId: '', 
+    OriginalSongId: 'l86drhSgUEU', 
     language: 'pt-BR',
     duration: '4:04',
     genre: 'Axé',
@@ -98,7 +98,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Várias Queixas',
     artist: 'Os Gilsons',
     youtubeId: '9LKIlW3DhpY', // Verificado
-    OriginalSongId: '', 
+    OriginalSongId: 'bBHPq3UQFsw', 
     language: 'pt-BR',
     duration: '2:47',
     genre: 'MPB',
@@ -108,7 +108,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Burguesinha',
     artist: 'Seu Jorge',
     youtubeId: 'EfTzWbIN0_M', // Verificado
-    OriginalSongId: '',
+    OriginalSongId: 'bWSn9jL1g7I',
     language: 'pt-BR',
     duration: '4:09',
     genre: 'Samba Rock',
@@ -118,7 +118,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Sandra Rosa Madalena',
     artist: 'Sidney Magal',
     youtubeId: 'sk8yiqSR3uI', // Verificado
-    OriginalSongId: '',
+    OriginalSongId: 'xL6ZHzTvm3g',
     language: 'pt-BR',
     duration: '2:39',
     genre: 'Brega/Pop',
@@ -128,7 +128,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Chão de Giz',
     artist: 'Zé Ramalho',
     youtubeId: 'kyLIabrj3Zg', // Verificado
-    OriginalSongId: '',
+    OriginalSongId: 'nL_QNpNOssI',
     language: 'pt-BR',
     duration: '4:45',
     genre: 'MPB',
@@ -138,7 +138,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Vai Lá Vai Lá',
     artist: 'Grupo Revelação',
     youtubeId: 'ek_Kk3uiG0U', // Verificado
-    OriginalSongId: '',
+    OriginalSongId: 'MLrezTSZWMA',
     language: 'pt-BR',
     duration: '3:32',
     genre: 'Pagode',
@@ -148,7 +148,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'De zero a cem',
     artist: 'Os Garotin, Anchietx',
     youtubeId: 'qHI5OH7bVm8', // Verificado
-    OriginalSongId: '', 
+    OriginalSongId: 'uuQK2Q16XuQ', 
     language: 'pt-BR',
     duration: '2:48',
     genre: 'Soul/MPB',
@@ -171,7 +171,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Rehab',
     artist: 'Amy Winehouse',
     youtubeId: 'KS7emVBQ368', // Verificado
-    OriginalSongId: '', 
+    OriginalSongId: 'HoqSO0hAjZw', 
     language: 'en',
     duration: '3:35',
     genre: 'R&B/Soul',
@@ -181,7 +181,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Feel Good Inc.',
     artist: 'Gorillaz',
     youtubeId: 'uQW9ysQrMCE', // Verificado
-    OriginalSongId: '',
+    OriginalSongId: 'HyHNuVaZJ-k',
     language: 'en',
     duration: '3:42',
     genre: 'Alternative/Hip Hop',
