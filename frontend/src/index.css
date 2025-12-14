@@ -22,6 +22,18 @@
   --color-warning: #eab308;
   --color-error: #ef4444;
   --color-card-text: #ffffff;
+
+  /* Dashboard surfaces */
+  --panel-gradient-1: #1c2038;
+  --panel-gradient-2: #111428;
+  --panel-highlight: rgba(0, 155, 58, 0.12);
+  --panel-border-strong: rgba(0, 155, 58, 0.3);
+  --panel-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  --panel-shadow-strong: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --pill-surface: rgba(255, 255, 255, 0.08);
+  --pill-border: rgba(255, 255, 255, 0.14);
+  --row-surface: rgba(255, 255, 255, 0.05);
+  --row-border: rgba(255, 255, 255, 0.12);
 }
 
 :root.light {
@@ -40,6 +52,18 @@
   --color-warning: #ca8a04;
   --color-error: #dc2626;
   --color-card-text: var(--color-text-muted);
+
+  /* Dashboard surfaces */
+  --panel-gradient-1: #ffffff;
+  --panel-gradient-2: #eef2f7;
+  --panel-highlight: rgba(0, 155, 58, 0.08);
+  --panel-border-strong: rgba(0, 155, 58, 0.22);
+  --panel-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
+  --panel-shadow-strong: 0 18px 45px rgba(15, 23, 42, 0.16);
+  --pill-surface: rgba(0, 0, 0, 0.04);
+  --pill-border: rgba(0, 0, 0, 0.08);
+  --row-surface: rgba(0, 0, 0, 0.03);
+  --row-border: rgba(0, 0, 0, 0.08);
 }
 
 :root.darkside {
@@ -58,6 +82,18 @@
   --color-warning: #eab308;
   --color-error: #ef4444;
   --color-card-text: #ffffff;
+
+  /* Dashboard surfaces */
+  --panel-gradient-1: #1c2038;
+  --panel-gradient-2: #111428;
+  --panel-highlight: rgba(0, 155, 58, 0.12);
+  --panel-border-strong: rgba(0, 155, 58, 0.3);
+  --panel-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  --panel-shadow-strong: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --pill-surface: rgba(255, 255, 255, 0.08);
+  --pill-border: rgba(255, 255, 255, 0.14);
+  --row-surface: rgba(255, 255, 255, 0.05);
+  --row-border: rgba(255, 255, 255, 0.12);
 }
 
 body {
@@ -144,6 +180,77 @@ body {
 
   .text-theme-secondary {
     color: var(--color-text-secondary);
+  }
+
+  /* Dashboard cards */
+  .dashboard-card {
+    @apply rounded-2xl p-6 border relative overflow-hidden transition-all duration-300;
+    background: linear-gradient(145deg, var(--panel-gradient-1), var(--panel-gradient-2));
+    border-color: var(--color-border);
+    box-shadow: var(--panel-shadow), 0 0 0 1px var(--panel-border-strong);
+  }
+
+  .dashboard-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 18% 20%, var(--panel-highlight), transparent 40%);
+    pointer-events: none;
+  }
+
+  .dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--panel-shadow-strong), 0 0 0 1px var(--panel-border-strong);
+  }
+
+  .dashboard-chip {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider border;
+    background: var(--pill-surface);
+    border-color: var(--pill-border);
+    color: var(--color-text);
+  }
+
+  .ghost-button {
+    @apply inline-flex items-center gap-2 text-sm font-semibold px-3 py-2 rounded-lg border transition-all duration-200;
+    background: var(--pill-surface);
+    border-color: var(--pill-border);
+    color: var(--color-text);
+  }
+
+  .ghost-button:hover:not(:disabled) {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+  }
+
+  .ghost-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .tab-button {
+    @apply flex-1 py-2 px-4 rounded-xl font-semibold transition-all border;
+    background: var(--pill-surface);
+    border-color: var(--pill-border);
+    color: var(--color-text);
+  }
+
+  .tab-button--active {
+    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 10px 30px rgba(0, 155, 58, 0.3);
+  }
+
+  .dashboard-row {
+    @apply flex items-center gap-3 p-3 rounded-xl transition-all duration-200 border;
+    background: var(--row-surface);
+    border-color: var(--row-border);
+  }
+
+  .dashboard-row:hover {
+    border-color: var(--color-accent);
+    transform: translateX(2px);
   }
 
   /* Theme-aware backgrounds */
