@@ -5,6 +5,7 @@ import { KaraokePlayer } from './components/KaraokePlayer';
 import { ResultsView } from './components/ResultsView';
 import { PlayerNameModal } from './components/PlayerNameModal';
 import { RankingsPanel } from './components/RankingsPanel';
+import { TopSongsPanel } from './components/TopSongsPanel';
 import { KaraokeVideo, AppState, PerformanceData } from './types';
 import { evaluatePerformance, recordSession } from './services/api';
 import { playDrumRoll, playScoreSound, stopAllSounds } from './services/soundEffects';
@@ -161,9 +162,10 @@ function App() {
                 <VideoSearch onVideoSelect={handleVideoSelect} />
               </div>
 
-              {/* Rankings (1/3) */}
-              <div className="lg:col-span-1">
+              {/* Rankings e Top Songs (1/3) */}
+              <div className="lg:col-span-1 space-y-6">
                 <RankingsPanel />
+                <TopSongsPanel />
               </div>
             </div>
           </div>
