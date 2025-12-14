@@ -43,7 +43,7 @@ export function ResultsView({ evaluation, video, onTryAgain, onNewSong }: Result
       <div className="text-center mb-8">
         <p className="text-karaoke-accent font-mono mb-2">#{video.code}</p>
         <h2 className="text-2xl font-bold text-theme mb-2">
-          Resultado da Performance
+          Como foi o seu show
         </h2>
         <p className="text-theme-muted">
           {video.song} - {video.artist}

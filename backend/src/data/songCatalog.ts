@@ -153,7 +153,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     duration: '2:48',
     genre: 'Soul/MPB',
   },
-   {
+  {
     code: '0014',
     song: 'Dezesseis',
     artist: 'Legião Urbana',
@@ -162,6 +162,56 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '4:38',
     genre: 'Rock Nacional',
+  },
+  {
+    code: '0015',
+    song: 'Rap do Solitário',
+    artist: 'MC Marcinho',
+    youtubeId: 'qfgFJHj3vSI', // Verificado
+    OriginalSongId: '0t0Y5pWm4wE',
+    language: 'pt-BR',
+    duration: '3:55',
+    genre: 'Funk Melody',
+  },
+  {
+    code: '0016',
+    song: 'Glamurosa',
+    artist: 'MC Marcinho',
+    youtubeId: 'd6U1MbLMDVw', // Verificado
+    OriginalSongId: 'E_-aqRkADNE',
+    language: 'pt-BR',
+    duration: '3:41',
+    genre: 'Funk Melody',
+  },
+  {
+    code: '0017',
+    song: 'Garota Nota 100',
+    artist: 'MC Marcinho',
+    youtubeId: 'dKpVuuKcugs', // Verificado
+    OriginalSongId: 'x3b1awtKQ7Q',
+    language: 'pt-BR',
+    duration: '3:52',
+    genre: 'Funk Melody',
+  },
+  {
+    code: '0018',
+    song: 'Princesa',
+    artist: 'MC Marcinho',
+    youtubeId: 'ndVU9blYYF8', // Verificado
+    OriginalSongId: 'KaJwzeEWGCM',
+    language: 'pt-BR',
+    duration: '4:05',
+    genre: 'Funk Melody',
+  },
+  {
+    code: '0019',
+    song: 'Tudo é Festa',
+    artist: 'MC Marcinho',
+    youtubeId: 'pd9LB3Kz1Ug', // Verificado
+    OriginalSongId: '0iA5JGmLoLo',
+    language: 'pt-BR',
+    duration: '3:34',
+    genre: 'Funk Melody',
   },
   // ============================================
   // MÚSICAS INTERNACIONAIS (códigos 0100-0199)
