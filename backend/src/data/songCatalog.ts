@@ -153,7 +153,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     duration: '2:48',
     genre: 'Soul/MPB',
   },
-   {
+  {
     code: '0014',
     song: 'Dezesseis',
     artist: 'Legião Urbana',
@@ -162,6 +162,56 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '4:38',
     genre: 'Rock Nacional',
+  },
+  {
+    code: '0015',
+    song: 'Rap do Solitário',
+    artist: 'MC Marcinho',
+    youtubeId: 'qfgFJHj3vSI', // Verificado
+    OriginalSongId: '0t0Y5pWm4wE',
+    language: 'pt-BR',
+    duration: '3:55',
+    genre: 'Funk Melody',
+  },
+  {
+    code: '0016',
+    song: 'Glamurosa',
+    artist: 'MC Marcinho',
+    youtubeId: 'd6U1MbLMDVw', // Verificado
+    OriginalSongId: 'E_-aqRkADNE',
+    language: 'pt-BR',
+    duration: '3:41',
+    genre: 'Funk Melody',
+  },
+  {
+    code: '0017',
+    song: 'Garota Nota 100',
+    artist: 'MC Marcinho',
+    youtubeId: 'dKpVuuKcugs', // Verificado
+    OriginalSongId: 'x3b1awtKQ7Q',
+    language: 'pt-BR',
+    duration: '3:52',
+    genre: 'Funk Melody',
+  },
+  {
+    code: '0018',
+    song: 'Princesa',
+    artist: 'MC Marcinho',
+    youtubeId: 'ndVU9blYYF8', // Verificado
+    OriginalSongId: 'KaJwzeEWGCM',
+    language: 'pt-BR',
+    duration: '4:05',
+    genre: 'Funk Melody',
+  },
+  {
+    code: '0019',
+    song: 'Tudo é Festa',
+    artist: 'MC Marcinho',
+    youtubeId: 'pd9LB3Kz1Ug', // Verificado
+    OriginalSongId: '0iA5JGmLoLo',
+    language: 'pt-BR',
+    duration: '3:34',
+    genre: 'Funk Melody',
   },
   // ============================================
   // MÚSICAS INTERNACIONAIS (códigos 0100-0199)
@@ -192,14 +242,32 @@ export function getSongByCode(code: string): KaraokeSong | undefined {
   return SONG_CATALOG.find(song => song.code === code);
 }
 
+const LANGUAGE_KEYWORDS: Record<KaraokeSong['language'], string[]> = {
+  'pt-BR': ['pt', 'ptbr', 'pt-br', 'br', 'portugues', 'portuguesa', 'portuguese', 'brasileiro', 'brasileira'],
+  en: ['en', 'eng', 'ingles', 'inglesa', 'english'],
+  es: ['es', 'esp', 'espanhol', 'espanhois', 'espanol', 'espanola', 'español', 'española', 'spanish'],
+};
+
+const normalize = (value: string) => value.toLowerCase().normalize('NFD').replace(/[^\p{L}\p{N}\s-]/gu, '').replace(/[\u0300-\u036f]/g, '');
+
 export function searchSongs(query: string): KaraokeSong[] {
-  const q = query.toLowerCase();
-  return SONG_CATALOG.filter(
-    song =>
-      song.song.toLowerCase().includes(q) ||
-      song.artist.toLowerCase().includes(q) ||
-      song.code.includes(q)
-  );
+  const normalizedQuery = normalize(query);
+
+  return SONG_CATALOG.filter((song) => {
+    const titleMatch = normalize(song.song).includes(normalizedQuery);
+    const artistMatch = normalize(song.artist).includes(normalizedQuery);
+    const genreMatch = normalize(song.genre).includes(normalizedQuery);
+    const codeMatch = song.code.includes(query.trim());
+
+    const languageKeywords = LANGUAGE_KEYWORDS[song.language];
+    const languageMatch = languageKeywords.some((keyword) =>
+      normalizedQuery === keyword ||
+      normalizedQuery.includes(keyword) ||
+      keyword.includes(normalizedQuery)
+    );
+
+    return titleMatch || artistMatch || codeMatch || genreMatch || languageMatch;
+  });
 }
 
 export function getSongsByLanguage(language: KaraokeSong['language']): KaraokeSong[] {

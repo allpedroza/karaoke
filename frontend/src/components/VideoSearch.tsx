@@ -72,7 +72,7 @@ export function VideoSearch({ onVideoSelect }: VideoSearchProps) {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
           <input
             type="text"
-            placeholder="Buscar por música, artista ou código..."
+            placeholder="Buscar por música, artista, código, gênero ou idioma..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="input-field pl-12"
@@ -115,7 +115,7 @@ function VideoCard({ video, onSelect, languageLabel }: VideoCardProps) {
   return (
     <button
       onClick={onSelect}
-      className="card group hover:border-karaoke-accent transition-all duration-300 text-left"
+      className="card group video-card transition-all duration-300"
     >
       <div className="relative mb-4 rounded-lg overflow-hidden">
         <img
@@ -140,16 +140,16 @@ function VideoCard({ video, onSelect, languageLabel }: VideoCardProps) {
         </span>
       </div>
 
-      <h3 className="font-semibold text-white mb-2 line-clamp-2 group-hover:text-karaoke-accent transition-colors">
+      <h3 className="video-card-title font-semibold mb-2 line-clamp-2 transition-colors text-current">
         {video.song}
       </h3>
 
-      <p className="text-sm text-gray-400 flex items-center gap-2">
+      <p className="text-sm flex items-center gap-2 transition-colors text-current">
         <User className="w-4 h-4" />
         {video.artist}
       </p>
 
-      <div className="flex flex-wrap gap-2 mt-3 text-xs text-theme-secondary">
+      <div className="flex flex-wrap gap-2 mt-3 text-xs text-current transition-colors">
         <span className="flex items-center gap-1 bg-theme-secondary border border-theme px-2 py-1 rounded-full">
           <Tag className="w-3 h-3" />
           {video.genre}
