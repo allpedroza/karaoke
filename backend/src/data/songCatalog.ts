@@ -47,6 +47,62 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: '0H820U7Wpu8', // Verificado
     language: 'pt-BR',
   },
+  {
+    code: '0005',
+    song: 'Telefone Mudo',
+    artist: 'Roberto Carlos',
+    youtubeId: 'nJR1pGpG7n0', // Verificado
+    language: 'pt-BR',
+  },
+  {
+    code: '0006',
+    song: 'Eva',
+    artist: 'Rádio Táxi',
+    youtubeId: 'ArQA_uAVPac', // Verificado
+    language: 'pt-BR',
+  },
+  {
+    code: '0007',
+    song: 'Garçom',
+    artist: 'Reginaldo Rossi',
+    youtubeId: 'dhDBR7AGVhU', // Verificado
+    language: 'pt-BR',
+  },
+  {
+    code: '0008',
+    song: 'Várias Queixas',
+    artist: 'Gilberto Gil',
+    youtubeId: '9LKIlW3DhpY', // Verificado
+    language: 'pt-BR',
+  },
+  {
+    code: '0009',
+    song: 'Burguesinha',
+    artist: 'Seu Jorge',
+    youtubeId: 'EfTzWbIN0_M', // Verificado
+    language: 'pt-BR',
+  },
+  {
+    code: '0010',
+    song: 'Sandra Rosa Madalena',
+    artist: 'Sidney Magal',
+    youtubeId: 'sk8yiqSR3uI', // Verificado
+    language: 'pt-BR',
+  },
+  {
+    code: '0011',
+    song: 'Chão de Giz',
+    artist: 'Zé Ramalho',
+    youtubeId: 'kyLIabrj3Zg', // Verificado
+    language: 'pt-BR',
+  },
+  {
+    code: '0012',
+    song: 'Vai Lá Vai Lá',
+    artist: 'Grupo Revelação',
+    youtubeId: 'ek_Kk3uiG0U', // Verificado
+    language: 'pt-BR',
+  },
 
   // ============================================
   // MÚSICAS INTERNACIONAIS (códigos 0100-0199)
