@@ -8,6 +8,20 @@ export interface KaraokeVideo {
   language: 'pt-BR' | 'en' | 'es';
 }
 
+export interface PitchStats {
+  averageFrequency: number;
+  pitchStability: number;
+  notesDetected: string[];
+  pitchAccuracy: number;
+  totalSamples: number;
+  validSamples: number;
+}
+
+export interface PerformanceData {
+  transcription: string;
+  pitchStats: PitchStats | null;
+}
+
 export interface DimensionScore {
   score: number;
   detail: string;

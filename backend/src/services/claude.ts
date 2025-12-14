@@ -14,12 +14,22 @@ function getAnthropicClient(): Anthropic {
   return anthropicClient;
 }
 
+export interface PitchStats {
+  averageFrequency: number;
+  pitchStability: number;
+  notesDetected: string[];
+  pitchAccuracy: number;
+  totalSamples: number;
+  validSamples: number;
+}
+
 export interface EvaluationInput {
   transcription: string;
   songCode: string;
   songTitle: string;
   artist: string;
   language: string;
+  pitchStats?: PitchStats;
 }
 
 export interface DimensionScore {
@@ -38,7 +48,7 @@ export interface PerformanceEvaluation {
 }
 
 export async function evaluateWithClaude(input: EvaluationInput): Promise<PerformanceEvaluation> {
-  const { transcription, songCode, songTitle, artist, language } = input;
+  const { transcription, songCode, songTitle, artist, language, pitchStats } = input;
 
   const systemPrompt = `Você é um jurado de karaokê especialista, divertido e encorajador.
 
@@ -47,8 +57,25 @@ Sua tarefa é avaliar a performance de um cantor amador comparando a transcriç�
 IMPORTANTE:
 - Você CONHECE a letra original de "${songTitle}" de ${artist}. Use seu conhecimento para comparar.
 - A transcrição pode ter erros do reconhecimento de voz, seja compreensivo.
+- Se dados de análise de pitch forem fornecidos, USE-OS para avaliar o tom com precisão.
 - Avalie de forma justa mas encorajadora.
 - RESPONDA APENAS com JSON válido, sem texto adicional.`;
+
+  // Construir seção de dados de pitch se disponível
+  let pitchSection = '';
+  if (pitchStats && pitchStats.validSamples > 0) {
+    const voicePercentage = Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100);
+    pitchSection = `
+## Dados de Análise de Áudio (REAL - Medidos pelo Sistema):
+- **Frequência média:** ${pitchStats.averageFrequency} Hz
+- **Estabilidade do tom:** ${pitchStats.pitchStability}% (quão consistente foi o tom)
+- **Precisão tonal:** ${pitchStats.pitchAccuracy}% (quão perto das notas musicais)
+- **Notas detectadas:** ${pitchStats.notesDetected.slice(0, 10).join(', ')}${pitchStats.notesDetected.length > 10 ? '...' : ''}
+- **Voz detectada:** ${voicePercentage}% do tempo (${pitchStats.validSamples} amostras de ${pitchStats.totalSamples})
+
+⚠️ USE ESTES DADOS REAIS para avaliar a dimensão TOM! São medições precisas do áudio.
+`;
+  }
 
   const userPrompt = `# Avaliação de Karaokê
 
@@ -59,7 +86,7 @@ IMPORTANTE:
 
 ## Transcrição da Performance do Usuário:
 "${transcription}"
-
+${pitchSection}
 ---
 
 ## Instruções de Avaliação
@@ -68,11 +95,15 @@ Compare a transcrição acima com a letra REAL de "${songTitle}" que você conhe
 
 Avalie em 3 DIMENSÕES (cada uma de 0 a 100):
 
-1. **TOM (pitch)**: Baseado no fluxo e cadência das palavras transcritas, parece que o cantor estava no tom? Palavras claras e bem pronunciadas sugerem bom controle vocal.
+1. **TOM (pitch)**: ${pitchStats && pitchStats.validSamples > 0
+    ? `USE OS DADOS DE ANÁLISE DE ÁUDIO ACIMA! Estabilidade de ${pitchStats.pitchStability}% e precisão de ${pitchStats.pitchAccuracy}% são indicadores REAIS do tom. Baseie seu score principalmente nestes dados.`
+    : 'Baseado no fluxo e cadência das palavras transcritas, parece que o cantor estava no tom? Palavras claras e bem pronunciadas sugerem bom controle vocal.'}
 
 2. **LETRA (lyrics)**: O cantor cantou as palavras corretas? Compare com a letra original. Considere que o reconhecimento de voz pode errar palavras similares.
 
-3. **ANIMAÇÃO (energy)**: O cantor demonstrou energia e emoção? Frases completas, expressões e intensidade nas palavras sugerem animação.
+3. **ANIMAÇÃO (energy)**: O cantor demonstrou energia e emoção? ${pitchStats && pitchStats.validSamples > 0
+    ? `O cantor teve voz detectada em ${Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100)}% do tempo - considere isso!`
+    : 'Frases completas, expressões e intensidade nas palavras sugerem animação.'}
 
 ## Formato de Resposta (JSON):
 
@@ -81,7 +112,7 @@ Avalie em 3 DIMENSÕES (cada uma de 0 a 100):
   "dimensions": {
     "pitch": {
       "score": <0-100>,
-      "detail": "<observação específica e REAL sobre o tom, ex: 'Manteve bem o tom no refrão' ou 'Algumas palavras saíram fora do ritmo esperado'>"
+      "detail": "<observação específica e REAL sobre o tom${pitchStats ? ', mencione a estabilidade e precisão medidas' : ''}, ex: 'Manteve tom estável com ${pitchStats?.pitchStability || 'X'}% de consistência' ou 'O tom variou bastante, precisão de ${pitchStats?.pitchAccuracy || 'Y'}%'>"
     },
     "lyrics": {
       "score": <0-100>,
@@ -98,7 +129,8 @@ Avalie em 3 DIMENSÕES (cada uma de 0 a 100):
 IMPORTANTE:
 - As observações em "detail" devem ser ESPECÍFICAS sobre o que foi cantado, não genéricas.
 - O "encouragement" deve mencionar algo REAL da performance.
-- Se a transcrição estiver muito diferente da música, dê uma nota menor mas seja gentil.`;
+- Se a transcrição estiver muito diferente da música, dê uma nota menor mas seja gentil.
+${pitchStats ? '- Para o TOM: baseie-se PRINCIPALMENTE nos dados de pitch fornecidos, não apenas na transcrição!' : ''}`;
 
   try {
     const anthropic = getAnthropicClient();

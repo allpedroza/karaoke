@@ -131,7 +131,7 @@ interface DimensionCardProps {
   bgColor: string;
 }
 
-function DimensionCard({ icon, title, score, detail, color, bgColor }: DimensionCardProps) {
+function DimensionCard({ icon, title, score, detail, color }: DimensionCardProps) {
   const getBarColor = (s: number): string => {
     if (s >= 80) return 'bg-green-500';
     if (s >= 60) return 'bg-yellow-500';

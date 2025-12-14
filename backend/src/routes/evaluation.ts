@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { evaluateWithClaude } from '../services/claude.js';
+import { evaluateWithClaude, PitchStats } from '../services/claude.js';
 import { getSongByCode } from '../data/songCatalog.js';
 
 export const evaluationRoutes = Router();
@@ -7,11 +7,12 @@ export const evaluationRoutes = Router();
 interface EvaluateRequest {
   transcription: string;
   songCode: string;
+  pitchStats?: PitchStats | null;
 }
 
 evaluationRoutes.post('/evaluate', async (req: Request<object, object, EvaluateRequest>, res: Response) => {
   try {
-    const { transcription, songCode } = req.body;
+    const { transcription, songCode, pitchStats } = req.body;
 
     if (!transcription || !songCode) {
       res.status(400).json({
@@ -31,6 +32,9 @@ evaluationRoutes.post('/evaluate', async (req: Request<object, object, EvaluateR
 
     console.log(`🎤 Avaliando performance de: [${song.code}] ${song.song} - ${song.artist}`);
     console.log(`📄 Transcrição (${transcription.length} chars): "${transcription.substring(0, 100)}..."`);
+    if (pitchStats) {
+      console.log(`🎵 Pitch: estabilidade=${pitchStats.pitchStability}%, precisão=${pitchStats.pitchAccuracy}%, notas=[${pitchStats.notesDetected.slice(0, 5).join(', ')}...]`);
+    }
 
     const evaluation = await evaluateWithClaude({
       transcription,
@@ -38,6 +42,7 @@ evaluationRoutes.post('/evaluate', async (req: Request<object, object, EvaluateR
       songTitle: song.song,
       artist: song.artist,
       language: song.language,
+      pitchStats: pitchStats || undefined,
     });
 
     console.log(`✅ Score: ${evaluation.overallScore}/100`);

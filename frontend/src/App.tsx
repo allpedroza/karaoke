@@ -3,7 +3,7 @@ import { Header } from './components/Header';
 import { VideoSearch } from './components/VideoSearch';
 import { KaraokePlayer } from './components/KaraokePlayer';
 import { ResultsView } from './components/ResultsView';
-import { KaraokeVideo, PerformanceEvaluation, AppState } from './types';
+import { KaraokeVideo, AppState, PerformanceData } from './types';
 import { evaluatePerformance } from './services/api';
 
 function App() {
@@ -25,16 +25,17 @@ function App() {
     }));
   };
 
-  const handleFinishSinging = async (transcription: string) => {
+  const handleFinishSinging = async (data: PerformanceData) => {
     if (!state.selectedVideo) return;
 
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // Usar o código da música para avaliação
+      // Usar o código da música e dados de pitch para avaliação
       const evaluation = await evaluatePerformance(
-        transcription,
-        state.selectedVideo.code
+        data.transcription,
+        state.selectedVideo.code,
+        data.pitchStats
       );
 
       setState(prev => ({
@@ -94,17 +95,15 @@ function App() {
         {state.currentView === 'home' && (
           <div className="space-y-8">
             <div className="text-center max-w-2xl mx-auto">
-              <h2 className="text-4xl font-bold text-white mb-4">
-                Bem-vindo ao <span className="text-karaoke-accent">Karaoke AI</span>
-              </h2>
+              <img src="/logo.png" alt="CantAI" className="h-32 mx-auto mb-4" />
               <p className="text-gray-400 text-lg">
                 Escolha uma música do catálogo, cante junto com o vídeo e receba uma avaliação
                 personalizada da sua performance usando inteligência artificial.
               </p>
-              <div className="flex justify-center gap-4 mt-6 text-sm text-gray-500">
-                <span className="flex items-center gap-1">🎵 <strong>Tom</strong></span>
-                <span className="flex items-center gap-1">📝 <strong>Letra</strong></span>
-                <span className="flex items-center gap-1">🔥 <strong>Animação</strong></span>
+              <div className="flex justify-center gap-6 mt-6 text-sm text-gray-400">
+                <span className="flex items-center gap-2">🎵 <strong>Tom</strong></span>
+                <span className="flex items-center gap-2">📝 <strong>Letra</strong></span>
+                <span className="flex items-center gap-2">🔥 <strong>Energia</strong></span>
               </div>
             </div>
 
@@ -136,7 +135,7 @@ function App() {
       {/* Footer */}
       <footer className="border-t border-gray-800 py-6 mt-12">
         <div className="container mx-auto px-4 text-center text-gray-500 text-sm">
-          <p>Karaoke AI - Avaliação de performance por IA generativa</p>
+          <p>CantAI - Karaokê com avaliação por IA generativa</p>
           <p className="mt-1">Powered by Claude AI</p>
         </div>
       </footer>

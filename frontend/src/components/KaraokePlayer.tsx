@@ -1,40 +1,72 @@
-import { useEffect, useState } from 'react';
-import { Mic, MicOff, Play, Pause, Square, RotateCcw, Send, Loader2 } from 'lucide-react';
-import { KaraokeVideo } from '../types';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { Mic, Play, Pause, Square, RotateCcw, Loader2 } from 'lucide-react';
+import { KaraokeVideo, PerformanceData } from '../types';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 
 interface KaraokePlayerProps {
   video: KaraokeVideo;
-  onFinish: (transcription: string) => void;
+  onFinish: (data: PerformanceData) => void;
   onBack: () => void;
   isEvaluating: boolean;
 }
 
 export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: KaraokePlayerProps) {
-  const {
-    isReady,
-    isPlaying,
-    loadVideo,
-    play,
-    pause,
-    playerRef,
-  } = useYouTubePlayer();
+  const [hasStarted, setHasStarted] = useState(false);
+  const [autoSubmitted, setAutoSubmitted] = useState(false);
 
   const {
     isRecording,
     isPaused,
     transcription,
     duration,
+    pitchStats,
+    currentNote,
     startRecording,
     stopRecording,
     pauseRecording,
     resumeRecording,
     resetRecording,
     error: recordingError,
-  } = useAudioRecorder({ language: video.language }); // Passa idioma da música!
+  } = useAudioRecorder({ language: video.language });
 
-  const [hasStarted, setHasStarted] = useState(false);
+  // Refs para evitar stale closures nos callbacks
+  const transcriptionRef = useRef(transcription);
+  const pitchStatsRef = useRef(pitchStats);
+
+  useEffect(() => {
+    transcriptionRef.current = transcription;
+  }, [transcription]);
+
+  useEffect(() => {
+    pitchStatsRef.current = pitchStats;
+  }, [pitchStats]);
+
+  // Callback quando o vídeo termina
+  const handleVideoEnded = useCallback(() => {
+    if (hasStarted && isRecording && !autoSubmitted) {
+      stopRecording();
+      setAutoSubmitted(true);
+      // Pequeno delay para garantir que a transcrição e pitch foram processados
+      setTimeout(() => {
+        if (transcriptionRef.current.trim()) {
+          onFinish({
+            transcription: transcriptionRef.current,
+            pitchStats: pitchStatsRef.current,
+          });
+        }
+      }, 500);
+    }
+  }, [hasStarted, isRecording, autoSubmitted, stopRecording, onFinish]);
+
+  const {
+    isReady,
+    isEnded,
+    loadVideo,
+    play,
+    pause,
+    playerRef,
+  } = useYouTubePlayer({ onVideoEnded: handleVideoEnded });
 
   useEffect(() => {
     if (isReady) {
@@ -42,10 +74,22 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
     }
   }, [isReady, video.id, loadVideo]);
 
+  // Auto-submit quando vídeo terminar e tiver transcrição
+  useEffect(() => {
+    if (isEnded && hasStarted && !isRecording && transcription.trim() && !autoSubmitted && !isEvaluating) {
+      setAutoSubmitted(true);
+      onFinish({
+        transcription,
+        pitchStats,
+      });
+    }
+  }, [isEnded, hasStarted, isRecording, transcription, pitchStats, autoSubmitted, isEvaluating, onFinish]);
+
   const handleStart = async () => {
     await startRecording();
     play();
     setHasStarted(true);
+    setAutoSubmitted(false);
   };
 
   const handlePause = () => {
@@ -66,11 +110,15 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
   const handleReset = () => {
     resetRecording();
     setHasStarted(false);
+    setAutoSubmitted(false);
   };
 
-  const handleSubmit = () => {
-    if (transcription.trim()) {
-      onFinish(transcription);
+  const handleManualSubmit = () => {
+    if (transcription.trim() && !isEvaluating) {
+      onFinish({
+        transcription,
+        pitchStats,
+      });
     }
   };
 
@@ -85,10 +133,11 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
       {/* Header com info do vídeo */}
       <div className="flex items-center justify-between">
         <div>
+          <span className="text-karaoke-accent font-mono text-sm">#{video.code}</span>
           <h2 className="text-2xl font-bold text-white">{video.song}</h2>
           <p className="text-gray-400">{video.artist}</p>
         </div>
-        <button onClick={onBack} className="btn-secondary text-sm">
+        <button onClick={onBack} className="btn-secondary text-sm" disabled={isEvaluating}>
           Voltar
         </button>
       </div>
@@ -103,26 +152,48 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
 
       {/* Controles de Gravação */}
       <div className="card">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Indicador de gravação */}
             {isRecording && (
-              <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${isPaused ? 'bg-yellow-500' : 'bg-red-500 animate-pulse'}`} />
-                <span className="text-white font-mono">{formatTime(duration)}</span>
+              <div className="flex items-center gap-3">
+                <div className={`w-4 h-4 rounded-full ${isPaused ? 'bg-yellow-500' : 'bg-red-500 animate-pulse'}`} />
+                <span className="text-white font-mono text-lg">{formatTime(duration)}</span>
+
+                {/* Nota atual sendo cantada */}
+                {!isPaused && currentNote && (
+                  <div className="flex items-center gap-2 ml-3 px-3 py-1 bg-karaoke-accent/20 rounded-lg border border-karaoke-accent/50">
+                    <span className="text-karaoke-accent font-bold text-xl">{currentNote}</span>
+                  </div>
+                )}
+
+                {/* Visualização de áudio */}
+                {!isPaused && (
+                  <div className="flex items-end gap-1 h-8 ml-2">
+                    {[...Array(5)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-1.5 bg-karaoke-accent rounded soundwave-bar"
+                        style={{ animationDelay: `${i * 0.1}s` }}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Visualização de áudio */}
-            {isRecording && !isPaused && (
-              <div className="flex items-end gap-1 h-8">
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-1 bg-karaoke-accent rounded soundwave-bar"
-                    style={{ animationDelay: `${i * 0.1}s` }}
-                  />
-                ))}
+            {/* Status quando terminou */}
+            {!isRecording && hasStarted && !isEvaluating && (
+              <div className="flex items-center gap-2 text-green-400">
+                <span>Gravação finalizada</span>
+              </div>
+            )}
+
+            {/* Avaliando */}
+            {isEvaluating && (
+              <div className="flex items-center gap-3 text-karaoke-accent">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Avaliando sua performance...</span>
               </div>
             )}
           </div>
@@ -132,10 +203,10 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
             {!hasStarted ? (
               <button
                 onClick={handleStart}
-                disabled={!isReady}
-                className="btn-primary flex items-center gap-2"
+                disabled={!isReady || isEvaluating}
+                className="btn-primary flex items-center gap-2 text-lg px-8 py-4"
               >
-                <Mic className="w-5 h-5" />
+                <Mic className="w-6 h-6" />
                 Começar a Cantar
               </button>
             ) : (
@@ -163,10 +234,10 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
                       className="btn-primary flex items-center gap-2 bg-red-600 hover:bg-red-700"
                     >
                       <Square className="w-5 h-5" />
-                      Parar
+                      Finalizar
                     </button>
                   </>
-                ) : (
+                ) : !isEvaluating && (
                   <>
                     <button
                       onClick={handleReset}
@@ -175,23 +246,14 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
                       <RotateCcw className="w-5 h-5" />
                       Recomeçar
                     </button>
-                    <button
-                      onClick={handleSubmit}
-                      disabled={!transcription.trim() || isEvaluating}
-                      className="btn-primary flex items-center gap-2"
-                    >
-                      {isEvaluating ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          Avaliando...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-5 h-5" />
-                          Avaliar Performance
-                        </>
-                      )}
-                    </button>
+                    {transcription.trim() && (
+                      <button
+                        onClick={handleManualSubmit}
+                        className="btn-primary flex items-center gap-2"
+                      >
+                        Avaliar Agora
+                      </button>
+                    )}
                   </>
                 )}
               </>
@@ -201,45 +263,45 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
 
         {/* Erro de gravação */}
         {recordingError && (
-          <div className="bg-red-900/30 border border-red-700 rounded-lg p-4 mb-4">
+          <div className="bg-red-900/30 border border-red-700 rounded-lg p-4 mt-4">
             <p className="text-red-400">{recordingError}</p>
           </div>
         )}
+      </div>
 
-        {/* Transcrição em tempo real */}
-        <div className="bg-karaoke-secondary rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-3">
-            {isRecording ? (
-              <Mic className="w-5 h-5 text-karaoke-accent" />
-            ) : (
-              <MicOff className="w-5 h-5 text-gray-500" />
-            )}
-            <span className="text-sm text-gray-400">
-              {isRecording ? 'Ouvindo sua voz...' : 'Transcrição da sua performance'}
-            </span>
-          </div>
-          <div className="min-h-[100px] text-white">
-            {transcription || (
-              <span className="text-gray-500 italic">
-                {hasStarted
-                  ? 'Comece a cantar para ver a transcrição aqui...'
-                  : 'Clique em "Começar a Cantar" para iniciar'}
-              </span>
-            )}
-          </div>
+      {/* Dicas - mostrar apenas antes de começar */}
+      {!hasStarted && (
+        <div className="card bg-karaoke-secondary/50">
+          <h3 className="font-semibold text-white mb-3">Dicas para uma boa avaliação:</h3>
+          <ul className="text-sm text-gray-400 space-y-2">
+            <li className="flex items-center gap-2">
+              <span className="text-karaoke-accent">•</span>
+              Cante junto com a letra do vídeo
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-karaoke-accent">•</span>
+              Mantenha o microfone próximo
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-karaoke-accent">•</span>
+              Evite ruídos de fundo
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="text-karaoke-accent">•</span>
+              A avaliação será enviada automaticamente ao fim da música
+            </li>
+          </ul>
         </div>
-      </div>
+      )}
 
-      {/* Dicas */}
-      <div className="card bg-karaoke-secondary/50">
-        <h3 className="font-semibold text-white mb-2">Dicas para uma boa avaliação:</h3>
-        <ul className="text-sm text-gray-400 space-y-1">
-          <li>• Cante junto com a letra do vídeo</li>
-          <li>• Mantenha o microfone próximo</li>
-          <li>• Evite ruídos de fundo</li>
-          <li>• Pronuncie as palavras claramente</li>
-        </ul>
-      </div>
+      {/* Mensagem durante gravação */}
+      {isRecording && !isPaused && (
+        <div className="text-center py-4">
+          <p className="text-gray-400 text-lg animate-pulse">
+            🎤 Cante junto com o vídeo! A avaliação será feita ao final.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

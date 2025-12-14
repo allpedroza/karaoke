@@ -1,4 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { usePitchDetection } from './usePitchDetection';
+
+export interface PitchStats {
+  averageFrequency: number;
+  pitchStability: number;
+  notesDetected: string[];
+  pitchAccuracy: number;
+  totalSamples: number;
+  validSamples: number;
+}
 
 interface UseAudioRecorderOptions {
   language?: 'pt-BR' | 'en' | 'es';
@@ -10,6 +20,8 @@ interface UseAudioRecorderReturn {
   audioBlob: Blob | null;
   transcription: string;
   duration: number;
+  pitchStats: PitchStats | null;
+  currentNote: string | null;
   startRecording: () => Promise<void>;
   stopRecording: () => void;
   pauseRecording: () => void;
@@ -40,9 +52,19 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const timerRef = useRef<number | null>(null);
   const transcriptRef = useRef<string>('');
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // Pitch detection
+  const {
+    currentPitch,
+    pitchStats,
+    startAnalysis,
+    stopAnalysis,
+    resetAnalysis,
+  } = usePitchDetection();
 
   // Setup speech recognition com idioma dinâmico
   useEffect(() => {
@@ -54,7 +76,7 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
       recognition.interimResults = true;
       recognition.lang = getSpeechLang(language); // Idioma dinâmico!
 
-      recognition.onresult = (event) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         let finalTranscript = '';
         let interimTranscript = '';
 
@@ -73,7 +95,7 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
         setTranscription(transcriptRef.current + interimTranscript);
       };
 
-      recognition.onerror = (event) => {
+      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
         console.error('Speech recognition error:', event.error);
         if (event.error !== 'no-speech') {
           setError(`Erro no reconhecimento de voz: ${event.error}`);
@@ -105,6 +127,7 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
     try {
       setError(null);
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
 
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -131,6 +154,9 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
       setIsRecording(true);
       setIsPaused(false);
 
+      // Start pitch analysis
+      startAnalysis(stream);
+
       // Start speech recognition
       if (recognitionRef.current) {
         try {
@@ -149,13 +175,16 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
       setError('Não foi possível acessar o microfone. Verifique as permissões.');
       console.error('Error starting recording:', err);
     }
-  }, []);
+  }, [startAnalysis]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       setIsPaused(false);
+
+      // Stop pitch analysis
+      stopAnalysis();
 
       if (recognitionRef.current) {
         recognitionRef.current.stop();
@@ -166,7 +195,7 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
         timerRef.current = null;
       }
     }
-  }, [isRecording]);
+  }, [isRecording, stopAnalysis]);
 
   const pauseRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording && !isPaused) {
@@ -210,7 +239,8 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
     setError(null);
     transcriptRef.current = '';
     audioChunksRef.current = [];
-  }, []);
+    resetAnalysis();
+  }, [resetAnalysis]);
 
   return {
     isRecording,
@@ -218,6 +248,8 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
     audioBlob,
     transcription,
     duration,
+    pitchStats,
+    currentNote: currentPitch?.note || null,
     startRecording,
     stopRecording,
     pauseRecording,
@@ -228,9 +260,49 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
 }
 
 // Type declarations for Web Speech API
+interface SpeechRecognitionEvent {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string;
+  message: string;
+}
+
+interface SpeechRecognitionInstance {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onend: (() => void) | null;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognitionInstance;
+}
+
 declare global {
   interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
+    SpeechRecognition: SpeechRecognitionConstructor;
+    webkitSpeechRecognition: SpeechRecognitionConstructor;
   }
 }

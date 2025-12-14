@@ -1,10 +1,11 @@
-import { PerformanceEvaluation, KaraokeVideo } from '../types';
+import { PerformanceEvaluation, KaraokeVideo, PitchStats } from '../types';
 
 const API_BASE = '/api';
 
 export async function evaluatePerformance(
   transcription: string,
-  songCode: string
+  songCode: string,
+  pitchStats: PitchStats | null
 ): Promise<PerformanceEvaluation> {
   const response = await fetch(`${API_BASE}/evaluate`, {
     method: 'POST',
@@ -14,6 +15,7 @@ export async function evaluatePerformance(
     body: JSON.stringify({
       transcription,
       songCode,
+      pitchStats,
     }),
   });
 

@@ -40,6 +40,13 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'Fr794p3aG-g', // Verificado
     language: 'pt-BR',
   },
+  {
+    code: '0004',
+    song: 'Quem de Nós Dois',
+    artist: 'Ana Carolina',
+    youtubeId: '0H820U7Wpu8', // Verificado
+    language: 'pt-BR',
+  },
 
   // ============================================
   // MÚSICAS INTERNACIONAIS (códigos 0100-0199)

@@ -1,8 +1,13 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
+interface UseYouTubePlayerOptions {
+  onVideoEnded?: () => void;
+}
+
 interface UseYouTubePlayerReturn {
   isReady: boolean;
   isPlaying: boolean;
+  isEnded: boolean;
   currentTime: number;
   duration: number;
   loadVideo: (videoId: string) => void;
@@ -46,15 +51,24 @@ interface YTPlayer {
   destroy: () => void;
 }
 
-export function useYouTubePlayer(): UseYouTubePlayerReturn {
+export function useYouTubePlayer(options: UseYouTubePlayerOptions = {}): UseYouTubePlayerReturn {
+  const { onVideoEnded } = options;
+
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isEnded, setIsEnded] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
   const playerRef = useRef<HTMLDivElement>(null);
   const playerInstanceRef = useRef<YTPlayer | null>(null);
   const timeUpdateRef = useRef<number | null>(null);
+  const onVideoEndedRef = useRef(onVideoEnded);
+
+  // Atualizar ref quando callback mudar
+  useEffect(() => {
+    onVideoEndedRef.current = onVideoEnded;
+  }, [onVideoEnded]);
 
   useEffect(() => {
     // Load YouTube IFrame API
@@ -87,6 +101,8 @@ export function useYouTubePlayer(): UseYouTubePlayerReturn {
   const loadVideo = useCallback((videoId: string) => {
     if (!isReady || !playerRef.current) return;
 
+    setIsEnded(false);
+
     if (playerInstanceRef.current) {
       playerInstanceRef.current.loadVideoById(videoId);
       return;
@@ -107,12 +123,23 @@ export function useYouTubePlayer(): UseYouTubePlayerReturn {
         onStateChange: (event) => {
           if (event.data === window.YT.PlayerState.PLAYING) {
             setIsPlaying(true);
+            setIsEnded(false);
             // Start time updates
             timeUpdateRef.current = window.setInterval(() => {
               if (playerInstanceRef.current) {
                 setCurrentTime(playerInstanceRef.current.getCurrentTime());
               }
             }, 1000);
+          } else if (event.data === window.YT.PlayerState.ENDED) {
+            // Vídeo terminou!
+            setIsPlaying(false);
+            setIsEnded(true);
+            if (timeUpdateRef.current) {
+              clearInterval(timeUpdateRef.current);
+              timeUpdateRef.current = null;
+            }
+            // Chamar callback
+            onVideoEndedRef.current?.();
           } else {
             setIsPlaying(false);
             if (timeUpdateRef.current) {
@@ -140,6 +167,7 @@ export function useYouTubePlayer(): UseYouTubePlayerReturn {
   return {
     isReady,
     isPlaying,
+    isEnded,
     currentTime,
     duration,
     loadVideo,
