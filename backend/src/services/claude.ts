@@ -50,87 +50,95 @@ export interface PerformanceEvaluation {
 export async function evaluateWithClaude(input: EvaluationInput): Promise<PerformanceEvaluation> {
   const { transcription, songCode, songTitle, artist, language, pitchStats } = input;
 
-  const systemPrompt = `Você é um jurado de karaokê especialista, divertido e encorajador.
+  const systemPrompt = `Você é um jurado de karaokê experiente, divertido e encorajador. Você está avaliando uma performance ao vivo de karaokê.
 
-Sua tarefa é avaliar a performance de um cantor amador comparando a transcrição da voz dele com a letra REAL da música.
+REGRAS DE LINGUAGEM - MUITO IMPORTANTE:
+- Use linguagem de KARAOKÊ, não técnica. Fale sobre "cantar", "afinação", "voz", "música".
+- NUNCA mencione: "transcrição", "reconhecimento de voz", "captado", "detectado", "sistema", "áudio gravado", "frequência Hz", "porcentagem".
+- Fale como se você tivesse OUVIDO a pessoa cantando ao vivo.
+- Seja específico sobre a MÚSICA e a PERFORMANCE, não sobre tecnologia.
 
-IMPORTANTE:
-- Você CONHECE a letra original de "${songTitle}" de ${artist}. Use seu conhecimento para comparar.
-- A transcrição pode ter erros do reconhecimento de voz, seja compreensivo.
-- Se dados de análise de pitch forem fornecidos, USE-OS para avaliar o tom com precisão.
-- Avalie de forma justa mas encorajadora.
-- RESPONDA APENAS com JSON válido, sem texto adicional.`;
+Exemplos de linguagem CORRETA:
+- "Você manteve a afinação firme durante o refrão"
+- "Parece que você pulou alguns trechos da letra"
+- "Você cantou com bastante energia!"
+- "A afinação variou um pouco nas notas mais altas"
 
-  // Construir seção de dados de pitch se disponível
-  let pitchSection = '';
+Exemplos de linguagem INCORRETA (NUNCA USE):
+- "A transcrição captou apenas..."
+- "O tom apresentou instabilidade de X%..."
+- "A voz foi detectada em Y% do tempo..."
+- "As notas variaram entre D2 e F#3..."
+
+RESPONDA APENAS com JSON válido, sem texto adicional.`;
+
+  // Construir contexto de pitch para o modelo (interno, não mostrado ao usuário)
+  let pitchContext = '';
   if (pitchStats && pitchStats.validSamples > 0) {
     const voicePercentage = Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100);
-    pitchSection = `
-## Dados de Análise de Áudio (REAL - Medidos pelo Sistema):
-- **Frequência média:** ${pitchStats.averageFrequency} Hz
-- **Estabilidade do tom:** ${pitchStats.pitchStability}% (quão consistente foi o tom)
-- **Precisão tonal:** ${pitchStats.pitchAccuracy}% (quão perto das notas musicais)
-- **Notas detectadas:** ${pitchStats.notesDetected.slice(0, 10).join(', ')}${pitchStats.notesDetected.length > 10 ? '...' : ''}
-- **Voz detectada:** ${voicePercentage}% do tempo (${pitchStats.validSamples} amostras de ${pitchStats.totalSamples})
+    const stabilityLevel = pitchStats.pitchStability >= 70 ? 'estável' : pitchStats.pitchStability >= 40 ? 'moderada' : 'instável';
+    const presenceLevel = voicePercentage >= 60 ? 'forte presença' : voicePercentage >= 30 ? 'presença moderada' : 'pouca presença vocal';
 
-⚠️ USE ESTES DADOS REAIS para avaliar a dimensão TOM! São medições precisas do áudio.
+    pitchContext = `
+[DADOS INTERNOS - Use para avaliar, mas NÃO mencione números/percentuais na resposta]
+- Afinação: ${stabilityLevel} (${pitchStats.pitchStability}% estabilidade, ${pitchStats.pitchAccuracy}% precisão)
+- Presença: ${presenceLevel} (${voicePercentage}% do tempo cantando)
+- Extensão vocal usada: ${pitchStats.notesDetected.length} notas diferentes
 `;
   }
 
-  const userPrompt = `# Avaliação de Karaokê
+  const userPrompt = `# Performance de Karaokê para Avaliar
 
-**Código:** ${songCode}
-**Música:** ${songTitle}
-**Artista:** ${artist}
+**Música:** "${songTitle}" de ${artist}
 **Idioma:** ${language === 'pt-BR' ? 'Português' : language === 'en' ? 'Inglês' : 'Espanhol'}
 
-## Transcrição da Performance do Usuário:
-"${transcription}"
-${pitchSection}
+## O que o cantor cantou:
+"${transcription || '(o cantor não acompanhou a letra)'}"
+${pitchContext}
 ---
 
-## Instruções de Avaliação
+## Avalie em 3 dimensões (0-100 cada):
 
-Compare a transcrição acima com a letra REAL de "${songTitle}" que você conhece.
+### 1. TOM (Afinação)
+Avalie se o cantor manteve a afinação correta durante a música.
+${pitchStats && pitchStats.validSamples > 0
+  ? `A afinação foi ${pitchStats.pitchStability >= 70 ? 'bem consistente' : pitchStats.pitchStability >= 40 ? 'razoável' : 'bastante variável'}.`
+  : 'Avalie pelo fluxo e clareza do canto.'}
 
-Avalie em 3 DIMENSÕES (cada uma de 0 a 100):
+### 2. LETRA (Acompanhamento)
+O cantor acompanhou a letra de "${songTitle}"? Compare o que foi cantado com a letra original que você conhece.
+${!transcription || transcription.trim().length < 10
+  ? 'Parece que o cantor não acompanhou a letra da música.'
+  : 'Verifique se as palavras cantadas correspondem à letra original.'}
 
-1. **TOM (pitch)**: ${pitchStats && pitchStats.validSamples > 0
-    ? `USE OS DADOS DE ANÁLISE DE ÁUDIO ACIMA! Estabilidade de ${pitchStats.pitchStability}% e precisão de ${pitchStats.pitchAccuracy}% são indicadores REAIS do tom. Baseie seu score principalmente nestes dados.`
-    : 'Baseado no fluxo e cadência das palavras transcritas, parece que o cantor estava no tom? Palavras claras e bem pronunciadas sugerem bom controle vocal.'}
-
-2. **LETRA (lyrics)**: O cantor cantou as palavras corretas? Compare com a letra original. Considere que o reconhecimento de voz pode errar palavras similares.
-
-3. **ANIMAÇÃO (energy)**: O cantor demonstrou energia e emoção? ${pitchStats && pitchStats.validSamples > 0
-    ? `O cantor teve voz detectada em ${Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100)}% do tempo - considere isso!`
-    : 'Frases completas, expressões e intensidade nas palavras sugerem animação.'}
+### 3. ANIMAÇÃO (Energia e Presença)
+O cantor demonstrou energia e presença ao cantar?
+${pitchStats && pitchStats.validSamples > 0
+  ? `O cantor teve ${Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100) >= 50 ? 'boa presença' : 'presença tímida'} durante a música.`
+  : 'Avalie pela intensidade e emoção nas palavras.'}
 
 ## Formato de Resposta (JSON):
 
 {
-  "overallScore": <média ponderada das 3 dimensões, 0-100>,
+  "overallScore": <0-100>,
   "dimensions": {
     "pitch": {
       "score": <0-100>,
-      "detail": "<observação específica e REAL sobre o tom${pitchStats ? ', mencione a estabilidade e precisão medidas' : ''}, ex: 'Manteve tom estável com ${pitchStats?.pitchStability || 'X'}% de consistência' ou 'O tom variou bastante, precisão de ${pitchStats?.pitchAccuracy || 'Y'}%'>"
+      "detail": "<frase curta sobre a afinação, ex: 'Você manteve bem o tom!' ou 'A afinação oscilou um pouco nas partes mais difíceis'>"
     },
     "lyrics": {
       "score": <0-100>,
-      "detail": "<observação específica e REAL sobre a letra, mencione palavras que acertou ou errou, ex: 'Acertou o verso principal mas trocou X por Y'>"
+      "detail": "<frase sobre o acompanhamento da letra, ex: 'Você cantou junto certinho!' ou 'Parece que você não acompanhou a letra da música'>"
     },
     "energy": {
       "score": <0-100>,
-      "detail": "<observação específica e REAL sobre energia, ex: 'Cantou com empolgação especialmente em [trecho]' ou 'Pode soltar mais a voz no refrão'>"
+      "detail": "<frase sobre energia, ex: 'Cantou com empolgação!' ou 'Pode soltar mais a voz, o karaokê é seu!'>"
     }
   },
-  "encouragement": "<frase motivacional de 1-2 linhas que mencione algo ESPECÍFICO da performance, não genérico>"
+  "encouragement": "<mensagem motivacional curta e específica>"
 }
 
-IMPORTANTE:
-- As observações em "detail" devem ser ESPECÍFICAS sobre o que foi cantado, não genéricas.
-- O "encouragement" deve mencionar algo REAL da performance.
-- Se a transcrição estiver muito diferente da música, dê uma nota menor mas seja gentil.
-${pitchStats ? '- Para o TOM: baseie-se PRINCIPALMENTE nos dados de pitch fornecidos, não apenas na transcrição!' : ''}`;
+LEMBRE-SE: Fale sobre a PERFORMANCE de karaokê, não sobre tecnologia. Seja gentil mas honesto.`;
 
   try {
     const anthropic = getAnthropicClient();
@@ -194,7 +202,7 @@ ${pitchStats ? '- Para o TOM: baseie-se PRINCIPALMENTE nos dados de pitch fornec
 }
 
 function createDefaultEvaluation(transcription: string): PerformanceEvaluation {
-  const wordCount = transcription.split(' ').length;
+  const wordCount = (transcription || '').split(' ').filter(w => w.trim()).length;
   const hasContent = wordCount > 5;
 
   return {
@@ -203,24 +211,24 @@ function createDefaultEvaluation(transcription: string): PerformanceEvaluation {
       pitch: {
         score: hasContent ? 65 : 30,
         detail: hasContent
-          ? 'Não foi possível analisar o tom com precisão, mas você manteve um bom fluxo.'
-          : 'Não conseguimos captar muito da sua voz. Tente cantar mais perto do microfone.',
+          ? 'Você cantou com desenvoltura! Continue praticando para melhorar ainda mais a afinação.'
+          : 'Parece que você cantou bem baixinho. Solte mais a voz!',
       },
       lyrics: {
         score: hasContent ? 60 : 25,
         detail: hasContent
-          ? `Captamos ${wordCount} palavras. Continue praticando a letra!`
-          : 'Poucas palavras foram captadas. Certifique-se de que o microfone está funcionando.',
+          ? 'Você acompanhou a música! Com mais prática, vai acertar cada vez mais.'
+          : 'Parece que você não acompanhou a letra da música. Tente cantar junto!',
       },
       energy: {
         score: hasContent ? 70 : 35,
         detail: hasContent
-          ? 'Parabéns por participar! A energia é o primeiro passo para uma boa performance.'
-          : 'Solte a voz! Karaokê é sobre se divertir.',
+          ? 'Boa energia! O karaokê é sobre se divertir cantando.'
+          : 'Solte a voz! O karaokê é seu momento de brilhar.',
       },
     },
     encouragement: hasContent
       ? 'Você está no caminho certo! Continue cantando e cada vez ficará melhor. 🎤'
-      : 'Não desista! Ajuste o microfone e tente novamente. Estamos torcendo por você! 🌟',
+      : 'Não desista! Cante mais alto e acompanhe a letra. Estamos torcendo por você! 🌟',
   };
 }

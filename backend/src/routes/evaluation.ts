@@ -14,9 +14,21 @@ evaluationRoutes.post('/evaluate', async (req: Request<object, object, EvaluateR
   try {
     const { transcription, songCode, pitchStats } = req.body;
 
-    if (!transcription || !songCode) {
+    // songCode é obrigatório, mas transcription pode ser vazia se tiver pitchStats
+    if (!songCode) {
       res.status(400).json({
-        error: 'Campos obrigatórios: transcription, songCode',
+        error: 'Campo obrigatório: songCode',
+      });
+      return;
+    }
+
+    // Precisa ter pelo menos transcription ou pitchStats
+    const hasTranscription = transcription && transcription.trim().length > 0;
+    const hasPitchData = pitchStats && pitchStats.validSamples > 0;
+
+    if (!hasTranscription && !hasPitchData) {
+      res.status(400).json({
+        error: 'É necessário ter transcrição ou dados de áudio para avaliar',
       });
       return;
     }
@@ -31,13 +43,13 @@ evaluationRoutes.post('/evaluate', async (req: Request<object, object, EvaluateR
     }
 
     console.log(`🎤 Avaliando performance de: [${song.code}] ${song.song} - ${song.artist}`);
-    console.log(`📄 Transcrição (${transcription.length} chars): "${transcription.substring(0, 100)}..."`);
+    console.log(`📄 Transcrição (${(transcription || '').length} chars): "${(transcription || '').substring(0, 100)}..."`);
     if (pitchStats) {
       console.log(`🎵 Pitch: estabilidade=${pitchStats.pitchStability}%, precisão=${pitchStats.pitchAccuracy}%, notas=[${pitchStats.notesDetected.slice(0, 5).join(', ')}...]`);
     }
 
     const evaluation = await evaluateWithClaude({
-      transcription,
+      transcription: transcription || '',
       songCode: song.code,
       songTitle: song.song,
       artist: song.artist,
