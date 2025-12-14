@@ -21,6 +21,8 @@ export interface PitchStats {
   pitchAccuracy: number;
   totalSamples: number;
   validSamples: number;
+  chorusDetected?: boolean;
+  peakVolumeMoments?: number;
 }
 
 export interface EvaluationInput {
@@ -58,11 +60,24 @@ REGRAS DE LINGUAGEM - MUITO IMPORTANTE:
 - Fale como se você tivesse OUVIDO a pessoa cantando ao vivo.
 - Seja específico sobre a MÚSICA e a PERFORMANCE, não sobre tecnologia.
 
+ONOMATOPEIAS E VOCALIZAÇÕES:
+- Palavras como "é", "yeah", "wow", "oh", "ah", "uhu", "ei", "hey", "ô", "uh" são VOCALIZAÇÕES válidas de karaokê.
+- Essas expressões demonstram ENTUSIASMO e participação, NÃO são erros de letra.
+- Não penalize o cantor por usar vocalizações - isso faz parte da experiência do karaokê!
+- Se a pessoa canta "yeah yeah" ou "ô ô ô", ela está participando e se divertindo.
+
+CORO/MÚLTIPLAS VOZES:
+- Se foi detectado coro (outras pessoas cantando junto), isso é MUITO POSITIVO para a energia!
+- Karaokê que envolve a plateia merece bônus na dimensão de Energia/Animação.
+- Mencione positivamente se o cantor conseguiu engajar outras pessoas.
+
 Exemplos de linguagem CORRETA:
 - "Você manteve a afinação firme durante o refrão"
 - "Parece que você pulou alguns trechos da letra"
 - "Você cantou com bastante energia!"
 - "A afinação variou um pouco nas notas mais altas"
+- "Adorei as vocalizações! Você realmente entrou no clima da música!"
+- "A galera cantou junto com você - isso é o espírito do karaokê!"
 
 Exemplos de linguagem INCORRETA (NUNCA USE):
 - "A transcrição captou apenas..."
@@ -78,12 +93,15 @@ RESPONDA APENAS com JSON válido, sem texto adicional.`;
     const voicePercentage = Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100);
     const stabilityLevel = pitchStats.pitchStability >= 70 ? 'estável' : pitchStats.pitchStability >= 40 ? 'moderada' : 'instável';
     const presenceLevel = voicePercentage >= 60 ? 'forte presença' : voicePercentage >= 30 ? 'presença moderada' : 'pouca presença vocal';
+    const chorusInfo = pitchStats.chorusDetected
+      ? `\n- CORO DETECTADO: Outras pessoas cantaram junto! Isso merece BÔNUS na energia! (${pitchStats.peakVolumeMoments || 0} momentos de coro)`
+      : '';
 
     pitchContext = `
 [DADOS INTERNOS - Use para avaliar, mas NÃO mencione números/percentuais na resposta]
 - Afinação: ${stabilityLevel} (${pitchStats.pitchStability}% estabilidade, ${pitchStats.pitchAccuracy}% precisão)
 - Presença: ${presenceLevel} (${voicePercentage}% do tempo cantando)
-- Extensão vocal usada: ${pitchStats.notesDetected.length} notas diferentes
+- Extensão vocal usada: ${pitchStats.notesDetected.length} notas diferentes${chorusInfo}
 `;
   }
 
@@ -107,15 +125,17 @@ ${pitchStats && pitchStats.validSamples > 0
 
 ### 2. LETRA (Acompanhamento)
 O cantor acompanhou a letra de "${songTitle}"? Compare o que foi cantado com a letra original que você conhece.
+IMPORTANTE: Onomatopeias como "é", "yeah", "wow", "oh", "ah", "uhu", "hey" são VOCALIZAÇÕES VÁLIDAS, não erros!
 ${!transcription || transcription.trim().length < 10
   ? 'Parece que o cantor não acompanhou a letra da música.'
-  : 'Verifique se as palavras cantadas correspondem à letra original.'}
+  : 'Verifique se as palavras cantadas correspondem à letra original. Vocalizações são bem-vindas!'}
 
 ### 3. ANIMAÇÃO (Energia e Presença)
 O cantor demonstrou energia e presença ao cantar?
 ${pitchStats && pitchStats.validSamples > 0
   ? `O cantor teve ${Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100) >= 50 ? 'boa presença' : 'presença tímida'} durante a música.`
   : 'Avalie pela intensidade e emoção nas palavras.'}
+${pitchStats?.chorusDetected ? '🎉 BÔNUS: Foi detectado CORO! Outras pessoas cantaram junto - isso demonstra que o cantor engajou a plateia!' : ''}
 
 ## Formato de Resposta (JSON):
 

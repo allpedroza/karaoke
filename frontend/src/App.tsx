@@ -5,6 +5,7 @@ import { KaraokePlayer } from './components/KaraokePlayer';
 import { ResultsView } from './components/ResultsView';
 import { KaraokeVideo, AppState, PerformanceData } from './types';
 import { evaluatePerformance } from './services/api';
+import { playDrumRoll, playScoreSound, stopAllSounds } from './services/soundEffects';
 
 function App() {
   const [state, setState] = useState<AppState>({
@@ -30,6 +31,9 @@ function App() {
 
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
+    // Tocar rufar de tambores enquanto avalia
+    playDrumRoll(8000).catch(() => {}); // Drum roll longo, será interrompido quando resultado chegar
+
     try {
       // Usar o código da música e dados de pitch para avaliação
       const evaluation = await evaluatePerformance(
@@ -38,14 +42,23 @@ function App() {
         data.pitchStats
       );
 
+      // Parar drum roll e tocar som baseado na nota
+      stopAllSounds();
+
       setState(prev => ({
         ...prev,
         currentView: 'results',
         evaluation,
         isLoading: false,
       }));
+
+      // Pequeno delay para a transição visual, depois toca o som da nota
+      setTimeout(() => {
+        playScoreSound(evaluation.overallScore).catch(() => {});
+      }, 500);
     } catch (error) {
       console.error('Error evaluating performance:', error);
+      stopAllSounds();
       setState(prev => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Erro ao avaliar performance',

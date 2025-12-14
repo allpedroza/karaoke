@@ -6,6 +6,7 @@ interface PitchData {
   cents: number;      // desvio em cents (-50 a +50)
   confidence: number; // 0 a 1
   timestamp: number;
+  rms: number;        // volume RMS
 }
 
 interface PitchStats {
@@ -16,6 +17,8 @@ interface PitchStats {
   totalSamples: number;
   validSamples: number;      // amostras com voz detectada
   pitchHistory: PitchData[]; // histórico completo
+  chorusDetected: boolean;   // se foi detectado coro/múltiplas vozes
+  peakVolumeMoments: number; // momentos de pico de volume (indicativo de coro)
 }
 
 interface UsePitchDetectionReturn {
@@ -66,7 +69,7 @@ function frequencyToNote(frequency: number): { note: string; cents: number } {
 }
 
 // Algoritmo de autocorrelação para detecção de pitch
-function autoCorrelate(buffer: Float32Array, sampleRate: number): { frequency: number; confidence: number } {
+function autoCorrelate(buffer: Float32Array, sampleRate: number): { frequency: number; confidence: number; rms: number } {
   const SIZE = buffer.length;
   const MAX_SAMPLES = Math.floor(SIZE / 2);
   let bestOffset = -1;
@@ -81,7 +84,7 @@ function autoCorrelate(buffer: Float32Array, sampleRate: number): { frequency: n
 
   // Se o sinal é muito fraco, não detectar pitch
   if (rms < 0.01) {
-    return { frequency: -1, confidence: 0 };
+    return { frequency: -1, confidence: 0, rms };
   }
 
   let lastCorrelation = 1;
@@ -105,11 +108,11 @@ function autoCorrelate(buffer: Float32Array, sampleRate: number): { frequency: n
   }
 
   if (bestOffset === -1 || bestCorrelation < 0.9) {
-    return { frequency: -1, confidence: bestCorrelation };
+    return { frequency: -1, confidence: bestCorrelation, rms };
   }
 
   const frequency = sampleRate / bestOffset;
-  return { frequency, confidence: bestCorrelation };
+  return { frequency, confidence: bestCorrelation, rms };
 }
 
 export function usePitchDetection(): UsePitchDetectionReturn {
@@ -136,6 +139,8 @@ export function usePitchDetection(): UsePitchDetectionReturn {
         totalSamples: history.length,
         validSamples: 0,
         pitchHistory: history,
+        chorusDetected: false,
+        peakVolumeMoments: 0,
       };
     }
 
@@ -154,6 +159,32 @@ export function usePitchDetection(): UsePitchDetectionReturn {
     const avgCentsOff = validPitches.reduce((sum: number, p: PitchData) => sum + Math.abs(p.cents), 0) / validPitches.length;
     const accuracy = Math.max(0, 100 - avgCentsOff * 2); // 50 cents = 0% accuracy
 
+    // Detectar momentos de coro/múltiplas vozes
+    // Baseado em picos de volume significativamente acima da média
+    const rmsValues = history.map((p: PitchData) => p.rms || 0).filter((r: number) => r > 0);
+    const avgRms = rmsValues.length > 0
+      ? rmsValues.reduce((sum: number, r: number) => sum + r, 0) / rmsValues.length
+      : 0;
+    const rmsThreshold = avgRms * 1.8; // 80% acima da média indica possível coro
+
+    // Contar momentos de pico (possível coro)
+    let peakMoments = 0;
+    let inPeak = false;
+    for (const p of history) {
+      if ((p.rms || 0) > rmsThreshold) {
+        if (!inPeak) {
+          peakMoments++;
+          inPeak = true;
+        }
+      } else {
+        inPeak = false;
+      }
+    }
+
+    // Coro detectado se houver múltiplos momentos de pico e boa presença vocal
+    const voicePresence = validPitches.length / Math.max(1, history.length);
+    const chorusDetected = peakMoments >= 3 && voicePresence > 0.4;
+
     return {
       averageFrequency: Math.round(avgFreq),
       pitchStability: Math.round(stability),
@@ -162,6 +193,8 @@ export function usePitchDetection(): UsePitchDetectionReturn {
       totalSamples: history.length,
       validSamples: validPitches.length,
       pitchHistory: history,
+      chorusDetected,
+      peakVolumeMoments: peakMoments,
     };
   }, []);
 
@@ -174,7 +207,7 @@ export function usePitchDetection(): UsePitchDetectionReturn {
 
     analyser.getFloatTimeDomainData(buffer);
 
-    const { frequency, confidence } = autoCorrelate(buffer, audioContextRef.current.sampleRate);
+    const { frequency, confidence, rms } = autoCorrelate(buffer, audioContextRef.current.sampleRate);
 
     if (frequency > 0 && confidence > 0.8) {
       const { note, cents } = frequencyToNote(frequency);
@@ -184,6 +217,7 @@ export function usePitchDetection(): UsePitchDetectionReturn {
         cents,
         confidence,
         timestamp: Date.now(),
+        rms,
       };
 
       setCurrentPitch(pitchData);
@@ -196,6 +230,7 @@ export function usePitchDetection(): UsePitchDetectionReturn {
         cents: 0,
         confidence,
         timestamp: Date.now(),
+        rms,
       });
     }
 
