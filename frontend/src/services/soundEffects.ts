@@ -1,6 +1,8 @@
-// Serviço de efeitos sonoros usando Web Audio API
+// Serviço de efeitos sonoros
+// Usa arquivos de áudio se disponíveis, senão gera sons via Web Audio API
 
 let audioContext: AudioContext | null = null;
+let currentAudio: HTMLAudioElement | null = null;
 
 function getAudioContext(): AudioContext {
   if (!audioContext) {
@@ -9,39 +11,66 @@ function getAudioContext(): AudioContext {
   return audioContext;
 }
 
-// Rufar de tambores (drum roll)
+// Cache para verificar se arquivos existem
+const audioFileCache: Record<string, boolean> = {};
+
+async function checkAudioFile(path: string): Promise<boolean> {
+  if (audioFileCache[path] !== undefined) {
+    return audioFileCache[path];
+  }
+
+  try {
+    const response = await fetch(path, { method: 'HEAD' });
+    audioFileCache[path] = response.ok;
+    return response.ok;
+  } catch {
+    audioFileCache[path] = false;
+    return false;
+  }
+}
+
+async function playAudioFile(path: string): Promise<boolean> {
+  const exists = await checkAudioFile(path);
+  if (!exists) return false;
+
+  return new Promise((resolve) => {
+    currentAudio = new Audio(path);
+    currentAudio.volume = 0.7;
+    currentAudio.onended = () => resolve(true);
+    currentAudio.onerror = () => resolve(false);
+    currentAudio.play().catch(() => resolve(false));
+  });
+}
+
+// ============================================
+// RUFAR DE TAMBORES
+// ============================================
 export async function playDrumRoll(durationMs: number = 3000): Promise<void> {
+  // Tentar usar arquivo de áudio primeiro
+  const played = await playAudioFile('/sounds/drumroll.mp3');
+  if (played) return;
+
+  // Fallback: gerar som
   const ctx = getAudioContext();
   const duration = durationMs / 1000;
-
-  // Criar ruído para simular drum roll
   const bufferSize = ctx.sampleRate * duration;
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
 
-  // Gerar padrão de drum roll com crescendo
   for (let i = 0; i < bufferSize; i++) {
     const t = i / ctx.sampleRate;
     const progress = t / duration;
-
-    // Frequência aumenta com o tempo (crescendo)
-    const rollFrequency = 15 + progress * 25; // 15-40 Hz roll
+    const rollFrequency = 15 + progress * 25;
     const rollPattern = Math.sin(2 * Math.PI * rollFrequency * t);
-
-    // Envelope: cresce ao longo do tempo
     const envelope = 0.3 + progress * 0.7;
-
-    // Ruído filtrado para som de tambor
     const noise = (Math.random() * 2 - 1) * 0.5;
     const drumTone = Math.sin(2 * Math.PI * 100 * t) * 0.3;
-
     data[i] = (noise * 0.6 + drumTone * 0.4) * envelope * (0.5 + Math.abs(rollPattern) * 0.5);
   }
 
   const source = ctx.createBufferSource();
   source.buffer = buffer;
 
-  // Filtro passa-baixa para som mais natural
   const filter = ctx.createBiquadFilter();
   filter.type = 'lowpass';
   filter.frequency.value = 800;
@@ -52,65 +81,57 @@ export async function playDrumRoll(durationMs: number = 3000): Promise<void> {
   source.connect(filter);
   filter.connect(gainNode);
   gainNode.connect(ctx.destination);
-
   source.start();
 
-  return new Promise(resolve => {
-    setTimeout(resolve, durationMs);
-  });
+  return new Promise(resolve => setTimeout(resolve, durationMs));
 }
 
-// Aplausos (com variação de intensidade)
+// ============================================
+// APLAUSOS
+// ============================================
 export async function playApplause(intensity: 'high' | 'medium' | 'low', durationMs: number = 4000): Promise<void> {
+  // Tentar usar arquivo de áudio primeiro
+  const filename = intensity === 'high' ? 'applause-high.mp3' : 'applause-medium.mp3';
+  const played = await playAudioFile(`/sounds/${filename}`);
+  if (played) return;
+
+  // Fallback: gerar som
   const ctx = getAudioContext();
   const duration = durationMs / 1000;
-
   const bufferSize = ctx.sampleRate * duration;
-  const buffer = ctx.createBuffer(2, bufferSize, ctx.sampleRate); // Stereo
+  const buffer = ctx.createBuffer(2, bufferSize, ctx.sampleRate);
   const leftData = buffer.getChannelData(0);
   const rightData = buffer.getChannelData(1);
 
-  // Número de "palmas" por segundo baseado na intensidade
   const clapRate = intensity === 'high' ? 25 : intensity === 'medium' ? 15 : 8;
   const volume = intensity === 'high' ? 0.6 : intensity === 'medium' ? 0.4 : 0.25;
-
-  // Gerar múltiplas camadas de aplausos
   const numLayers = intensity === 'high' ? 8 : intensity === 'medium' ? 5 : 3;
 
   for (let layer = 0; layer < numLayers; layer++) {
-    const layerOffset = Math.random() * 0.1; // Pequeno offset temporal
-    const layerPan = (Math.random() - 0.5) * 2; // Pan stereo
+    const layerOffset = Math.random() * 0.1;
+    const layerPan = (Math.random() - 0.5) * 2;
 
     for (let i = 0; i < bufferSize; i++) {
       const t = i / ctx.sampleRate + layerOffset;
       const progress = t / duration;
 
-      // Envelope natural: sobe, sustenta, desce
       let envelope = 1;
-      if (progress < 0.1) {
-        envelope = progress / 0.1;
-      } else if (progress > 0.7) {
-        envelope = (1 - progress) / 0.3;
-      }
+      if (progress < 0.1) envelope = progress / 0.1;
+      else if (progress > 0.7) envelope = (1 - progress) / 0.3;
 
-      // Padrão de palmas aleatórias
       const clapPhase = (t * clapRate + layer * 0.37) % 1;
-      const isClapping = clapPhase < 0.15;
-
-      if (isClapping) {
+      if (clapPhase < 0.15) {
         const clapDecay = Math.exp(-clapPhase * 30);
         const noise = (Math.random() * 2 - 1) * clapDecay;
-
         const leftGain = 0.5 + layerPan * 0.5;
         const rightGain = 0.5 - layerPan * 0.5;
-
         leftData[i] += noise * envelope * volume * leftGain / numLayers;
         rightData[i] += noise * envelope * volume * rightGain / numLayers;
       }
     }
   }
 
-  // Adicionar "woohoo" ocasionais para aplausos intensos
+  // Adicionar "woohoo" para aplausos intensos
   if (intensity === 'high') {
     for (let w = 0; w < 3; w++) {
       const woohooTime = 0.5 + Math.random() * 2;
@@ -119,10 +140,9 @@ export async function playApplause(intensity: 'high' | 'medium' | 'low', duratio
 
       for (let i = 0; i < woohooDuration && woohooStart + i < bufferSize; i++) {
         const t = i / ctx.sampleRate;
-        const freq = 400 + Math.sin(t * 10) * 100; // Frequência variável
+        const freq = 400 + Math.sin(t * 10) * 100;
         const env = Math.sin(Math.PI * i / woohooDuration) * 0.15;
         const sample = Math.sin(2 * Math.PI * freq * t) * env;
-
         leftData[woohooStart + i] += sample * (0.3 + Math.random() * 0.4);
         rightData[woohooStart + i] += sample * (0.3 + Math.random() * 0.4);
       }
@@ -142,29 +162,30 @@ export async function playApplause(intensity: 'high' | 'medium' | 'low', duratio
   source.connect(filter);
   filter.connect(gainNode);
   gainNode.connect(ctx.destination);
-
   source.start();
 
-  return new Promise(resolve => {
-    setTimeout(resolve, durationMs);
-  });
+  return new Promise(resolve => setTimeout(resolve, durationMs));
 }
 
-// Vaias
+// ============================================
+// VAIAS
+// ============================================
 export async function playBoos(durationMs: number = 3000): Promise<void> {
+  // Tentar usar arquivo de áudio primeiro
+  const played = await playAudioFile('/sounds/boos.mp3');
+  if (played) return;
+
+  // Fallback: gerar som
   const ctx = getAudioContext();
   const duration = durationMs / 1000;
-
   const bufferSize = ctx.sampleRate * duration;
   const buffer = ctx.createBuffer(2, bufferSize, ctx.sampleRate);
   const leftData = buffer.getChannelData(0);
   const rightData = buffer.getChannelData(1);
 
-  // Múltiplas vozes fazendo "buuuu"
   const numVoices = 5;
-
   for (let voice = 0; voice < numVoices; voice++) {
-    const baseFreq = 150 + Math.random() * 50; // Frequência base variável
+    const baseFreq = 150 + Math.random() * 50;
     const voiceOffset = Math.random() * 0.2;
     const pan = (Math.random() - 0.5) * 1.5;
 
@@ -172,30 +193,19 @@ export async function playBoos(durationMs: number = 3000): Promise<void> {
       const t = i / ctx.sampleRate + voiceOffset;
       const progress = t / duration;
 
-      // Envelope com fade in/out
       let envelope = 1;
-      if (progress < 0.15) {
-        envelope = progress / 0.15;
-      } else if (progress > 0.8) {
-        envelope = (1 - progress) / 0.2;
-      }
+      if (progress < 0.15) envelope = progress / 0.15;
+      else if (progress > 0.8) envelope = (1 - progress) / 0.2;
 
-      // Frequência descendente para som de "buuuu"
       const freq = baseFreq * (1 - progress * 0.2);
-
-      // Ondas harmônicas para som de voz
       const fundamental = Math.sin(2 * Math.PI * freq * t);
       const harmonic2 = Math.sin(2 * Math.PI * freq * 2 * t) * 0.5;
       const harmonic3 = Math.sin(2 * Math.PI * freq * 3 * t) * 0.25;
-
-      // Modulação para som mais natural
       const vibrato = 1 + Math.sin(2 * Math.PI * 5 * t) * 0.02;
 
       const sample = (fundamental + harmonic2 + harmonic3) * envelope * 0.15 * vibrato / numVoices;
-
       const leftGain = 0.5 + pan * 0.3;
       const rightGain = 0.5 - pan * 0.3;
-
       leftData[i] += sample * leftGain;
       rightData[i] += sample * rightGain;
     }
@@ -209,16 +219,20 @@ export async function playBoos(durationMs: number = 3000): Promise<void> {
 
   source.connect(gainNode);
   gainNode.connect(ctx.destination);
-
   source.start();
 
-  return new Promise(resolve => {
-    setTimeout(resolve, durationMs);
-  });
+  return new Promise(resolve => setTimeout(resolve, durationMs));
 }
 
-// Som de "womp womp womp" (fracasso)
+// ============================================
+// WOMP WOMP WOMP (fracasso)
+// ============================================
 export async function playWompWomp(): Promise<void> {
+  // Tentar usar arquivo de áudio primeiro
+  const played = await playAudioFile('/sounds/womp-womp.mp3');
+  if (played) return;
+
+  // Fallback: gerar som (sad trombone style)
   const ctx = getAudioContext();
   const oscillator = ctx.createOscillator();
   const gainNode = ctx.createGain();
@@ -229,36 +243,36 @@ export async function playWompWomp(): Promise<void> {
 
   const now = ctx.currentTime;
 
-  // Três "womps" descendentes
-  oscillator.frequency.setValueAtTime(300, now);
-  oscillator.frequency.exponentialRampToValueAtTime(150, now + 0.3);
+  // Três "womps" descendentes (estilo trombone triste)
+  oscillator.frequency.setValueAtTime(350, now);
+  oscillator.frequency.exponentialRampToValueAtTime(175, now + 0.4);
 
-  oscillator.frequency.setValueAtTime(250, now + 0.5);
-  oscillator.frequency.exponentialRampToValueAtTime(125, now + 0.8);
+  oscillator.frequency.setValueAtTime(300, now + 0.6);
+  oscillator.frequency.exponentialRampToValueAtTime(150, now + 1.0);
 
-  oscillator.frequency.setValueAtTime(200, now + 1.0);
-  oscillator.frequency.exponentialRampToValueAtTime(80, now + 1.5);
+  oscillator.frequency.setValueAtTime(250, now + 1.2);
+  oscillator.frequency.exponentialRampToValueAtTime(90, now + 1.8);
 
   // Envelope de volume
   gainNode.gain.setValueAtTime(0, now);
-  gainNode.gain.linearRampToValueAtTime(0.3, now + 0.05);
-  gainNode.gain.linearRampToValueAtTime(0.1, now + 0.3);
+  gainNode.gain.linearRampToValueAtTime(0.25, now + 0.05);
+  gainNode.gain.linearRampToValueAtTime(0.08, now + 0.4);
 
-  gainNode.gain.linearRampToValueAtTime(0.25, now + 0.55);
-  gainNode.gain.linearRampToValueAtTime(0.08, now + 0.8);
+  gainNode.gain.linearRampToValueAtTime(0.2, now + 0.65);
+  gainNode.gain.linearRampToValueAtTime(0.06, now + 1.0);
 
-  gainNode.gain.linearRampToValueAtTime(0.2, now + 1.05);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1.8);
+  gainNode.gain.linearRampToValueAtTime(0.15, now + 1.25);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, now + 2.0);
 
   oscillator.start(now);
-  oscillator.stop(now + 2);
+  oscillator.stop(now + 2.2);
 
-  return new Promise(resolve => {
-    setTimeout(resolve, 2000);
-  });
+  return new Promise(resolve => setTimeout(resolve, 2200));
 }
 
-// Função principal para tocar som baseado no score
+// ============================================
+// FUNÇÃO PRINCIPAL - TOCAR SOM BASEADO NO SCORE
+// ============================================
 export async function playScoreSound(score: number): Promise<void> {
   if (score >= 80) {
     await playApplause('high', 5000);
@@ -271,8 +285,18 @@ export async function playScoreSound(score: number): Promise<void> {
   }
 }
 
-// Parar todos os sons
+// ============================================
+// PARAR TODOS OS SONS
+// ============================================
 export function stopAllSounds(): void {
+  // Parar áudio HTML5
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+  }
+
+  // Fechar Web Audio context
   if (audioContext) {
     audioContext.close();
     audioContext = null;

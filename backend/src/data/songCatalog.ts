@@ -71,7 +71,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0008',
     song: 'Várias Queixas',
-    artist: 'Gilberto Gil',
+    artist: 'Os Gilsons',
     youtubeId: '9LKIlW3DhpY', // Verificado
     language: 'pt-BR',
   },
