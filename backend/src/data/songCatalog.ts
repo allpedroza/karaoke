@@ -153,6 +153,16 @@ export const SONG_CATALOG: KaraokeSong[] = [
     duration: '2:48',
     genre: 'Soul/MPB',
   },
+   {
+    code: '0014',
+    song: 'Dezesseis',
+    artist: 'Legião Urbana',
+    youtubeId: 'kZEiEw-lVV8', // Verificado (Karaokê Club)
+    OriginalSongId: 'Or0FflpaOQs',
+    language: 'pt-BR',
+    duration: '4:38',
+    genre: 'Rock Nacional',
+  },
   // ============================================
   // MÚSICAS INTERNACIONAIS (códigos 0100-0199)
   // ============================================
