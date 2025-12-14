@@ -49,13 +49,12 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
       setAutoSubmitted(true);
       // Pequeno delay para garantir que a transcrição e pitch foram processados
       setTimeout(() => {
-        if (transcriptionRef.current.trim()) {
-          onFinish({
-            transcription: transcriptionRef.current,
-            pitchStats: pitchStatsRef.current,
-          });
-        }
-      }, 500);
+        // Enviar mesmo sem transcrição - pitch data é suficiente
+        onFinish({
+          transcription: transcriptionRef.current || '',
+          pitchStats: pitchStatsRef.current,
+        });
+      }, 800);
     }
   }, [hasStarted, isRecording, autoSubmitted, stopRecording, onFinish]);
 
@@ -74,14 +73,17 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
     }
   }, [isReady, video.id, loadVideo]);
 
-  // Auto-submit quando vídeo terminar e tiver transcrição
+  // Auto-submit quando vídeo terminar (backup caso handleVideoEnded não dispare)
   useEffect(() => {
-    if (isEnded && hasStarted && !isRecording && transcription.trim() && !autoSubmitted && !isEvaluating) {
+    if (isEnded && hasStarted && !isRecording && !autoSubmitted && !isEvaluating) {
       setAutoSubmitted(true);
-      onFinish({
-        transcription,
-        pitchStats,
-      });
+      // Pequeno delay para garantir processamento
+      setTimeout(() => {
+        onFinish({
+          transcription: transcription || '',
+          pitchStats,
+        });
+      }, 500);
     }
   }, [isEnded, hasStarted, isRecording, transcription, pitchStats, autoSubmitted, isEvaluating, onFinish]);
 
@@ -114,13 +116,17 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
   };
 
   const handleManualSubmit = () => {
-    if (transcription.trim() && !isEvaluating) {
+    if (!isEvaluating && !autoSubmitted) {
+      setAutoSubmitted(true);
       onFinish({
-        transcription,
+        transcription: transcription || '',
         pitchStats,
       });
     }
   };
+
+  // Verificar se há dados para enviar (transcrição ou pitch)
+  const hasDataToSubmit = transcription.trim() || (pitchStats && pitchStats.validSamples > 0);
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -184,8 +190,14 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
 
             {/* Status quando terminou */}
             {!isRecording && hasStarted && !isEvaluating && (
-              <div className="flex items-center gap-2 text-green-400">
-                <span>Gravação finalizada</span>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2 text-green-400">
+                  <span>Gravação finalizada ({formatTime(duration)})</span>
+                </div>
+                <div className="text-xs text-gray-400">
+                  {transcription.trim() ? `${transcription.split(' ').length} palavras captadas` : 'Aguardando texto...'}
+                  {pitchStats && pitchStats.validSamples > 0 && ` • ${pitchStats.notesDetected.length} notas detectadas`}
+                </div>
               </div>
             )}
 
@@ -246,14 +258,13 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
                       <RotateCcw className="w-5 h-5" />
                       Recomeçar
                     </button>
-                    {transcription.trim() && (
-                      <button
-                        onClick={handleManualSubmit}
-                        className="btn-primary flex items-center gap-2"
-                      >
-                        Avaliar Agora
-                      </button>
-                    )}
+                    <button
+                      onClick={handleManualSubmit}
+                      disabled={autoSubmitted || !hasDataToSubmit}
+                      className="btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {autoSubmitted ? 'Enviado!' : 'Avaliar Agora'}
+                    </button>
                   </>
                 )}
               </>
