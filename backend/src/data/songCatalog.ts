@@ -28,7 +28,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Pais e Filhos',
     artist: 'Legião Urbana',
     youtubeId: 'G73LBvMd84Q', // Verificado
-    OriginalSongId: '',
+    OriginalSongId: '0-MSRDgWseE',
     language: 'pt-BR',
     duration: '5:08',
     genre: 'Rock Nacional',
@@ -38,7 +38,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Evidências',
     artist: 'Chitãozinho e Xororó',
     youtubeId: 'TGXkdU9S0OU', // Verificado
-    OriginalSongId: '',
+    OriginalSongId: 'etHo9ZOGgdY',
     language: 'pt-BR',
     duration: '4:39',
     genre: 'Sertanejo',
@@ -48,7 +48,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Você é Linda',
     artist: 'Caetano Veloso',
     youtubeId: 'Fr794p3aG-g', // Verificado
-    OriginalSongId: '',
+    OriginalSongId: '122xDmxYr8A',
     language: 'pt-BR',
     duration: '4:54',
     genre: 'MPB',
@@ -58,7 +58,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Quem de Nós Dois',
     artist: 'Ana Carolina',
     youtubeId: '0H820U7Wpu8', // Verificado
-    OriginalSongId: '',
+    OriginalSongId: 'UgkcQ78tqDo',
     language: 'pt-BR',
     duration: '5:04',
     genre: 'MPB',
@@ -88,7 +88,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Garçom',
     artist: 'Reginaldo Rossi',
     youtubeId: 'dhDBR7AGVhU', // Verificado
-    OriginalSongId: '',
+    OriginalSongId: 'v=mdBnm0pUiYk',
     language: 'pt-BR',
     duration: '4:14',
     genre: 'Brega',
