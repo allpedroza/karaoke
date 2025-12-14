@@ -14,12 +14,15 @@ export interface KaraokeSong {
   youtubeId: string;
   OriginalSongId: string;
   language: 'pt-BR' | 'en' | 'es';
+  duration: string;
+  genre: string;
 }
 
 export const SONG_CATALOG: KaraokeSong[] = [
   // ============================================
   // MÚSICAS BRASILEIRAS (códigos 0001-0099)
   // ============================================
+ [
   {
     code: '0001',
     song: 'Pais e Filhos',
@@ -27,6 +30,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'G73LBvMd84Q', // Verificado
     OriginalSongId: '',
     language: 'pt-BR',
+    duration: '5:08',
+    genre: 'Rock Nacional',
   },
   {
     code: '0002',
@@ -35,6 +40,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'TGXkdU9S0OU', // Verificado
     OriginalSongId: '',
     language: 'pt-BR',
+    duration: '4:39',
+    genre: 'Sertanejo',
   },
   {
     code: '0003',
@@ -43,6 +50,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'Fr794p3aG-g', // Verificado
     OriginalSongId: '',
     language: 'pt-BR',
+    duration: '4:54',
+    genre: 'MPB',
   },
   {
     code: '0004',
@@ -51,14 +60,18 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: '0H820U7Wpu8', // Verificado
     OriginalSongId: '',
     language: 'pt-BR',
+    duration: '5:04',
+    genre: 'MPB',
   },
   {
     code: '0005',
     song: 'Telefone Mudo',
-    artist: 'Roberto Carlos',
+    artist: 'Roberto Carlos', // Nota: O ID e a música são clássicos do Trio Parada Dura
     youtubeId: 'nJR1pGpG7n0', // Verificado
     OriginalSongId: '', 
     language: 'pt-BR',
+    duration: '3:05',
+    genre: 'Sertanejo',
   },
   {
     code: '0006',
@@ -67,6 +80,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'ArQA_uAVPac', // Verificado
     OriginalSongId: '', 
     language: 'pt-BR',
+    duration: '4:04',
+    genre: 'Axé',
   },
   {
     code: '0007',
@@ -75,6 +90,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'dhDBR7AGVhU', // Verificado
     OriginalSongId: '',
     language: 'pt-BR',
+    duration: '4:14',
+    genre: 'Brega',
   },
   {
     code: '0008',
@@ -83,6 +100,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: '9LKIlW3DhpY', // Verificado
     OriginalSongId: '', 
     language: 'pt-BR',
+    duration: '2:47',
+    genre: 'MPB',
   },
   {
     code: '0009',
@@ -91,6 +110,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'EfTzWbIN0_M', // Verificado
     OriginalSongId: '',
     language: 'pt-BR',
+    duration: '4:09',
+    genre: 'Samba Rock',
   },
   {
     code: '0010',
@@ -99,6 +120,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'sk8yiqSR3uI', // Verificado
     OriginalSongId: '',
     language: 'pt-BR',
+    duration: '2:39',
+    genre: 'Brega/Pop',
   },
   {
     code: '0011',
@@ -107,6 +130,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'kyLIabrj3Zg', // Verificado
     OriginalSongId: '',
     language: 'pt-BR',
+    duration: '4:45',
+    genre: 'MPB',
   },
   {
     code: '0012',
@@ -115,14 +140,18 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'ek_Kk3uiG0U', // Verificado
     OriginalSongId: '',
     language: 'pt-BR',
+    duration: '3:32',
+    genre: 'Pagode',
   },
   {
     code: '0013',
     song: 'De zero a cem',
-    artist: 'Os Garotin, Anchietx ',
+    artist: 'Os Garotin, Anchietx',
     youtubeId: 'qHI5OH7bVm8', // Verificado
     OriginalSongId: '', 
     language: 'pt-BR',
+    duration: '2:48',
+    genre: 'Soul/MPB',
   },
   // ============================================
   // MÚSICAS INTERNACIONAIS (códigos 0100-0199)
@@ -134,17 +163,20 @@ export const SONG_CATALOG: KaraokeSong[] = [
     youtubeId: 'KS7emVBQ368', // Verificado
     OriginalSongId: '', 
     language: 'en',
+    duration: '3:35',
+    genre: 'R&B/Soul',
   },
   {
-  code: '0101',
-  song: 'Feel Good Inc.',
-  artist: 'Gorillaz',
-  youtubeId: 'uQW9ysQrMCE', // Verificado
-  OriginalSongId: '',
-  language: 'en',
-},
+    code: '0101',
+    song: 'Feel Good Inc.',
+    artist: 'Gorillaz',
+    youtubeId: 'uQW9ysQrMCE', // Verificado
+    OriginalSongId: '',
+    language: 'en',
+    duration: '3:42',
+    genre: 'Alternative/Hip Hop',
+  },
 ];
-
 // Funções auxiliares
 export function getSongByCode(code: string): KaraokeSong | undefined {
   return SONG_CATALOG.find(song => song.code === code);
