@@ -56,3 +56,75 @@ export async function getPopularVideos(): Promise<KaraokeVideo[]> {
 
   return response.json();
 }
+
+// ============================================
+// RANKINGS E SESSÕES
+// ============================================
+
+export interface RankingEntry {
+  player_name: string;
+  song_title: string;
+  artist: string;
+  score: number;
+  created_at: string;
+}
+
+export interface TopSong {
+  song_code: string;
+  song_title: string;
+  artist: string;
+  play_count: number;
+  avg_score: number;
+}
+
+export interface SessionRecord {
+  id: number;
+  player_name: string;
+  song_code: string;
+  song_title: string;
+  artist: string;
+  score: number;
+  created_at: string;
+}
+
+// Registrar uma sessão
+export async function recordSession(
+  playerName: string,
+  songCode: string,
+  songTitle: string,
+  artist: string,
+  score: number
+): Promise<SessionRecord> {
+  const response = await fetch(`${API_BASE}/rankings/session`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playerName, songCode, songTitle, artist, score }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Erro ao registrar sessão');
+  }
+
+  return response.json();
+}
+
+// Ranking do dia
+export async function getDailyRanking(): Promise<RankingEntry[]> {
+  const response = await fetch(`${API_BASE}/rankings/daily`);
+  if (!response.ok) throw new Error('Erro ao buscar ranking diário');
+  return response.json();
+}
+
+// Ranking geral
+export async function getOverallRanking(): Promise<RankingEntry[]> {
+  const response = await fetch(`${API_BASE}/rankings/overall`);
+  if (!response.ok) throw new Error('Erro ao buscar ranking geral');
+  return response.json();
+}
+
+// Top músicas do mês
+export async function getTopSongs(): Promise<TopSong[]> {
+  const response = await fetch(`${API_BASE}/rankings/top-songs`);
+  if (!response.ok) throw new Error('Erro ao buscar top músicas');
+  return response.json();
+}

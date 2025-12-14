@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { evaluationRoutes } from './routes/evaluation.js';
 import { videosRoutes } from './routes/videos.js';
+import { rankingsRoutes } from './routes/rankings.js';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json({ limit: '50mb' }));
 // Routes
 app.use('/api', evaluationRoutes);
 app.use('/api/videos', videosRoutes);
+app.use('/api/rankings', rankingsRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

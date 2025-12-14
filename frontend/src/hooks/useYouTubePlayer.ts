@@ -112,9 +112,13 @@ export function useYouTubePlayer(options: UseYouTubePlayerOptions = {}): UseYouT
       videoId,
       playerVars: {
         autoplay: 0,
-        controls: 1,
+        controls: 0,          // Desabilitar controles do YouTube
         modestbranding: 1,
         rel: 0,
+        disablekb: 1,         // Desabilitar controle por teclado
+        fs: 0,                // Desabilitar botão fullscreen do YouTube
+        iv_load_policy: 3,    // Desabilitar anotações
+        playsinline: 1,       // Tocar inline em mobile
       },
       events: {
         onReady: (event) => {
