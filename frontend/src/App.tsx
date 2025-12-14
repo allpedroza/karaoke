@@ -74,7 +74,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-karaoke-bg">
+    <div className="min-h-screen bg-theme transition-colors duration-300">
       <Header onHomeClick={handleGoHome} />
 
       <main className="container mx-auto px-4 py-8">
@@ -95,15 +95,15 @@ function App() {
         {state.currentView === 'home' && (
           <div className="space-y-8">
             <div className="text-center max-w-2xl mx-auto">
-              <img src="/logo.png" alt="CantAI" className="h-32 mx-auto mb-4" />
-              <p className="text-gray-400 text-lg">
+              <img src="/cantai_logo.png" alt="CantAI" className="h-32 mx-auto mb-4" />
+              <p className="text-theme-muted text-lg">
                 Escolha uma música do catálogo, cante junto com o vídeo e receba uma avaliação
                 personalizada da sua performance usando inteligência artificial.
               </p>
-              <div className="flex justify-center gap-6 mt-6 text-sm text-gray-400">
-                <span className="flex items-center gap-2">🎵 <strong>Tom</strong></span>
-                <span className="flex items-center gap-2">📝 <strong>Letra</strong></span>
-                <span className="flex items-center gap-2">🔥 <strong>Energia</strong></span>
+              <div className="flex justify-center gap-6 mt-6 text-sm text-theme-muted">
+                <span className="flex items-center gap-2">🎵 <strong className="text-theme">Tom</strong></span>
+                <span className="flex items-center gap-2">📝 <strong className="text-theme">Letra</strong></span>
+                <span className="flex items-center gap-2">🔥 <strong className="text-theme">Energia</strong></span>
               </div>
             </div>
 
@@ -133,8 +133,8 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 py-6 mt-12">
-        <div className="container mx-auto px-4 text-center text-gray-500 text-sm">
+      <footer className="border-t border-theme py-6 mt-12 transition-colors duration-300">
+        <div className="container mx-auto px-4 text-center text-theme-secondary text-sm">
           <p>CantAI - Karaokê com avaliação por IA generativa</p>
           <p className="mt-1">Powered by Claude AI</p>
         </div>
