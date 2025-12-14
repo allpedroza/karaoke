@@ -108,7 +108,7 @@ function App() {
         {state.currentView === 'home' && (
           <div className="space-y-8">
             <div className="text-center max-w-2xl mx-auto">
-              <img src="/cantai_logo.png" alt="CantAI" className="h-32 mx-auto mb-4" />
+              <img src="/cantai_logo.png" alt="CantAI" className="h-48 md:h-56 mx-auto mb-6" />
               <p className="text-theme-muted text-lg">
                 Escolha uma música do catálogo, cante junto com o vídeo e receba uma avaliação
                 personalizada da sua performance usando inteligência artificial.
