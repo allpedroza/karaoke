@@ -182,6 +182,7 @@ function ScoreBar({ icon, label, score, color }: ScoreBarProps) {
   };
 
   const getBarColor = (s: number): string => {
+    if (color === 'blue') return 'bg-blue-400';
     if (s >= 80) return 'bg-green-500';
     if (s >= 60) return 'bg-yellow-500';
     if (s >= 40) return 'bg-orange-500';

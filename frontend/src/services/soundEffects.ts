@@ -279,9 +279,9 @@ export async function playScoreSound(score: number): Promise<void> {
   } else if (score >= 60) {
     await playApplause('medium', 3500);
   } else if (score >= 50) {
-    await playBoos(2500);
-  } else {
     await playWompWomp();
+  } else {
+    await playBoos(2500);
   }
 }
 
