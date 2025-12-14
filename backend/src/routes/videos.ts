@@ -13,6 +13,8 @@ function toVideoFormat(song: KaraokeSong) {
     artist: song.artist,
     song: song.song,
     language: song.language,
+    genre: song.genre,
+    duration: song.duration,
   };
 }
 
