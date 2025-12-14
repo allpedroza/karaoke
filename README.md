@@ -43,29 +43,60 @@ karaoke-ai/
 ### Pré-requisitos
 
 - Node.js 18+
-- npm ou yarn
+- npm (o projeto usa workspaces)
 - Chave de API do Anthropic Claude
 
-### Instalação
+### Instalação e ambiente
 
 ```bash
-# Instalar dependências
+# Instalar dependências (frontend + backend)
 npm install
 
-# Configurar variáveis de ambiente
+# Configurar variáveis do backend
 cp backend/.env.example backend/.env
-# Edite o arquivo .env com sua chave de API
-
-# Executar em modo desenvolvimento
-npm run dev
+# Edite backend/.env e defina ANTHROPIC_API_KEY
 ```
 
-### Variáveis de Ambiente
+Variáveis importantes do backend:
 
 ```env
 ANTHROPIC_API_KEY=sua-chave-aqui
 PORT=3001
+NODE_ENV=development
 ```
+
+### Desenvolvimento
+
+```bash
+# Sobe frontend e backend em paralelo (porta 5173 e 3001 por padrão)
+npm run dev
+```
+
+Comandos individuais:
+
+```bash
+# Apenas frontend
+npm run dev:frontend
+
+# Apenas backend
+npm run dev:backend
+```
+
+### Build e produção
+
+```bash
+# Gera artefatos de build do frontend e transpila o backend para dist/
+npm run build
+
+# Após o build, inicia o servidor Express usando o código compilado
+npm run start
+```
+
+## Endpoints principais do backend
+
+- `GET /api/health`: verificação de status do servidor.
+- `POST /api/evaluate`: recebe `songCode`, `transcription` (opcional) e dados de pitch para gerar a avaliação pela IA.
+- `GET /api/videos`: catálogo de músicas e vídeos disponíveis para o frontend.
 
 ## Como Funciona a Avaliação
 
