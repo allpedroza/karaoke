@@ -4,6 +4,9 @@
 
 /* Theme Variables */
 :root {
+  --color-flag-green: #009b3a;
+  --color-flag-blue: #002776;
+
   /* Darkside Theme (default) */
   --color-bg: #0f0f23;
   --color-card: #1a1a2e;
@@ -18,6 +21,7 @@
   --color-success: #22c55e;
   --color-warning: #eab308;
   --color-error: #ef4444;
+  --color-card-text: #ffffff;
 }
 
 :root.light {
@@ -35,6 +39,7 @@
   --color-success: #16a34a;
   --color-warning: #ca8a04;
   --color-error: #dc2626;
+  --color-card-text: var(--color-flag-green);
 }
 
 :root.darkside {
@@ -52,6 +57,7 @@
   --color-success: #22c55e;
   --color-warning: #eab308;
   --color-error: #ef4444;
+  --color-card-text: #ffffff;
 }
 
 body {
@@ -92,6 +98,32 @@ body {
     @apply rounded-xl p-6 shadow-lg transition-colors duration-300;
     background-color: var(--color-card);
     border: 1px solid var(--color-border);
+  }
+
+  .video-card {
+    @apply text-left;
+    color: var(--color-card-text);
+  }
+
+  .video-card:hover {
+    border-color: var(--color-flag-green);
+    color: var(--color-flag-green);
+  }
+
+  .light .video-card:hover {
+    color: var(--color-flag-blue);
+  }
+
+  .video-card-title {
+    color: var(--color-card-text);
+  }
+
+  .video-card:hover .video-card-title {
+    color: var(--color-flag-green);
+  }
+
+  .light .video-card:hover .video-card-title {
+    color: var(--color-flag-blue);
   }
 
   .input-field {
