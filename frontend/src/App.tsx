@@ -162,10 +162,12 @@ function App() {
                 <VideoSearch onVideoSelect={handleVideoSelect} />
               </div>
 
-              {/* Rankings e Top Songs (1/3) */}
-              <div className="lg:col-span-1 space-y-6">
-                <RankingsPanel />
-                <TopSongsPanel />
+              {/* Rankings (1/3) */}
+              <div className="lg:col-span-1">
+                <div className="flex flex-col gap-6">
+                  <RankingsPanel />
+                  <TopSongsPanel />
+                </div>
               </div>
             </div>
           </div>

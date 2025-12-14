@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Trophy, RefreshCw } from 'lucide-react';
 import { getDailyRanking, getOverallRanking, RankingEntry } from '../services/api';
 
 type RankingTab = 'daily' | 'overall';
@@ -56,117 +57,113 @@ export function RankingsPanel() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border border-purple-500/20 rounded-xl p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          🏆 Rankings
-        </h2>
+    <div className="dashboard-card">
+      <div className="flex items-start justify-between gap-3 mb-6 relative z-10">
+        <div>
+          <div className="dashboard-chip">
+            <Trophy className="w-4 h-4" />
+            Rankings
+          </div>
+          <h2 className="text-2xl font-bold text-theme mt-3">Clube dos campeões</h2>
+          <p className="text-sm text-theme-muted mt-1">Veja quem brilhou no microfone</p>
+        </div>
         <button
           onClick={loadRankings}
-          className="text-purple-300 hover:text-white text-sm flex items-center gap-1 transition-colors"
+          className="ghost-button"
           disabled={isLoading}
         >
-          🔄 Atualizar
+          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          Atualizar
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-5 relative z-10">
         <button
           onClick={() => setActiveTab('daily')}
-          className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
-            activeTab === 'daily'
-              ? 'bg-purple-600 text-white'
-              : 'bg-white/10 text-purple-200 hover:bg-white/20'
-          }`}
+          className={`tab-button ${activeTab === 'daily' ? 'tab-button--active' : ''}`}
         >
           📅 Hoje
         </button>
         <button
           onClick={() => setActiveTab('overall')}
-          className={`flex-1 py-2 px-4 rounded-lg font-medium transition-all ${
-            activeTab === 'overall'
-              ? 'bg-purple-600 text-white'
-              : 'bg-white/10 text-purple-200 hover:bg-white/20'
-          }`}
+          className={`tab-button ${activeTab === 'overall' ? 'tab-button--active' : ''}`}
         >
           🌟 Geral
         </button>
       </div>
 
-      {/* Content */}
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-purple-500 border-t-transparent"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-karaoke-accent border-t-transparent"></div>
         </div>
       ) : error ? (
         <div className="text-center py-8 text-red-400">
           <p>{error}</p>
           <button
             onClick={loadRankings}
-            className="mt-2 text-sm text-purple-300 hover:text-white underline"
+            className="mt-2 text-sm text-theme underline"
           >
             Tentar novamente
           </button>
         </div>
       ) : currentRanking.length === 0 ? (
-        <div className="text-center py-8 text-purple-300">
+        <div className="text-center py-8 text-theme-muted">
           <p className="text-3xl mb-2">🎤</p>
           <p>Nenhuma performance registrada ainda!</p>
-          <p className="text-sm mt-1 text-purple-400">
-            Seja o primeiro a entrar no ranking!
-          </p>
+          <p className="text-sm mt-1">Seja o primeiro a entrar no ranking!</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 relative z-10">
           {currentRanking.map((entry, index) => (
             <div
               key={`${entry.player_name}-${entry.created_at}`}
-              className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
-                index === 0
-                  ? 'bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30'
-                  : index === 1
-                  ? 'bg-gradient-to-r from-gray-400/20 to-slate-400/20 border border-gray-400/30'
-                  : index === 2
-                  ? 'bg-gradient-to-r from-orange-600/20 to-amber-700/20 border border-orange-600/30'
-                  : 'bg-white/5 border border-white/10'
-              }`}
+              className="dashboard-row"
+              style={{
+                background:
+                  index === 0
+                    ? 'linear-gradient(90deg, rgba(250,204,21,0.15), rgba(234,179,8,0.05))'
+                    : index === 1
+                    ? 'linear-gradient(90deg, rgba(148,163,184,0.18), rgba(148,163,184,0.06))'
+                    : index === 2
+                    ? 'linear-gradient(90deg, rgba(249,115,22,0.16), rgba(251,146,60,0.06))'
+                    : undefined,
+                borderColor:
+                  index === 0
+                    ? 'rgba(250,204,21,0.4)'
+                    : index === 1
+                    ? 'rgba(148,163,184,0.35)'
+                    : index === 2
+                    ? 'rgba(249,115,22,0.4)'
+                    : undefined,
+              }}
             >
-              {/* Position */}
-              <div className="text-2xl w-10 text-center">
-                {getMedalEmoji(index)}
+              <div className="flex items-center gap-3">
+                <div className="text-xl font-semibold w-10 text-center text-theme">
+                  {getMedalEmoji(index)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-theme truncate">{entry.player_name}</p>
+                  <p className="text-sm text-theme-muted truncate">
+                    {entry.song_title} - {entry.artist}
+                  </p>
+                </div>
               </div>
 
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white truncate">
-                  {entry.player_name}
-                </p>
-                <p className="text-sm text-purple-300 truncate">
-                  {entry.song_title} - {entry.artist}
-                </p>
-              </div>
-
-              {/* Score & Time */}
               <div className="text-right">
                 <p className={`font-bold text-lg ${getScoreColor(entry.score)}`}>
                   {entry.score}
                 </p>
-                <p className="text-xs text-purple-400">
-                  {formatDate(entry.created_at)}
-                </p>
+                <p className="text-xs text-theme-muted">{formatDate(entry.created_at)}</p>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Footer */}
-      <div className="mt-4 pt-4 border-t border-purple-500/20 text-center">
-        <p className="text-xs text-purple-400">
+      <div className="mt-5 pt-4 border-t border-theme text-center relative z-10">
+        <p className="text-xs text-theme-muted">
           {activeTab === 'daily'
-            ? 'Rankings resetam à meia-noite'
+            ? 'Ranking diário reinicia à meia-noite'
             : 'Melhores performances de todos os tempos'}
         </p>
       </div>
