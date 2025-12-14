@@ -52,6 +52,15 @@ export interface TopSong {
   avg_score: number;
 }
 
+export interface TopSinger {
+  player_name: string;
+  sessions_count: number;
+  avg_score: number;
+  last_song_title: string;
+  last_artist: string;
+  last_played: string;
+}
+
 const TIMEZONE_OFFSET = '-3 hours';
 
 // Registrar uma sessão
@@ -135,6 +144,37 @@ export function getPlayerHistory(playerName: string, limit: number = 10): Sessio
   `);
 
   return stmt.all(playerName, limit) as SessionRecord[];
+}
+
+// Jogadores que mais cantam
+export function getTopSingers(limit: number = 5): TopSinger[] {
+  const stmt = db.prepare(`
+    SELECT
+      player_name,
+      COUNT(*) as sessions_count,
+      ROUND(AVG(score), 1) as avg_score,
+      (
+        SELECT song_title
+        FROM sessions s2
+        WHERE s2.player_name = s.player_name
+        ORDER BY s2.created_at DESC
+        LIMIT 1
+      ) as last_song_title,
+      (
+        SELECT artist
+        FROM sessions s3
+        WHERE s3.player_name = s.player_name
+        ORDER BY s3.created_at DESC
+        LIMIT 1
+      ) as last_artist,
+      MAX(created_at) as last_played
+    FROM sessions s
+    GROUP BY player_name
+    ORDER BY sessions_count DESC, avg_score DESC
+    LIMIT ?
+  `);
+
+  return stmt.all(limit) as TopSinger[];
 }
 
 export default db;
