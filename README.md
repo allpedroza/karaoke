@@ -1,6 +1,6 @@
-# Karaoke AI 🎤
+# CantaAI seu Karaoke alimentado com IA 🎤
 
-Aplicação de karaokê que utiliza IA generativa para avaliar a performance do cantor.
+O CantaAI é uma aplicação de karaokê que utiliza IA generativa para avaliar a performance e a animacao do cantor.
 
 ## Funcionalidades
 
