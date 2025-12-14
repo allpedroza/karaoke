@@ -12,6 +12,7 @@ export interface KaraokeSong {
   song: string;
   artist: string;
   youtubeId: string;
+  OriginalSongId: string;
   language: 'pt-BR' | 'en' | 'es';
 }
 
@@ -24,6 +25,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Pais e Filhos',
     artist: 'Legião Urbana',
     youtubeId: 'G73LBvMd84Q', // Verificado
+    OriginalSongId: '',
     language: 'pt-BR',
   },
   {
@@ -31,6 +33,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Evidências',
     artist: 'Chitãozinho e Xororó',
     youtubeId: 'TGXkdU9S0OU', // Verificado
+    OriginalSongId: '',
     language: 'pt-BR',
   },
   {
@@ -38,6 +41,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Você é Linda',
     artist: 'Caetano Veloso',
     youtubeId: 'Fr794p3aG-g', // Verificado
+    OriginalSongId: '',
     language: 'pt-BR',
   },
   {
@@ -45,6 +49,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Quem de Nós Dois',
     artist: 'Ana Carolina',
     youtubeId: '0H820U7Wpu8', // Verificado
+    OriginalSongId: '',
     language: 'pt-BR',
   },
   {
@@ -52,13 +57,15 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Telefone Mudo',
     artist: 'Roberto Carlos',
     youtubeId: 'nJR1pGpG7n0', // Verificado
+    OriginalSongId: '', 
     language: 'pt-BR',
   },
   {
     code: '0006',
     song: 'Eva',
-    artist: 'Rádio Táxi',
+    artist: 'Ivete Sangalo',
     youtubeId: 'ArQA_uAVPac', // Verificado
+    OriginalSongId: '', 
     language: 'pt-BR',
   },
   {
@@ -66,6 +73,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Garçom',
     artist: 'Reginaldo Rossi',
     youtubeId: 'dhDBR7AGVhU', // Verificado
+    OriginalSongId: '',
     language: 'pt-BR',
   },
   {
@@ -73,6 +81,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Várias Queixas',
     artist: 'Os Gilsons',
     youtubeId: '9LKIlW3DhpY', // Verificado
+    OriginalSongId: '', 
     language: 'pt-BR',
   },
   {
@@ -80,6 +89,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Burguesinha',
     artist: 'Seu Jorge',
     youtubeId: 'EfTzWbIN0_M', // Verificado
+    OriginalSongId: '',
     language: 'pt-BR',
   },
   {
@@ -87,6 +97,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Sandra Rosa Madalena',
     artist: 'Sidney Magal',
     youtubeId: 'sk8yiqSR3uI', // Verificado
+    OriginalSongId: '',
     language: 'pt-BR',
   },
   {
@@ -94,6 +105,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Chão de Giz',
     artist: 'Zé Ramalho',
     youtubeId: 'kyLIabrj3Zg', // Verificado
+    OriginalSongId: '',
     language: 'pt-BR',
   },
   {
@@ -101,9 +113,17 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Vai Lá Vai Lá',
     artist: 'Grupo Revelação',
     youtubeId: 'ek_Kk3uiG0U', // Verificado
+    OriginalSongId: '',
     language: 'pt-BR',
   },
-
+  {
+    code: '0013',
+    song: 'De zero a cem',
+    artist: 'Os Garotin, Anchietx ',
+    youtubeId: 'qHI5OH7bVm8', // Verificado
+    OriginalSongId: '', 
+    language: 'pt-BR',
+  },
   // ============================================
   // MÚSICAS INTERNACIONAIS (códigos 0100-0199)
   // ============================================
@@ -112,8 +132,17 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Rehab',
     artist: 'Amy Winehouse',
     youtubeId: 'KS7emVBQ368', // Verificado
+    OriginalSongId: '', 
     language: 'en',
   },
+  {
+  code: '0101',
+  song: 'Feel Good Inc.',
+  artist: 'Gorillaz',
+  youtubeId: 'uQW9ysQrMCE', // Verificado
+  OriginalSongId: '',
+  language: 'en',
+},
 ];
 
 // Funções auxiliares
