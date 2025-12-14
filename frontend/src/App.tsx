@@ -3,8 +3,9 @@ import { Header } from './components/Header';
 import { VideoSearch } from './components/VideoSearch';
 import { KaraokePlayer } from './components/KaraokePlayer';
 import { ResultsView } from './components/ResultsView';
+import { PlayerNameModal } from './components/PlayerNameModal';
 import { KaraokeVideo, AppState, PerformanceData } from './types';
-import { evaluatePerformance } from './services/api';
+import { evaluatePerformance, recordSession } from './services/api';
 import { playDrumRoll, playScoreSound, stopAllSounds } from './services/soundEffects';
 
 function App() {
@@ -15,15 +16,36 @@ function App() {
     isLoading: false,
     error: null,
   });
+  const [showNameModal, setShowNameModal] = useState(false);
+  const [pendingVideo, setPendingVideo] = useState<KaraokeVideo | null>(null);
+  const [playerName, setPlayerName] = useState('');
 
+  // Quando seleciona um vídeo, mostra o modal de nome primeiro
   const handleVideoSelect = (video: KaraokeVideo) => {
+    setPendingVideo(video);
+    setShowNameModal(true);
+  };
+
+  // Quando confirma o nome, vai para o karaokê
+  const handleNameConfirm = (name: string) => {
+    if (!pendingVideo) return;
+
+    setPlayerName(name);
+    setShowNameModal(false);
     setState(prev => ({
       ...prev,
       currentView: 'karaoke',
-      selectedVideo: video,
+      selectedVideo: pendingVideo,
       evaluation: null,
       error: null,
     }));
+    setPendingVideo(null);
+  };
+
+  // Quando cancela o modal de nome
+  const handleNameCancel = () => {
+    setShowNameModal(false);
+    setPendingVideo(null);
   };
 
   const handleFinishSinging = async (data: PerformanceData) => {
@@ -51,6 +73,17 @@ function App() {
         evaluation,
         isLoading: false,
       }));
+
+      // Salvar sessão no banco de dados (em background, não bloquear UI)
+      if (playerName) {
+        recordSession(
+          playerName,
+          state.selectedVideo.code,
+          state.selectedVideo.title,
+          state.selectedVideo.artist,
+          evaluation.overallScore
+        ).catch(err => console.error('Erro ao salvar sessão:', err));
+      }
 
       // Pequeno delay para a transição visual, depois toca o som da nota
       setTimeout(() => {
@@ -152,6 +185,16 @@ function App() {
           <p className="mt-1">Powered by Claude AI</p>
         </div>
       </footer>
+
+      {/* Modal de nome do jogador */}
+      {pendingVideo && (
+        <PlayerNameModal
+          isOpen={showNameModal}
+          video={pendingVideo}
+          onConfirm={handleNameConfirm}
+          onCancel={handleNameCancel}
+        />
+      )}
     </div>
   );
 }
