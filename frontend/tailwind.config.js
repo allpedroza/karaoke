@@ -22,7 +22,7 @@ export default {
         karaoke: {
           bg: '#0f0f23',
           card: '#1a1a2e',
-          accent: '#e94560',
+          accent: '#009b3a',
           secondary: '#16213e',
         }
       },
