@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Mic, Play, Pause, Square, RotateCcw, Loader2, Send, Minimize2, Move } from 'lucide-react';
+import { Mic, Play, Pause, Square, RotateCcw, Loader2, Send, Minimize2, Move, ListPlus } from 'lucide-react';
 import { KaraokeVideo, PerformanceData } from '../types';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
+import { SongQueueDrawer } from './SongQueueDrawer';
 
 // Notas musicais para visualização
 const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -26,12 +27,26 @@ interface KaraokePlayerProps {
   onFinish: (data: PerformanceData) => void;
   onBack: () => void;
   isEvaluating: boolean;
+  queue: KaraokeVideo[];
+  onAddToQueue: (video: KaraokeVideo) => boolean;
+  onRemoveFromQueue: (videoCode: string) => void;
+  maxQueueSize: number;
 }
 
-export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: KaraokePlayerProps) {
+export function KaraokePlayer({
+  video,
+  onFinish,
+  onBack,
+  isEvaluating,
+  queue,
+  onAddToQueue,
+  onRemoveFromQueue,
+  maxQueueSize,
+}: KaraokePlayerProps) {
   const [hasStarted, setHasStarted] = useState(false);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showQueueDrawer, setShowQueueDrawer] = useState(false);
 
   // Estado para barra de pitch arrastável
   const [pitchBarPosition, setPitchBarPosition] = useState({ x: 20, y: 20 });
@@ -242,9 +257,19 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
             <h2 className="text-2xl font-bold text-theme">{video.song}</h2>
             <p className="text-theme-muted">{video.artist}</p>
           </div>
-          <button onClick={onBack} className="btn-secondary text-sm" disabled={isEvaluating}>
-            Voltar
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowQueueDrawer(true)}
+              className="btn-secondary text-sm flex items-center gap-2"
+              disabled={isEvaluating}
+            >
+              <ListPlus className="w-4 h-4" />
+              Fila ({queue.length}/{maxQueueSize})
+            </button>
+            <button onClick={onBack} className="btn-secondary text-sm" disabled={isEvaluating}>
+              Voltar
+            </button>
+          </div>
         </div>
       )}
 
@@ -332,6 +357,18 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
 
               {/* Controles */}
               <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setShowQueueDrawer(true)}
+                  className="p-3 rounded-full bg-purple-600 hover:bg-purple-700 text-white transition-colors relative"
+                  title="Adicionar à fila"
+                >
+                  <ListPlus className="w-6 h-6" />
+                  {queue.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 rounded-full text-xs flex items-center justify-center">
+                      {queue.length}
+                    </span>
+                  )}
+                </button>
                 <button
                   onClick={handlePause}
                   className="p-3 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
@@ -513,6 +550,17 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
           </ul>
         </div>
       )}
+
+      {/* Drawer da fila de músicas */}
+      <SongQueueDrawer
+        isOpen={showQueueDrawer}
+        onClose={() => setShowQueueDrawer(false)}
+        queue={queue}
+        currentSong={video}
+        onAddToQueue={onAddToQueue}
+        onRemoveFromQueue={onRemoveFromQueue}
+        maxQueueSize={maxQueueSize}
+      />
     </div>
   );
 }

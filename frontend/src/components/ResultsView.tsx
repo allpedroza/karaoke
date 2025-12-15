@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Star, Music2, FileText, Zap, RotateCcw, Home, ChevronDown, ChevronUp } from 'lucide-react';
+import { Star, Music2, FileText, Zap, RotateCcw, Home, ChevronDown, ChevronUp, SkipForward } from 'lucide-react';
 import { PerformanceEvaluation, KaraokeVideo } from '../types';
 
 interface ResultsViewProps {
@@ -7,9 +7,11 @@ interface ResultsViewProps {
   video: KaraokeVideo;
   onTryAgain: () => void;
   onNewSong: () => void;
+  queue: KaraokeVideo[];
+  onPlayNextFromQueue: () => void;
 }
 
-export function ResultsView({ evaluation, video, onTryAgain, onNewSong }: ResultsViewProps) {
+export function ResultsView({ evaluation, video, onTryAgain, onNewSong, queue, onPlayNextFromQueue }: ResultsViewProps) {
   const [showDetails, setShowDetails] = useState(false);
 
   const getScoreColor = (score: number): string => {
@@ -152,15 +154,36 @@ export function ResultsView({ evaluation, video, onTryAgain, onNewSong }: Result
       </div>
 
       {/* Botões de Ação */}
-      <div className="flex justify-center gap-4">
-        <button onClick={onTryAgain} className="btn-secondary flex items-center gap-2">
-          <RotateCcw className="w-5 h-5" />
-          Tentar Novamente
-        </button>
-        <button onClick={onNewSong} className="btn-primary flex items-center gap-2">
-          <Home className="w-5 h-5" />
-          Escolher Outra Música
-        </button>
+      <div className="flex flex-col items-center gap-4">
+        {/* Próxima da Fila (se houver) */}
+        {queue.length > 0 && (
+          <div className="w-full max-w-md">
+            <button
+              onClick={onPlayNextFromQueue}
+              className="w-full btn-primary flex items-center justify-center gap-3 text-lg py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500"
+            >
+              <SkipForward className="w-6 h-6" />
+              Próxima da Fila: {queue[0].title}
+            </button>
+            {queue.length > 1 && (
+              <p className="text-center text-sm text-theme-muted mt-2">
+                +{queue.length - 1} música{queue.length > 2 ? 's' : ''} na fila
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Botões padrão */}
+        <div className="flex justify-center gap-4">
+          <button onClick={onTryAgain} className="btn-secondary flex items-center gap-2">
+            <RotateCcw className="w-5 h-5" />
+            Tentar Novamente
+          </button>
+          <button onClick={onNewSong} className="btn-primary flex items-center gap-2">
+            <Home className="w-5 h-5" />
+            {queue.length > 0 ? 'Escolher Outra' : 'Escolher Outra Música'}
+          </button>
+        </div>
       </div>
     </div>
   );

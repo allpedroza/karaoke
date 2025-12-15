@@ -22,6 +22,9 @@ function App() {
   const [showNameModal, setShowNameModal] = useState(false);
   const [pendingVideo, setPendingVideo] = useState<KaraokeVideo | null>(null);
   const [playerName, setPlayerName] = useState('');
+  const [songQueue, setSongQueue] = useState<KaraokeVideo[]>([]);
+
+  const MAX_QUEUE_SIZE = 5;
 
   // Quando seleciona um vídeo, mostra o modal de nome primeiro
   const handleVideoSelect = (video: KaraokeVideo) => {
@@ -49,6 +52,43 @@ function App() {
   const handleNameCancel = () => {
     setShowNameModal(false);
     setPendingVideo(null);
+  };
+
+  // Adicionar música à fila (máximo 5)
+  const handleAddToQueue = (video: KaraokeVideo) => {
+    if (songQueue.length >= MAX_QUEUE_SIZE) {
+      setState(prev => ({ ...prev, error: 'Fila cheia! Máximo de 5 músicas.' }));
+      return false;
+    }
+    // Evitar duplicatas
+    if (songQueue.some(v => v.code === video.code)) {
+      setState(prev => ({ ...prev, error: 'Esta música já está na fila!' }));
+      return false;
+    }
+    setSongQueue(prev => [...prev, video]);
+    return true;
+  };
+
+  // Remover música da fila
+  const handleRemoveFromQueue = (videoCode: string) => {
+    setSongQueue(prev => prev.filter(v => v.code !== videoCode));
+  };
+
+  // Tocar próxima música da fila
+  const handlePlayNextFromQueue = () => {
+    if (songQueue.length === 0) {
+      handleGoHome();
+      return;
+    }
+    const nextVideo = songQueue[0];
+    setSongQueue(prev => prev.slice(1));
+    setState(prev => ({
+      ...prev,
+      currentView: 'karaoke',
+      selectedVideo: nextVideo,
+      evaluation: null,
+      error: null,
+    }));
   };
 
   const handleFinishSinging = async (data: PerformanceData) => {
@@ -182,6 +222,10 @@ function App() {
             onFinish={handleFinishSinging}
             onBack={handleGoHome}
             isEvaluating={state.isLoading}
+            queue={songQueue}
+            onAddToQueue={handleAddToQueue}
+            onRemoveFromQueue={handleRemoveFromQueue}
+            maxQueueSize={MAX_QUEUE_SIZE}
           />
         )}
 
@@ -192,6 +236,8 @@ function App() {
             video={state.selectedVideo}
             onTryAgain={handleTryAgain}
             onNewSong={handleGoHome}
+            queue={songQueue}
+            onPlayNextFromQueue={handlePlayNextFromQueue}
           />
         )}
       </main>
