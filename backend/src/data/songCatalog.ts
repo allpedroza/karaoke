@@ -2281,3 +2281,40 @@ export const SONG_CATALOG: KaraokeSong[] = [
     genre: 'MPB'
   }
 ];
+
+// Funções auxiliares
+export function getSongByCode(code: string): KaraokeSong | undefined {
+  return SONG_CATALOG.find(song => song.code === code);
+}
+
+const LANGUAGE_KEYWORDS: Record<KaraokeSong['language'], string[]> = {
+  'pt-BR': ['pt', 'ptbr', 'pt-br', 'br', 'portugues', 'portuguesa', 'portuguese', 'brasileiro', 'brasileira'],
+  en: ['en', 'eng', 'ingles', 'inglesa', 'english'],
+  es: ['es', 'esp', 'espanhol', 'espanhois', 'espanol', 'espanola', 'español', 'española', 'spanish'],
+};
+
+const normalize = (value: string) => value.toLowerCase().normalize('NFD').replace(/[^\p{L}\p{N}\s-]/gu, '').replace(/[\u0300-\u036f]/g, '');
+
+export function searchSongs(query: string): KaraokeSong[] {
+  const normalizedQuery = normalize(query);
+
+  return SONG_CATALOG.filter((song) => {
+    const titleMatch = normalize(song.song).includes(normalizedQuery);
+    const artistMatch = normalize(song.artist).includes(normalizedQuery);
+    const genreMatch = normalize(song.genre).includes(normalizedQuery);
+    const codeMatch = song.code.includes(query.trim());
+
+    const languageKeywords = LANGUAGE_KEYWORDS[song.language];
+    const languageMatch = languageKeywords.some((keyword) =>
+      normalizedQuery === keyword ||
+      normalizedQuery.includes(keyword) ||
+      keyword.includes(normalizedQuery)
+    );
+
+    return titleMatch || artistMatch || codeMatch || genreMatch || languageMatch;
+  });
+}
+
+export function getSongsByLanguage(language: KaraokeSong['language']): KaraokeSong[] {
+  return SONG_CATALOG.filter(song => song.language === language);
+}
