@@ -5,6 +5,7 @@ import {
   getOverallRanking,
   getTopSongsLastMonth,
   getPlayerHistory,
+  getTopSingers,
 } from '../data/database.js';
 
 export const rankingsRoutes = Router();
@@ -57,6 +58,17 @@ rankingsRoutes.get('/top-songs', (_req: Request, res: Response) => {
   } catch (error) {
     console.error('Erro ao buscar top músicas:', error);
     res.status(500).json({ error: 'Erro ao buscar top músicas' });
+  }
+});
+
+// Top cantores por número de sessões
+rankingsRoutes.get('/top-singers', (_req: Request, res: Response) => {
+  try {
+    const topSingers = getTopSingers(5);
+    res.json(topSingers);
+  } catch (error) {
+    console.error('Erro ao buscar top cantores:', error);
+    res.status(500).json({ error: 'Erro ao buscar top cantores' });
   }
 });
 

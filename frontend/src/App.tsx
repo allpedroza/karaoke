@@ -6,6 +6,7 @@ import { ResultsView } from './components/ResultsView';
 import { PlayerNameModal } from './components/PlayerNameModal';
 import { RankingsPanel } from './components/RankingsPanel';
 import { TopSongsPanel } from './components/TopSongsPanel';
+import { TopSingersPanel } from './components/TopSingersPanel';
 import { KaraokeVideo, AppState, PerformanceData } from './types';
 import { evaluatePerformance, recordSession } from './services/api';
 import { playDrumRoll, playScoreSound, stopAllSounds } from './services/soundEffects';
@@ -167,6 +168,7 @@ function App() {
                 <div className="flex flex-col gap-6">
                   <RankingsPanel />
                   <TopSongsPanel />
+                  <TopSingersPanel />
                 </div>
               </div>
             </div>

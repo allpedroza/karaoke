@@ -77,6 +77,15 @@ export interface TopSong {
   avg_score: number;
 }
 
+export interface TopSinger {
+  player_name: string;
+  sessions_count: number;
+  avg_score: number;
+  last_song_title: string;
+  last_artist: string;
+  last_played: string;
+}
+
 export interface SessionRecord {
   id: number;
   player_name: string;
@@ -126,5 +135,12 @@ export async function getOverallRanking(): Promise<RankingEntry[]> {
 export async function getTopSongs(): Promise<TopSong[]> {
   const response = await fetch(`${API_BASE}/rankings/top-songs`);
   if (!response.ok) throw new Error('Erro ao buscar top músicas');
+  return response.json();
+}
+
+// Top cantores por número de sessões
+export async function getTopSingers(): Promise<TopSinger[]> {
+  const response = await fetch(`${API_BASE}/rankings/top-singers`);
+  if (!response.ok) throw new Error('Erro ao buscar top cantores');
   return response.json();
 }
