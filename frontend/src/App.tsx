@@ -207,8 +207,8 @@ function App() {
               {/* Rankings (1/3) */}
               <div className="lg:col-span-1">
                 <div className="flex flex-col gap-6">
-                  <RankingsPanel />
                   <TopSongsPanel />
+                  <RankingsPanel />
                   <TopSingersPanel />
                 </div>
               </div>
