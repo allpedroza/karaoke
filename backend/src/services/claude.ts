@@ -49,59 +49,68 @@ export interface PerformanceEvaluation {
   encouragement: string;
 }
 
-export async function evaluateWithClaude(input: EvaluationInput): Promise<PerformanceEvaluation> {
+xport async function evaluateWithClaude(input: EvaluationInput): Promise<PerformanceEvaluation> {
   const { transcription, songCode, songTitle, artist, language, pitchStats } = input;
 
+  // MUDANÇA 1: Refinamento do System Prompt com conceitos de Teoria Vocal
   const systemPrompt = `Você é um jurado de karaokê experiente, divertido e encorajador. Você está avaliando uma performance ao vivo de karaokê.
 
 REGRAS DE LINGUAGEM - MUITO IMPORTANTE:
 - Use linguagem de KARAOKÊ, não técnica. Fale sobre "cantar", "afinação", "voz", "música".
 - NUNCA mencione: "transcrição", "reconhecimento de voz", "captado", "detectado", "sistema", "áudio gravado", "frequência Hz", "porcentagem".
 - Fale como se você tivesse OUVIDO a pessoa cantando ao vivo.
-- Seja específico sobre a MÚSICA e a PERFORMANCE, não sobre tecnologia.
+
+INTERPRETANDO A AFINAÇÃO (NUANCE É ESSENCIAL):
+- **Não seja um robô:** Uma nota não precisa ser uma linha reta perfeita.
+- **Vibrato e Estilo:** Se os dados indicarem "muita variação" ou "movimento", isso pode ser VIBRATO ou interpretação emocional (comum em ballads, sertanejo, divas pop). ISSO É BOM!
+- **Diferencie:** Só critique a oscilação se ela parecer insegurança ou "tremedeira". Se a precisão for alta mas a estabilidade baixa, elogie o vibrato/estilo!
+- **Gênero:** Músicas rápidas pedem notas mais retas. Baladas pedem mais oscilação/emoção.
 
 ONOMATOPEIAS E VOCALIZAÇÕES:
-- Palavras como "é", "yeah", "wow", "oh", "ah", "uhu", "ei", "hey", "ô", "uh" são VOCALIZAÇÕES válidas de karaokê.
-- Essas expressões demonstram ENTUSIASMO e participação, NÃO são erros de letra.
-- Não penalize o cantor por usar vocalizações - isso faz parte da experiência do karaokê!
-- Se a pessoa canta "yeah yeah" ou "ô ô ô", ela está participando e se divertindo.
+- Palavras como "é", "yeah", "wow", "oh", "ah", "uhu", "ei", "hey", "ô", "uh" são VOCALIZAÇÕES válidas.
+- Não penalize o cantor por usar vocalizações - isso faz parte da experiência!
 
 CORO/MÚLTIPLAS VOZES:
-- Se foi detectado coro (outras pessoas cantando junto), isso é MUITO POSITIVO para a energia!
-- Karaokê que envolve a plateia merece bônus na dimensão de Energia/Animação.
-- Mencione positivamente se o cantor conseguiu engajar outras pessoas.
+- Se houver indicação de coro, celebre! Karaokê é sobre galera.
 
-Exemplos de linguagem CORRETA:
-- "Você manteve a afinação firme durante o refrão"
-- "Parece que você pulou alguns trechos da letra"
-- "Você cantou com bastante energia!"
-- "A afinação variou um pouco nas notas mais altas"
-- "Adorei as vocalizações! Você realmente entrou no clima da música!"
-- "A galera cantou junto com você - isso é o espírito do karaokê!"
+RESPONDA APENAS com JSON válido.`;
 
-Exemplos de linguagem INCORRETA (NUNCA USE):
-- "A transcrição captou apenas..."
-- "O tom apresentou instabilidade de X%..."
-- "A voz foi detectada em Y% do tempo..."
-- "As notas variaram entre D2 e F#3..."
-
-RESPONDA APENAS com JSON válido, sem texto adicional.`;
-
-  // Construir contexto de pitch para o modelo (interno, não mostrado ao usuário)
+  // MUDANÇA 2: Lógica de construção do contexto de Pitch mais inteligente
   let pitchContext = '';
   if (pitchStats && pitchStats.validSamples > 0) {
     const voicePercentage = Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100);
-    const stabilityLevel = pitchStats.pitchStability >= 70 ? 'estável' : pitchStats.pitchStability >= 40 ? 'moderada' : 'instável';
+    
+    // NOVA LÓGICA: Cruzar estabilidade com precisão para definir o "diagnóstico"
+    let stabilityDesc = '';
+    
+    if (pitchStats.pitchStability >= 70) {
+        stabilityDesc = 'Notas sustentadas e retas (estilo mais pop/rock ou fala)';
+    } else if (pitchStats.pitchStability >= 40) {
+        // Se a precisão é alta mas estabilidade média, é provável vibrato controlado
+        if (pitchStats.pitchAccuracy > 70) {
+            stabilityDesc = 'Voz com movimento e nuances (provável uso de vibrato ou estilo)';
+        } else {
+            stabilityDesc = 'Alguma oscilação na sustentação';
+        }
+    } else {
+        // Estabilidade muito baixa
+        if (pitchStats.pitchAccuracy > 60) {
+             stabilityDesc = 'Muitas variações estilísticas (melismas ou vibrato intenso)';
+        } else {
+             stabilityDesc = 'Voz bastante trêmula ou instável';
+        }
+    }
+
     const presenceLevel = voicePercentage >= 60 ? 'forte presença' : voicePercentage >= 30 ? 'presença moderada' : 'pouca presença vocal';
     const chorusInfo = pitchStats.chorusDetected
-      ? `\n- CORO DETECTADO: Outras pessoas cantaram junto! Isso merece BÔNUS na energia! (${pitchStats.peakVolumeMoments || 0} momentos de coro)`
+      ? `\n- CORO DETECTADO: Outras pessoas cantaram junto! (${pitchStats.peakVolumeMoments || 0} momentos)`
       : '';
 
     pitchContext = `
-[DADOS INTERNOS - Use para avaliar, mas NÃO mencione números/percentuais na resposta]
-- Afinação: ${stabilityLevel} (${pitchStats.pitchStability}% estabilidade, ${pitchStats.pitchAccuracy}% precisão)
-- Presença: ${presenceLevel} (${voicePercentage}% do tempo cantando)
-- Extensão vocal usada: ${pitchStats.notesDetected.length} notas diferentes${chorusInfo}
+[DADOS TÉCNICOS INTERNOS - Use para inferir o estilo, NÃO cite números]
+- Característica da Afinação: ${stabilityDesc} (Baseado em estabilidade: ${pitchStats.pitchStability}% e Precisão da nota alvo: ${pitchStats.pitchAccuracy}%)
+- Presença Vocal: ${presenceLevel}
+- Extensão usada: ${pitchStats.notesDetected.length} notas diferentes${chorusInfo}
 `;
   }
 
@@ -110,52 +119,51 @@ RESPONDA APENAS com JSON válido, sem texto adicional.`;
 **Música:** "${songTitle}" de ${artist}
 **Idioma:** ${language === 'pt-BR' ? 'Português' : language === 'en' ? 'Inglês' : 'Espanhol'}
 
-## O que o cantor cantou:
+## O que foi cantado:
 "${transcription || '(o cantor não acompanhou a letra)'}"
 ${pitchContext}
 ---
 
 ## Avalie em 3 dimensões (0-100 cada):
 
-### 1. TOM (Afinação)
-Avalie se o cantor manteve a afinação correta durante a música.
+### 1. TOM (Afinação e Estilo)
+Avalie a qualidade vocal.
 ${pitchStats && pitchStats.validSamples > 0
-  ? `A afinação foi ${pitchStats.pitchStability >= 70 ? 'bem consistente' : pitchStats.pitchStability >= 40 ? 'razoável' : 'bastante variável'}.`
+  ? `Considere os dados técnicos: O cantor manteve a afinação? O uso de variações/vibrato combinou com a música "${songTitle}"?`
   : 'Avalie pelo fluxo e clareza do canto.'}
 
 ### 2. LETRA (Acompanhamento)
-O cantor acompanhou a letra de "${songTitle}"? Compare o que foi cantado com a letra original que você conhece.
-IMPORTANTE: Onomatopeias como "é", "yeah", "wow", "oh", "ah", "uhu", "hey" são VOCALIZAÇÕES VÁLIDAS, não erros!
+O cantor acompanhou a letra? 
+IMPORTANTE: "Yeah", "Uhu", "Oh" são pontos positivos de empolgação, não erros!
 ${!transcription || transcription.trim().length < 10
-  ? 'Parece que o cantor não acompanhou a letra da música.'
-  : 'Verifique se as palavras cantadas correspondem à letra original. Vocalizações são bem-vindas!'}
+  ? 'Parece que o cantor não acompanhou a letra.'
+  : 'Verifique a fidelidade à letra original, mas aceite improvisos.'}
 
-### 3. ANIMAÇÃO (Energia e Presença)
-O cantor demonstrou energia e presença ao cantar?
+### 3. ANIMAÇÃO (Energia)
+O cantor demonstrou energia?
 ${pitchStats && pitchStats.validSamples > 0
-  ? `O cantor teve ${Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100) >= 50 ? 'boa presença' : 'presença tímida'} durante a música.`
-  : 'Avalie pela intensidade e emoção nas palavras.'}
-${pitchStats?.chorusDetected ? '🎉 BÔNUS: Foi detectado CORO! Outras pessoas cantaram junto - isso demonstra que o cantor engajou a plateia!' : ''}
+  ? `Baseado na presença vocal e momentos de pico.`
+  : 'Avalie pela intensidade.'}
+${pitchStats?.chorusDetected ? '🎉 BÔNUS: O público cantou junto (Coro detectado)!' : ''}
 
 ## Formato de Resposta (JSON):
-
 {
   "overallScore": <0-100>,
   "dimensions": {
     "pitch": {
       "score": <0-100>,
-      "detail": "<frase curta sobre a afinação, ex: 'Você manteve bem o tom!' ou 'A afinação oscilou um pouco nas partes mais difíceis'>"
+      "detail": "<comentário sobre afinação/estilo>"
     },
     "lyrics": {
       "score": <0-100>,
-      "detail": "<frase sobre o acompanhamento da letra, ex: 'Você cantou junto certinho!' ou 'Parece que você não acompanhou a letra da música'>"
+      "detail": "<comentário sobre a letra>"
     },
     "energy": {
       "score": <0-100>,
-      "detail": "<frase sobre energia, ex: 'Cantou com empolgação!' ou 'Pode soltar mais a voz, o karaokê é seu!'>"
+      "detail": "<comentário sobre a energia>"
     }
   },
-  "encouragement": "<mensagem motivacional curta e específica>"
+  "encouragement": "<mensagem motivacional>"
 }
 
 LEMBRE-SE: Fale sobre a PERFORMANCE de karaokê, não sobre tecnologia. Seja gentil mas honesto.`;
