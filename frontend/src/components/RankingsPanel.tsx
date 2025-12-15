@@ -51,12 +51,21 @@ export function RankingsPanel() {
     return 'text-red-400';
   };
 
-  const formatDate = (dateStr: string) => {
+  const formatTime = (dateStr: string) => {
     const date = new Date(dateStr);
     const adjustedDate = new Date(date.getTime() - 3 * 60 * 60 * 1000);
     return new Intl.DateTimeFormat('pt-BR', {
       hour: '2-digit',
       minute: '2-digit',
+    }).format(adjustedDate);
+  };
+
+  const formatDay = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const adjustedDate = new Date(date.getTime() - 3 * 60 * 60 * 1000);
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
     }).format(adjustedDate);
   };
 
@@ -157,7 +166,11 @@ export function RankingsPanel() {
                 <p className={`font-bold text-lg ${getScoreColor(entry.score)}`}>
                   {entry.score}
                 </p>
-                <p className="text-xs text-theme-muted">{formatDate(entry.created_at)}</p>
+                <p className="text-xs text-theme-muted">
+                  {activeTab === 'daily'
+                    ? formatTime(entry.created_at)
+                    : formatDay(entry.created_at)}
+                </p>
               </div>
             </div>
           ))}
