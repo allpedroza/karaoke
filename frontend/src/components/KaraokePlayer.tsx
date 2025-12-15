@@ -228,8 +228,12 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const wrapperClass = isFullscreen
+    ? 'fixed inset-0 z-50 bg-black flex flex-col'
+    : 'max-w-5xl mx-auto space-y-6';
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className={wrapperClass}>
       {/* Header com info do vídeo */}
       {!isFullscreen && (
         <div className="flex items-center justify-between">
@@ -247,14 +251,17 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
       {/* Container do Player (suporta fullscreen) */}
       <div
         ref={containerRef}
-        className={`relative ${isFullscreen ? 'bg-black' : ''}`}
+        className={`relative ${isFullscreen ? 'bg-black flex-1 w-full h-full' : ''}`}
       >
         {/* Player do YouTube */}
-        <div className={`card p-0 overflow-hidden ${isFullscreen ? '!rounded-none !border-0' : ''}`}>
-          <div
-            ref={playerRef}
-            className={`w-full bg-black ${isFullscreen ? 'h-screen' : 'aspect-video'}`}
-          />
+        <div
+          className={`card p-0 overflow-hidden ${
+            isFullscreen ? '!rounded-none !border-0 !bg-black h-full' : ''
+          }`}
+        >
+          <div className={`relative w-full ${isFullscreen ? 'h-full min-h-screen' : 'aspect-video'}`}>
+            <div ref={playerRef} className="absolute inset-0 w-full h-full bg-black" />
+          </div>
 
           {/* Overlay para bloquear cliques no YouTube quando não iniciado */}
           {!hasStarted && (
