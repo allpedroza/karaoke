@@ -397,6 +397,20 @@ export function KaraokePlayer({
             </div>
           </div>
         )}
+
+        {/* Drawer da fila em fullscreen (precisa estar dentro do containerRef) */}
+        {isFullscreen && (
+          <SongQueueDrawer
+            isOpen={showQueueDrawer}
+            onClose={() => setShowQueueDrawer(false)}
+            queue={queue}
+            currentSong={video}
+            onAddToQueue={onAddToQueue}
+            onRemoveFromQueue={onRemoveFromQueue}
+            maxQueueSize={maxQueueSize}
+            isFullscreen={true}
+          />
+        )}
       </div>
 
       {/* Barra de Pitch fora do fullscreen */}
@@ -551,17 +565,19 @@ export function KaraokePlayer({
         </div>
       )}
 
-      {/* Drawer da fila de músicas */}
-      <SongQueueDrawer
-        isOpen={showQueueDrawer}
-        onClose={() => setShowQueueDrawer(false)}
-        queue={queue}
-        currentSong={video}
-        onAddToQueue={onAddToQueue}
-        onRemoveFromQueue={onRemoveFromQueue}
-        maxQueueSize={maxQueueSize}
-        isFullscreen={isFullscreen}
-      />
+      {/* Drawer da fila de músicas (fora do fullscreen) */}
+      {!isFullscreen && (
+        <SongQueueDrawer
+          isOpen={showQueueDrawer}
+          onClose={() => setShowQueueDrawer(false)}
+          queue={queue}
+          currentSong={video}
+          onAddToQueue={onAddToQueue}
+          onRemoveFromQueue={onRemoveFromQueue}
+          maxQueueSize={maxQueueSize}
+          isFullscreen={false}
+        />
+      )}
     </div>
   );
 }
