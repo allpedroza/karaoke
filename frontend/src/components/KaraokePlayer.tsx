@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Mic, Play, Pause, Square, RotateCcw, Loader2, Send, Minimize2, Move, ListPlus } from 'lucide-react';
-import { KaraokeVideo, PerformanceData } from '../types';
+import { KaraokeVideo, PerformanceData, QueueItem } from '../types';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { SongQueueDrawer } from './SongQueueDrawer';
@@ -27,9 +27,9 @@ interface KaraokePlayerProps {
   onFinish: (data: PerformanceData) => void;
   onBack: () => void;
   isEvaluating: boolean;
-  queue: KaraokeVideo[];
-  onAddToQueue: (video: KaraokeVideo) => boolean;
-  onRemoveFromQueue: (videoCode: string) => void;
+  queue: QueueItem[];
+  onAddToQueue: (video: KaraokeVideo, singerName: string) => boolean;
+  onRemoveFromQueue: (index: number) => void;
   maxQueueSize: number;
 }
 
@@ -560,6 +560,7 @@ export function KaraokePlayer({
         onAddToQueue={onAddToQueue}
         onRemoveFromQueue={onRemoveFromQueue}
         maxQueueSize={maxQueueSize}
+        isFullscreen={isFullscreen}
       />
     </div>
   );

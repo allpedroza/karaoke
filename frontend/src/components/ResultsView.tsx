@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Star, Music2, FileText, Zap, RotateCcw, Home, ChevronDown, ChevronUp, SkipForward } from 'lucide-react';
-import { PerformanceEvaluation, KaraokeVideo } from '../types';
+import { PerformanceEvaluation, KaraokeVideo, QueueItem } from '../types';
 
 interface ResultsViewProps {
   evaluation: PerformanceEvaluation;
   video: KaraokeVideo;
   onTryAgain: () => void;
   onNewSong: () => void;
-  queue: KaraokeVideo[];
+  queue: QueueItem[];
   onPlayNextFromQueue: () => void;
 }
 
@@ -160,10 +160,13 @@ export function ResultsView({ evaluation, video, onTryAgain, onNewSong, queue, o
           <div className="w-full max-w-md">
             <button
               onClick={onPlayNextFromQueue}
-              className="w-full btn-primary flex items-center justify-center gap-3 text-lg py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500"
+              className="w-full btn-primary flex flex-col items-center justify-center gap-1 text-lg py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500"
             >
-              <SkipForward className="w-6 h-6" />
-              Próxima da Fila: {queue[0].title}
+              <div className="flex items-center gap-2">
+                <SkipForward className="w-5 h-5" />
+                <span>Próxima: {queue[0].video.title}</span>
+              </div>
+              <span className="text-sm text-pink-200">🎤 {queue[0].singerName}</span>
             </button>
             {queue.length > 1 && (
               <p className="text-center text-sm text-theme-muted mt-2">

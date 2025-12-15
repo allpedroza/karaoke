@@ -7,7 +7,7 @@ import { PlayerNameModal } from './components/PlayerNameModal';
 import { RankingsPanel } from './components/RankingsPanel';
 import { TopSongsPanel } from './components/TopSongsPanel';
 import { TopSingersPanel } from './components/TopSingersPanel';
-import { KaraokeVideo, AppState, PerformanceData } from './types';
+import { KaraokeVideo, AppState, PerformanceData, QueueItem } from './types';
 import { evaluatePerformance, recordSession } from './services/api';
 import { playDrumRoll, playScoreSound, stopAllSounds } from './services/soundEffects';
 
@@ -22,7 +22,7 @@ function App() {
   const [showNameModal, setShowNameModal] = useState(false);
   const [pendingVideo, setPendingVideo] = useState<KaraokeVideo | null>(null);
   const [playerName, setPlayerName] = useState('');
-  const [songQueue, setSongQueue] = useState<KaraokeVideo[]>([]);
+  const [songQueue, setSongQueue] = useState<QueueItem[]>([]);
 
   const MAX_QUEUE_SIZE = 5;
 
@@ -54,24 +54,24 @@ function App() {
     setPendingVideo(null);
   };
 
-  // Adicionar música à fila (máximo 5)
-  const handleAddToQueue = (video: KaraokeVideo) => {
+  // Adicionar música à fila (máximo 5) - agora com nome do cantor
+  const handleAddToQueue = (video: KaraokeVideo, singerName: string) => {
     if (songQueue.length >= MAX_QUEUE_SIZE) {
       setState(prev => ({ ...prev, error: 'Fila cheia! Máximo de 5 músicas.' }));
       return false;
     }
-    // Evitar duplicatas
-    if (songQueue.some(v => v.code === video.code)) {
-      setState(prev => ({ ...prev, error: 'Esta música já está na fila!' }));
+    // Evitar mesma música para o mesmo cantor
+    if (songQueue.some(item => item.video.code === video.code && item.singerName === singerName)) {
+      setState(prev => ({ ...prev, error: 'Esta música já está na fila para este cantor!' }));
       return false;
     }
-    setSongQueue(prev => [...prev, video]);
+    setSongQueue(prev => [...prev, { video, singerName }]);
     return true;
   };
 
-  // Remover música da fila
-  const handleRemoveFromQueue = (videoCode: string) => {
-    setSongQueue(prev => prev.filter(v => v.code !== videoCode));
+  // Remover música da fila por índice
+  const handleRemoveFromQueue = (index: number) => {
+    setSongQueue(prev => prev.filter((_, i) => i !== index));
   };
 
   // Tocar próxima música da fila
@@ -80,12 +80,13 @@ function App() {
       handleGoHome();
       return;
     }
-    const nextVideo = songQueue[0];
+    const nextItem = songQueue[0];
     setSongQueue(prev => prev.slice(1));
+    setPlayerName(nextItem.singerName); // Define o nome do cantor da fila
     setState(prev => ({
       ...prev,
       currentView: 'karaoke',
-      selectedVideo: nextVideo,
+      selectedVideo: nextItem.video,
       evaluation: null,
       error: null,
     }));

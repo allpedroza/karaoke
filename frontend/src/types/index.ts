@@ -54,3 +54,9 @@ export interface AppState {
   isLoading: boolean;
   error: string | null;
 }
+
+// Item da fila de músicas (música + cantor)
+export interface QueueItem {
+  video: KaraokeVideo;
+  singerName: string;
+}
