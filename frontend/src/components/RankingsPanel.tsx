@@ -53,11 +53,13 @@ export function RankingsPanel() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleTimeString('pt-BR', {
+    const formattedTime = new Intl.DateTimeFormat('pt-BR', {
       hour: '2-digit',
       minute: '2-digit',
-      timeZone: 'America/Sao_Paulo',
-    });
+      timeZone: 'Etc/GMT+3',
+    }).format(date);
+
+    return `${formattedTime} UTC-3`;
   };
 
   return (
