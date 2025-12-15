@@ -229,7 +229,7 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
   };
 
   const wrapperClass = isFullscreen
-    ? 'w-full h-full max-w-none mx-0 space-y-6 flex flex-col'
+    ? 'fixed inset-0 z-50 bg-black flex flex-col'
     : 'max-w-5xl mx-auto space-y-6';
 
   return (
@@ -256,15 +256,12 @@ export function KaraokePlayer({ video, onFinish, onBack, isEvaluating }: Karaoke
         {/* Player do YouTube */}
         <div
           className={`card p-0 overflow-hidden ${
-            isFullscreen ? '!rounded-none !border-0 h-full' : ''
+            isFullscreen ? '!rounded-none !border-0 !bg-black h-full' : ''
           }`}
         >
-          <div
-            ref={playerRef}
-            className={`w-full bg-black ${
-              isFullscreen ? 'h-[calc(100vh-1rem)] max-h-screen' : 'aspect-video'
-            }`}
-          />
+          <div className={`relative w-full ${isFullscreen ? 'h-full min-h-screen' : 'aspect-video'}`}>
+            <div ref={playerRef} className="absolute inset-0 w-full h-full bg-black" />
+          </div>
 
           {/* Overlay para bloquear cliques no YouTube quando não iniciado */}
           {!hasStarted && (
