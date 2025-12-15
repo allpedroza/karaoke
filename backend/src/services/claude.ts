@@ -49,7 +49,7 @@ export interface PerformanceEvaluation {
   encouragement: string;
 }
 
-xport async function evaluateWithClaude(input: EvaluationInput): Promise<PerformanceEvaluation> {
+export async function evaluateWithClaude(input: EvaluationInput): Promise<PerformanceEvaluation> {
   const { transcription, songCode, songTitle, artist, language, pitchStats } = input;
 
   // MUDANÇA 1: Refinamento do System Prompt com conceitos de Teoria Vocal
