@@ -7,18 +7,13 @@ import { PlayerNameModal } from './components/PlayerNameModal';
 import { RankingsPanel } from './components/RankingsPanel';
 import { TopSongsPanel } from './components/TopSongsPanel';
 import { TopSingersPanel } from './components/TopSingersPanel';
-import { LandingPage } from './components/LandingPage';
-import { PricingPage } from './components/PricingPage';
-import { AuthPage } from './components/AuthPage';
-import { AdminDashboard } from './components/AdminDashboard';
-import { UserDashboard } from './components/UserDashboard';
-import { KaraokeVideo, AppState, PerformanceData, QueueItem, User } from './types';
+import { KaraokeVideo, AppState, PerformanceData, QueueItem } from './types';
 import { evaluatePerformance, recordSession } from './services/api';
 import { playDrumRoll, playScoreSound, stopAllSounds } from './services/soundEffects';
 
 function App() {
   const [state, setState] = useState<AppState>({
-    currentView: 'landing',
+    currentView: 'home',
     selectedVideo: null,
     evaluation: null,
     isLoading: false,
@@ -28,56 +23,8 @@ function App() {
   const [pendingVideo, setPendingVideo] = useState<KaraokeVideo | null>(null);
   const [playerName, setPlayerName] = useState('');
   const [songQueue, setSongQueue] = useState<QueueItem[]>([]);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [selectedPlan, setSelectedPlan] = useState<'free' | 'personal' | 'custom' | null>(null);
 
   const MAX_QUEUE_SIZE = 5;
-
-  // Navigation handlers
-  const handleNavigateToLanding = () => {
-    setState(prev => ({ ...prev, currentView: 'landing', error: null }));
-  };
-
-  const handleNavigateToPricing = () => {
-    setState(prev => ({ ...prev, currentView: 'pricing', error: null }));
-  };
-
-  const handleNavigateToAuth = (plan?: 'free' | 'personal' | 'custom') => {
-    setSelectedPlan(plan || null);
-    setState(prev => ({ ...prev, currentView: 'auth', error: null }));
-  };
-
-  const handleNavigateToApp = () => {
-    setState(prev => ({ ...prev, currentView: 'home', error: null }));
-  };
-
-  const handleNavigateToUserDashboard = () => {
-    setState(prev => ({ ...prev, currentView: 'user-dashboard', error: null }));
-  };
-
-  const handleNavigateToAdminDashboard = () => {
-    setState(prev => ({ ...prev, currentView: 'admin-dashboard', error: null }));
-  };
-
-  // Auth handlers
-  const handleLogin = (user: User) => {
-    setCurrentUser(user);
-    if (user.role === 'admin') {
-      handleNavigateToAdminDashboard();
-    } else {
-      handleNavigateToUserDashboard();
-    }
-  };
-
-  const handleRegister = (user: User) => {
-    setCurrentUser(user);
-    handleNavigateToUserDashboard();
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    handleNavigateToLanding();
-  };
 
   // Quando seleciona um vídeo, mostra o modal de nome primeiro
   const handleVideoSelect = (video: KaraokeVideo) => {
@@ -216,40 +163,11 @@ function App() {
     });
   };
 
-  // Handle header home click based on auth state
-  const handleHeaderHomeClick = () => {
-    if (currentUser) {
-      if (currentUser.role === 'admin') {
-        handleNavigateToAdminDashboard();
-      } else {
-        handleNavigateToUserDashboard();
-      }
-    } else {
-      handleNavigateToLanding();
-    }
-  };
-
-  // Check if should show simple header (no auth buttons)
-  const showSimpleHeader = ['landing', 'pricing', 'auth'].includes(state.currentView);
-
   return (
     <div className="min-h-screen bg-theme transition-colors duration-300">
-      <Header
-        onHomeClick={handleHeaderHomeClick}
-        showAuthButtons={!showSimpleHeader}
-        currentUser={currentUser}
-        onLoginClick={() => handleNavigateToAuth()}
-        onDashboardClick={() => {
-          if (currentUser?.role === 'admin') {
-            handleNavigateToAdminDashboard();
-          } else {
-            handleNavigateToUserDashboard();
-          }
-        }}
-        onLogout={handleLogout}
-      />
+      <Header onHomeClick={handleGoHome} />
 
-      <main className={state.currentView === 'landing' ? '' : 'container mx-auto px-4 py-8'}>
+      <main className="container mx-auto px-4 py-8">
         {/* Error Banner */}
         {state.error && (
           <div className="max-w-4xl mx-auto mb-6 bg-red-900/30 border border-red-700 rounded-lg p-4">
@@ -263,52 +181,7 @@ function App() {
           </div>
         )}
 
-        {/* Landing Page */}
-        {state.currentView === 'landing' && (
-          <LandingPage
-            onNavigateToPricing={handleNavigateToPricing}
-            onNavigateToAuth={() => handleNavigateToAuth()}
-            onNavigateToApp={handleNavigateToApp}
-          />
-        )}
-
-        {/* Pricing Page */}
-        {state.currentView === 'pricing' && (
-          <PricingPage
-            onSelectPlan={(plan) => handleNavigateToAuth(plan)}
-            onBack={handleNavigateToLanding}
-          />
-        )}
-
-        {/* Auth Page */}
-        {state.currentView === 'auth' && (
-          <AuthPage
-            selectedPlan={selectedPlan}
-            onBack={selectedPlan ? handleNavigateToPricing : handleNavigateToLanding}
-            onLogin={handleLogin}
-            onRegister={handleRegister}
-          />
-        )}
-
-        {/* User Dashboard */}
-        {state.currentView === 'user-dashboard' && currentUser && (
-          <UserDashboard
-            currentUser={currentUser}
-            onLogout={handleLogout}
-            onNavigateToApp={handleNavigateToApp}
-            onNavigateToPricing={handleNavigateToPricing}
-          />
-        )}
-
-        {/* Admin Dashboard */}
-        {state.currentView === 'admin-dashboard' && currentUser && (
-          <AdminDashboard
-            currentUser={currentUser}
-            onLogout={handleLogout}
-          />
-        )}
-
-        {/* Home View (App) */}
+        {/* Home View */}
         {state.currentView === 'home' && (
           <div className="space-y-8">
             <div className="text-center max-w-2xl mx-auto">
@@ -370,15 +243,13 @@ function App() {
         )}
       </main>
 
-      {/* Footer - hide on landing page */}
-      {state.currentView !== 'landing' && (
-        <footer className="border-t border-theme py-6 mt-12 transition-colors duration-300">
-          <div className="container mx-auto px-4 text-center text-theme-secondary text-sm">
-            <p>CantAI - Karaokê com avaliação por IA generativa</p>
-            <p className="mt-1">Powered by Claude AI</p>
-          </div>
-        </footer>
-      )}
+      {/* Footer */}
+      <footer className="border-t border-theme py-6 mt-12 transition-colors duration-300">
+        <div className="container mx-auto px-4 text-center text-theme-secondary text-sm">
+          <p>CantAI - Karaokê com avaliação por IA generativa</p>
+          <p className="mt-1">Powered by Claude AI</p>
+        </div>
+      </footer>
 
       {/* Modal de nome do jogador */}
       {pendingVideo && (

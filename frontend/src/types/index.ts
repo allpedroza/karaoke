@@ -48,53 +48,11 @@ export interface RecordingState {
 }
 
 export interface AppState {
-  currentView: 'landing' | 'pricing' | 'auth' | 'home' | 'karaoke' | 'results' | 'user-dashboard' | 'admin-dashboard';
+  currentView: 'home' | 'karaoke' | 'results';
   selectedVideo: KaraokeVideo | null;
   evaluation: PerformanceEvaluation | null;
   isLoading: boolean;
   error: string | null;
-}
-
-// Tipos para autenticação e usuários
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'user' | 'admin';
-  credits: number;
-  plan: 'free' | 'personal' | 'custom';
-  planCredits: number;
-  createdAt: string;
-}
-
-export interface PricingPlan {
-  id: 'free' | 'personal' | 'custom';
-  name: string;
-  price: number | null;
-  credits: number | null;
-  features: string[];
-  highlighted?: boolean;
-}
-
-export interface Purchase {
-  id: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  plan: 'free' | 'personal' | 'custom';
-  amount: number;
-  credits: number;
-  status: 'pending' | 'completed' | 'refunded';
-  createdAt: string;
-}
-
-export interface CreditTransaction {
-  id: string;
-  userId: string;
-  type: 'purchase' | 'usage' | 'bonus' | 'admin_grant';
-  amount: number;
-  description: string;
-  createdAt: string;
 }
 
 // Item da fila de músicas (música + cantor)
