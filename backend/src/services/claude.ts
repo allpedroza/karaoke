@@ -151,9 +151,6 @@ Gere o JSON de avaliação agora.`;
     const contentBlock = response.content[0];
     const rawText = contentBlock.type === 'text' ? contentBlock.text : '';
 
-    // DEBUG: Ver resposta crua do Claude
-    console.log('🔍 Resposta crua do Claude:', rawText.substring(0, 300));
-
     // Reconstrói o JSON - adiciona '{' apenas se a resposta não começar com ele
     const needsBrace = !rawText.trimStart().startsWith('{');
     const jsonStr = needsBrace ? `{${rawText}` : rawText;
@@ -180,13 +177,7 @@ Gere o JSON de avaliação agora.`;
     }
 
     // 4. VALIDAÇÃO COM ZOD (Garante a tipagem)
-    const result = EvaluationSchema.safeParse(parsedData);
-    if (!result.success) {
-        console.error('❌ JSON recebido:', JSON.stringify(parsedData, null, 2));
-        console.error('❌ Erros de validação:', result.error.issues);
-        throw result.error;
-    }
-    const evaluation = result.data;
+    const evaluation = EvaluationSchema.parse(parsedData);
 
     return evaluation as PerformanceEvaluation;
 
