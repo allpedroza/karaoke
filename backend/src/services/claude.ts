@@ -1,6 +1,20 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { z } from 'zod';
 
-// Cliente será criado sob demanda para garantir que dotenv já carregou
+// --- CONFIGURAÇÃO E VALIDAÇÃO (ZOD) ---
+
+// Schema de validação robusta para garantir a estrutura do JSON
+const EvaluationSchema = z.object({
+  overallScore: z.number().min(0).max(100),
+  dimensions: z.object({
+    pitch: z.object({ score: z.number(), detail: z.string() }),
+    lyrics: z.object({ score: z.number(), detail: z.string() }),
+    energy: z.object({ score: z.number(), detail: z.string() }),
+  }),
+  encouragement: z.string(),
+});
+
+// Singleton do Cliente Anthropic
 let anthropicClient: Anthropic | null = null;
 
 function getAnthropicClient(): Anthropic {
@@ -13,6 +27,8 @@ function getAnthropicClient(): Anthropic {
   }
   return anthropicClient;
 }
+
+// --- INTERFACES ---
 
 export interface PitchStats {
   averageFrequency: number;
@@ -49,185 +65,118 @@ export interface PerformanceEvaluation {
   encouragement: string;
 }
 
+// --- FUNÇÃO PRINCIPAL ---
+
 export async function evaluateWithClaude(input: EvaluationInput): Promise<PerformanceEvaluation> {
-  const { transcription, songCode, songTitle, artist, language, pitchStats } = input;
+  const { transcription, songTitle, artist, language, pitchStats } = input;
 
-  // MUDANÇA 1: Refinamento do System Prompt com conceitos de Teoria Vocal
-  const systemPrompt = `Você é um jurado de karaokê experiente, divertido e encorajador. Você está avaliando uma performance ao vivo de karaokê.
+  // 1. SYSTEM PROMPT OTIMIZADO: Focado em interpretação de contexto musical
+  const systemPrompt = `Você é o "KaraokeAI", um jurado de karaokê experiente, carismático e técnico.
 
-REGRAS DE LINGUAGEM - MUITO IMPORTANTE:
-- Use linguagem de KARAOKÊ, não técnica. Fale sobre "cantar", "afinação", "voz", "música".
-- NUNCA mencione: "transcrição", "reconhecimento de voz", "captado", "detectado", "sistema", "áudio gravado", "frequência Hz", "porcentagem".
-- Fale como se você tivesse OUVIDO a pessoa cantando ao vivo.
+SUA MISSÃO:
+Avaliar a performance cruzando os DADOS TÉCNICOS fornecidos com o GÊNERO MUSICAL da canção "${songTitle}" de "${artist}".
 
-INTERPRETANDO A AFINAÇÃO (NUANCE É ESSENCIAL):
-- **Não seja um robô:** Uma nota não precisa ser uma linha reta perfeita.
-- **Vibrato e Estilo:** Se os dados indicarem "muita variação" ou "movimento", isso pode ser VIBRATO ou interpretação emocional (comum em ballads, sertanejo, divas pop). ISSO É BOM!
-- **Diferencie:** Só critique a oscilação se ela parecer insegurança ou "tremedeira". Se a precisão for alta mas a estabilidade baixa, elogie o vibrato/estilo!
-- **Gênero:** Músicas rápidas pedem notas mais retas. Baladas pedem mais oscilação/emoção.
+COMO INTERPRETAR OS DADOS (Raciocínio Interno):
+1. **Identifique o Gênero:** Antes de dar a nota, lembre-se do estilo original (Rock, Sertanejo, Pop, Axé, Balada?).
+2. **Analise a Estabilidade (Pitch Stability):**
+   - Em Baladas/Pop Lento: Baixa estabilidade (<50%) geralmente é erro de sustentação.
+   - Em Axé/Rock/Ao Vivo: Baixa estabilidade pode ser energia, "rasgado" ou vibrato. Se a precisão for boa, NÃO penalize a estabilidade baixa.
+3. **Analise a Precisão (Pitch Accuracy):**
+   - >70% é excelente. Entre 50-70% é aceitável para amadores.
+   - Esta métrica já considera transposição (o usuário pode cantar em outra oitava).
+4. **Letra:**
+   - "Yeah", "Uhu", "Ah", "Ei" são sinais de animação, não erros de letra.
 
-ONOMATOPEIAS E VOCALIZAÇÕES:
-- Palavras como "é", "yeah", "wow", "oh", "ah", "uhu", "ei", "hey", "ô", "uh" são VOCALIZAÇÕES válidas.
-- Não penalize o cantor por usar vocalizações - isso faz parte da experiência!
+TOM DE VOZ:
+- Use gírias leves de música ("Soltou a voz", "Mandou bem", "Segurou o tom").
+- Seja encorajador, mas aponte onde melhorar sem ser técnico demais.
+- NUNCA mencione "JSON", "frequência", "algoritmo", "Hz" ou porcentagens no texto final.
 
-CORO/MÚLTIPLAS VOZES:
-- Se houver indicação de coro, celebre! Karaokê é sobre galera.
+OUTPUT:
+Retorne APENAS um JSON válido.`;
 
-RESPONDA APENAS com JSON válido.`;
-
-  // MUDANÇA 2: Lógica de construção do contexto de Pitch mais inteligente
-  let pitchContext = '';
+  // 2. CONSTRUÇÃO DO CONTEXTO TÉCNICO (Sem julgamento prévio, apenas dados)
+  let technicalContext = '[Sem dados de áudio, avalie apenas pela letra]';
+  
   if (pitchStats && pitchStats.validSamples > 0) {
-    const voicePercentage = Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100);
+    const presencePct = Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100);
+    const chorusText = pitchStats.chorusDetected ? 'Sim (Público/Backing vocals detectados)' : 'Não';
     
-    // NOVA LÓGICA: Cruzar estabilidade com precisão para definir o "diagnóstico"
-    let stabilityDesc = '';
-    
-    if (pitchStats.pitchStability >= 70) {
-        stabilityDesc = 'Notas sustentadas e retas (estilo mais pop/rock ou fala)';
-    } else if (pitchStats.pitchStability >= 40) {
-        // Se a precisão é alta mas estabilidade média, é provável vibrato controlado
-        if (pitchStats.pitchAccuracy > 70) {
-            stabilityDesc = 'Voz com movimento e nuances (provável uso de vibrato ou estilo)';
-        } else {
-            stabilityDesc = 'Alguma oscilação na sustentação';
-        }
-    } else {
-        // Estabilidade muito baixa
-        if (pitchStats.pitchAccuracy > 60) {
-             stabilityDesc = 'Muitas variações estilísticas (melismas ou vibrato intenso)';
-        } else {
-             stabilityDesc = 'Voz bastante trêmula ou instável';
-        }
-    }
-
-    const presenceLevel = voicePercentage >= 60 ? 'forte presença' : voicePercentage >= 30 ? 'presença moderada' : 'pouca presença vocal';
-    const chorusInfo = pitchStats.chorusDetected
-      ? `\n- CORO DETECTADO: Outras pessoas cantaram junto! (${pitchStats.peakVolumeMoments || 0} momentos)`
-      : '';
-
-    pitchContext = `
-[DADOS TÉCNICOS INTERNOS - Use para inferir o estilo, NÃO cite números]
-- Característica da Afinação: ${stabilityDesc} (Baseado em estabilidade: ${pitchStats.pitchStability}% e Precisão da nota alvo: ${pitchStats.pitchAccuracy}%)
-- Presença Vocal: ${presenceLevel}
-- Extensão usada: ${pitchStats.notesDetected.length} notas diferentes${chorusInfo}
-`;
+    technicalContext = `
+[DADOS DOS SENSORES - Use isso para calibrar sua avaliação]
+- Precisão Melódica (Accuracy): ${Math.round(pitchStats.pitchAccuracy)}% (Quão bem ele acertou as notas alvo)
+- Estabilidade da Nota (Stability): ${Math.round(pitchStats.pitchStability)}% (Quão "reta" foi a sustentação. Lembre-se: Vibrato reduz estabilidade mas é bom!)
+- Presença Vocal: ${presencePct}% do tempo da música
+- Coro Detectado: ${chorusText}
+- Notas alcançadas: ${pitchStats.notesDetected.length} notas diferentes
+    `;
   }
 
-  const userPrompt = `# Performance de Karaokê para Avaliar
+  const userPrompt = `
+# DADOS DA PERFORMANCE
+**Música:** "${songTitle}" - ${artist}
+**Idioma:** ${language === 'pt-BR' ? 'Português' : 'Estrangeiro'}
 
-**Música:** "${songTitle}" de ${artist}
-**Idioma:** ${language === 'pt-BR' ? 'Português' : language === 'en' ? 'Inglês' : 'Espanhol'}
+**Transcrição (O que o cantor disse):**
+"${transcription || '(silêncio/apenas instrumental)'}"
 
-## O que foi cantado:
-"${transcription || '(o cantor não acompanhou a letra)'}"
-${pitchContext}
----
+${technicalContext}
 
-## Avalie em 3 dimensões (0-100 cada):
-
-### 1. TOM (Afinação e Estilo)
-Avalie a qualidade vocal.
-${pitchStats && pitchStats.validSamples > 0
-  ? `Considere os dados técnicos: O cantor manteve a afinação? O uso de variações/vibrato combinou com a música "${songTitle}"?`
-  : 'Avalie pelo fluxo e clareza do canto.'}
-
-### 2. LETRA (Acompanhamento)
-O cantor acompanhou a letra? 
-IMPORTANTE: "Yeah", "Uhu", "Oh" são pontos positivos de empolgação, não erros!
-${!transcription || transcription.trim().length < 10
-  ? 'Parece que o cantor não acompanhou a letra.'
-  : 'Verifique a fidelidade à letra original, mas aceite improvisos.'}
-
-### 3. ANIMAÇÃO (Energia)
-O cantor demonstrou energia?
-${pitchStats && pitchStats.validSamples > 0
-  ? `Baseado na presença vocal e momentos de pico.`
-  : 'Avalie pela intensidade.'}
-${pitchStats?.chorusDetected ? '🎉 BÔNUS: O público cantou junto (Coro detectado)!' : ''}
-
-## Formato de Resposta (JSON):
-{
-  "overallScore": <0-100>,
-  "dimensions": {
-    "pitch": {
-      "score": <0-100>,
-      "detail": "<comentário sobre afinação/estilo>"
-    },
-    "lyrics": {
-      "score": <0-100>,
-      "detail": "<comentário sobre a letra>"
-    },
-    "energy": {
-      "score": <0-100>,
-      "detail": "<comentário sobre a energia>"
-    }
-  },
-  "encouragement": "<mensagem motivacional>"
-}
-
-LEMBRE-SE: Fale sobre a PERFORMANCE de karaokê, não sobre tecnologia. Seja gentil mas honesto.`;
+Gere o JSON de avaliação agora.`;
 
   try {
     const anthropic = getAnthropicClient();
+    
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-3-5-sonnet-latest', // Usando a versão mais recente estável
       max_tokens: 1024,
-      messages: [
-        {
-          role: 'user',
-          content: userPrompt,
-        },
-      ],
+      temperature: 0.7, // Um pouco de criatividade para os comentários
       system: systemPrompt,
+      messages: [
+        { role: 'user', content: userPrompt },
+        // TRUQUE DO PREFILL: Força o modelo a começar com JSON
+        { role: 'assistant', content: '{' } 
+      ],
     });
 
-    const textContent = response.content.find(block => block.type === 'text');
-    if (!textContent || textContent.type !== 'text') {
-      throw new Error('Resposta inválida da IA');
+    // 3. PARSING SEGURO COM PREFILL
+    // Como injetamos '{', precisamos concatená-lo de volta na resposta
+    const contentBlock = response.content[0];
+    const rawText = contentBlock.type === 'text' ? contentBlock.text : '';
+    
+    // Reconstrói o JSON completo
+    const jsonStr = `{${rawText}`;
+    
+    // Limpeza extra de segurança (caso o modelo ignore o prefill e mande markdown)
+    const cleanJsonStr = jsonStr.replace(/```json\n?|```/g, '').trim();
+
+    // Parse do JSON
+    let parsedData;
+    try {
+        parsedData = JSON.parse(cleanJsonStr);
+    } catch (e) {
+        // Fallback: Tenta encontrar o primeiro JSON válido na string se a limpeza falhou
+        const match = cleanJsonStr.match(/\{[\s\S]*\}/);
+        if (match) {
+            parsedData = JSON.parse(match[0]);
+        } else {
+            throw new Error(`Falha ao parsear JSON da IA: ${cleanJsonStr.substring(0, 50)}...`);
+        }
     }
 
-    // Limpar possíveis marcadores de código
-    let jsonText = textContent.text.trim();
-    if (jsonText.startsWith('```json')) {
-      jsonText = jsonText.slice(7);
-    }
-    if (jsonText.startsWith('```')) {
-      jsonText = jsonText.slice(3);
-    }
-    if (jsonText.endsWith('```')) {
-      jsonText = jsonText.slice(0, -3);
-    }
-    jsonText = jsonText.trim();
+    // 4. VALIDAÇÃO COM ZOD (Garante a tipagem)
+    const evaluation = EvaluationSchema.parse(parsedData);
 
-    const evaluation = JSON.parse(jsonText) as PerformanceEvaluation;
+    return evaluation as PerformanceEvaluation;
 
-    // Validar estrutura
-    if (
-      typeof evaluation.overallScore !== 'number' ||
-      !evaluation.dimensions ||
-      !evaluation.dimensions.pitch ||
-      !evaluation.dimensions.lyrics ||
-      !evaluation.dimensions.energy ||
-      !evaluation.encouragement
-    ) {
-      throw new Error('Estrutura de avaliação inválida');
-    }
-
-    // Garantir que scores estão no range 0-100
-    evaluation.overallScore = Math.max(0, Math.min(100, Math.round(evaluation.overallScore)));
-    evaluation.dimensions.pitch.score = Math.max(0, Math.min(100, Math.round(evaluation.dimensions.pitch.score)));
-    evaluation.dimensions.lyrics.score = Math.max(0, Math.min(100, Math.round(evaluation.dimensions.lyrics.score)));
-    evaluation.dimensions.energy.score = Math.max(0, Math.min(100, Math.round(evaluation.dimensions.energy.score)));
-
-    return evaluation;
   } catch (error) {
     console.error('Erro ao avaliar com Claude:', error);
-
-    // Retornar avaliação padrão em caso de erro
+    // Retornar avaliação padrão segura em caso de falha na API ou Parsing
     return createDefaultEvaluation(transcription);
   }
 }
+
+// --- FALLBACK EM CASO DE ERRO ---
 
 function createDefaultEvaluation(transcription: string): PerformanceEvaluation {
   const wordCount = (transcription || '').split(' ').filter(w => w.trim()).length;
@@ -239,19 +188,19 @@ function createDefaultEvaluation(transcription: string): PerformanceEvaluation {
       pitch: {
         score: hasContent ? 65 : 30,
         detail: hasContent
-          ? 'Você cantou com desenvoltura! Continue praticando para melhorar ainda mais a afinação.'
+          ? 'Você cantou com desenvoltura! Continue praticando para refinar a afinação.'
           : 'Parece que você cantou bem baixinho. Solte mais a voz!',
       },
       lyrics: {
         score: hasContent ? 60 : 25,
         detail: hasContent
           ? 'Você acompanhou a música! Com mais prática, vai acertar cada vez mais.'
-          : 'Parece que você não acompanhou a letra da música. Tente cantar junto!',
+          : 'Parece que você não acompanhou a letra. Tente cantar junto na próxima!',
       },
       energy: {
         score: hasContent ? 70 : 35,
         detail: hasContent
-          ? 'Boa energia! O karaokê é sobre se divertir cantando.'
+          ? 'Boa energia! O importante é se divertir.'
           : 'Solte a voz! O karaokê é seu momento de brilhar.',
       },
     },
