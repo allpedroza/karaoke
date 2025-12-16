@@ -92,8 +92,16 @@ TOM DE VOZ:
 - Seja encorajador, mas aponte onde melhorar sem ser técnico demais.
 - NUNCA mencione "JSON", "frequência", "algoritmo", "Hz" ou porcentagens no texto final.
 
-OUTPUT:
-Retorne APENAS um JSON válido.`;
+OUTPUT OBRIGATÓRIO (use EXATAMENTE esta estrutura JSON):
+{
+  "overallScore": <número de 0 a 100>,
+  "dimensions": {
+    "pitch": { "score": <0-100>, "detail": "<comentário sobre afinação>" },
+    "lyrics": { "score": <0-100>, "detail": "<comentário sobre letra>" },
+    "energy": { "score": <0-100>, "detail": "<comentário sobre energia/animação>" }
+  },
+  "encouragement": "<mensagem final motivacional>"
+}`;
 
   // 2. CONSTRUÇÃO DO CONTEXTO TÉCNICO (Sem julgamento prévio, apenas dados)
   let technicalContext = '[Sem dados de áudio, avalie apenas pela letra]';
