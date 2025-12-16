@@ -143,6 +143,9 @@ Gere o JSON de avaliação agora.`;
     const contentBlock = response.content[0];
     const rawText = contentBlock.type === 'text' ? contentBlock.text : '';
 
+    // DEBUG: Ver resposta crua do Claude
+    console.log('🔍 Resposta crua do Claude:', rawText.substring(0, 300));
+
     // Reconstrói o JSON - adiciona '{' apenas se a resposta não começar com ele
     const needsBrace = !rawText.trimStart().startsWith('{');
     const jsonStr = needsBrace ? `{${rawText}` : rawText;
