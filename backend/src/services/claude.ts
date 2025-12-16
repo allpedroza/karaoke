@@ -128,7 +128,7 @@ Gere o JSON de avaliação agora.`;
     const anthropic = getAnthropicClient();
     
     const response = await anthropic.messages.create({
-      model: 'claude-3-haiku-20240307', // Claude 3 Haiku - mais acessível
+      model: 'claude-sonnet-4-20250514', // Claude Sonnet 4
       max_tokens: 1024,
       temperature: 0.7, // Um pouco de criatividade para os comentários
       system: systemPrompt,
