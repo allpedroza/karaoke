@@ -139,33 +139,43 @@ Gere o JSON de avaliação agora.`;
       ],
     });
 
-    // 3. PARSING SEGURO COM PREFILL
-    // Como injetamos '{', precisamos concatená-lo de volta na resposta
+    // 3. PARSING SEGURO
     const contentBlock = response.content[0];
     const rawText = contentBlock.type === 'text' ? contentBlock.text : '';
-    
-    // Reconstrói o JSON completo
-    const jsonStr = `{${rawText}`;
-    
-    // Limpeza extra de segurança (caso o modelo ignore o prefill e mande markdown)
+
+    // Reconstrói o JSON - adiciona '{' apenas se a resposta não começar com ele
+    const needsBrace = !rawText.trimStart().startsWith('{');
+    const jsonStr = needsBrace ? `{${rawText}` : rawText;
+
+    // Limpeza: remove markdown code blocks se existirem
     const cleanJsonStr = jsonStr.replace(/```json\n?|```/g, '').trim();
 
-    // Parse do JSON
+    // Parse do JSON com múltiplas estratégias
     let parsedData;
     try {
         parsedData = JSON.parse(cleanJsonStr);
     } catch (e) {
-        // Fallback: Tenta encontrar o primeiro JSON válido na string se a limpeza falhou
+        // Fallback 1: Extrair JSON do texto
         const match = cleanJsonStr.match(/\{[\s\S]*\}/);
         if (match) {
-            parsedData = JSON.parse(match[0]);
+            try {
+                parsedData = JSON.parse(match[0]);
+            } catch (e2) {
+                throw new Error(`Falha ao parsear JSON da IA: ${cleanJsonStr.substring(0, 100)}...`);
+            }
         } else {
-            throw new Error(`Falha ao parsear JSON da IA: ${cleanJsonStr.substring(0, 50)}...`);
+            throw new Error(`Nenhum JSON encontrado na resposta: ${cleanJsonStr.substring(0, 100)}...`);
         }
     }
 
     // 4. VALIDAÇÃO COM ZOD (Garante a tipagem)
-    const evaluation = EvaluationSchema.parse(parsedData);
+    const result = EvaluationSchema.safeParse(parsedData);
+    if (!result.success) {
+        console.error('❌ JSON recebido:', JSON.stringify(parsedData, null, 2));
+        console.error('❌ Erros de validação:', result.error.issues);
+        throw result.error;
+    }
+    const evaluation = result.data;
 
     return evaluation as PerformanceEvaluation;
 
