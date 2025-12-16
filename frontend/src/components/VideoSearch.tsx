@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Play, User, Globe, Clock3, Tag } from 'lucide-react';
+import { Search, Play, User, Globe, Clock3, Tag, Music } from 'lucide-react';
 import { KaraokeVideo } from '../types';
 import { getCatalog, searchVideos } from '../services/api';
 
@@ -148,6 +148,13 @@ function VideoCard({ video, onSelect, languageLabel }: VideoCardProps) {
         <User className="w-4 h-4" />
         {video.artist}
       </p>
+
+      {video.famousVerse && (
+        <p className="text-xs mt-2 italic text-theme-muted flex items-start gap-1.5 line-clamp-2">
+          <Music className="w-3 h-3 mt-0.5 flex-shrink-0 opacity-60" />
+          <span>"{video.famousVerse}"</span>
+        </p>
+      )}
 
       <div className="flex flex-wrap gap-2 mt-3 text-xs text-current transition-colors">
         <span className="flex items-center gap-1 bg-theme-secondary border border-theme px-2 py-1 rounded-full">
