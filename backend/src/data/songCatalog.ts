@@ -7,6 +7,8 @@ export interface KaraokeSong {
   language: 'pt-BR' | 'en' | 'es';
   duration: string;
   genre: string;
+  /** Versos ou refrões famosos para reconhecimento da música */
+  famousVerse?: string;
 }
 
 export const SONG_CATALOG: KaraokeSong[] = [
@@ -18,27 +20,30 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'p5OI0YlcSXs',
     language: 'pt-BR',
     duration: '02:50',
-    genre: 'Samba'
+    genre: 'Samba',
+    famousVerse: 'Não posso ficar nem mais um minuto com você...'
   },
   {
     code: '0002',
-    song: 'Devolvame',
-    artist: 'Adriana Calcanhoto',
+    song: 'Devolva-me',
+    artist: 'Adriana Calcanhotto',
     youtubeId: 'egp2GyPnQdY',
     OriginalSongId: 'k3l_A6J2Mk4',
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'MPB'
+    genre: 'MPB',
+    famousVerse: 'Devolva-me o céu que eu lhe dei, devolva minha paz...'
   },
   {
     code: '0003',
     song: 'Mentiras',
-    artist: 'Adriana Calcanhoto',
+    artist: 'Adriana Calcanhotto',
     youtubeId: 'pjAZPO_6L7o',
     OriginalSongId: 'BtKY0HJa2jY',
     language: 'pt-BR',
     duration: '02:58',
-    genre: 'MPB'
+    genre: 'MPB',
+    famousVerse: 'Mentiras, mentiras, a verdade me faz chorar...'
   },
   {
     code: '0004',
@@ -68,7 +73,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'j42byy7G_Ow',
     language: 'pt-BR',
     duration: '02:50',
-    genre: 'MPB'
+    genre: 'MPB',
+    famousVerse: 'Tu vens, tu vens, eu já escuto os teus sinais...'
   },
   {
     code: '0007',
@@ -118,7 +124,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: '6d6fIM54Vkk',
     language: 'pt-BR',
     duration: '04:30',
-    genre: 'Samba'
+    genre: 'Samba',
+    famousVerse: 'Não deixe o samba morrer, não deixe o samba acabar...'
   },
   {
     code: '0012',
@@ -203,12 +210,13 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0020',
     song: 'Trem Bala',
-    artist: 'Ana Vilela E Luan Santana',
+    artist: 'Ana Vilela e Luan Santana',
     youtubeId: '8-rTz4G9BZc',
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Pop'
+    genre: 'Pop',
+    famousVerse: 'Segura teu filho no colo, sorria e abraça os teus pais enquanto é tempo...'
   },
   {
     code: '0021',
@@ -222,13 +230,14 @@ export const SONG_CATALOG: KaraokeSong[] = [
   },
   {
     code: '0022',
-    song: 'Trevo (tu)',
+    song: 'Trevo (Tu)',
     artist: 'Anavitória',
     youtubeId: 'iI3XfTsECOs',
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Pop'
+    genre: 'Pop',
+    famousVerse: 'Aí então me abraça forte e diz mais uma vez que já estamos distantes de tudo...'
   },
   {
     code: '0023',
@@ -312,7 +321,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   },
   {
     code: '0031',
-    song: 'Reiventar',
+    song: 'Reinventar',
     artist: 'Belo',
     youtubeId: 'Usi9VIpdV44',
     OriginalSongId: null,
@@ -478,7 +487,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'MPB'
+    genre: 'MPB',
+    famousVerse: 'Às vezes no silêncio da noite eu fico imaginando nós dois...'
   },
   {
     code: '0048',
@@ -563,7 +573,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0056',
     song: 'All Star',
-    artist: 'Cassia Eller',
+    artist: 'Cássia Eller',
     youtubeId: 'mnVYAX1eBiQ',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -573,7 +583,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0057',
     song: 'Malandragem',
-    artist: 'Cassia Eller',
+    artist: 'Cássia Eller',
     youtubeId: '3g9ULvFEA1s',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -583,7 +593,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0058',
     song: 'Nós',
-    artist: 'Cassia Eller',
+    artist: 'Cássia Eller',
     youtubeId: 'oA_Dy7EJIdw',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -593,7 +603,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0059',
     song: 'Palavras ao Vento',
-    artist: 'Cassia Eller',
+    artist: 'Cássia Eller',
     youtubeId: '62u0sYsQ0SU',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -603,7 +613,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0060',
     song: 'Por Enquanto',
-    artist: 'Cassia Eller',
+    artist: 'Cássia Eller',
     youtubeId: 'LkLGWQ1N12M',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -613,12 +623,13 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0061',
     song: 'Segundo Sol',
-    artist: 'Cassia Eller',
+    artist: 'Cássia Eller',
     youtubeId: 'ARjyBixTX68',
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:15',
-    genre: 'Rock/MPB'
+    genre: 'Rock/MPB',
+    famousVerse: 'Quando o segundo sol chegar para realinhar as órbitas dos planetas...'
   },
   {
     code: '0062',
@@ -638,7 +649,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
+    famousVerse: 'Exagerado, jogado aos teus pés, eu sou mesmo exagerado...'
   },
   {
     code: '0064',
@@ -668,7 +680,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:30',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
+    famousVerse: 'Dias sim, dias não, eu vou sobrevivendo sem um arranhão...'
   },
   {
     code: '0067',
@@ -803,7 +816,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0080',
     song: 'A Minha Vida',
-    artist: 'Chitãozinho E Xororó',
+    artist: 'Chitãozinho e Xororó',
     youtubeId: '9lxRvUYgp1k',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -818,12 +831,13 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'etHo9ZOGgdY',
     language: 'pt-BR',
     duration: '4:39',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
+    famousVerse: 'Quando eu digo que deixei de te amar, é porque eu te amo...'
   },
   {
     code: '0082',
     song: 'Frete',
-    artist: 'Chitãozinho E Xororó',
+    artist: 'Chitãozinho e Xororó',
     youtubeId: 'm8euaSUSAKI',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -833,7 +847,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0083',
     song: 'Galinhada',
-    artist: 'Chitãozinho E Xororó',
+    artist: 'Chitãozinho e Xororó',
     youtubeId: 'wms3KZYD8YQ',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -843,7 +857,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0084',
     song: 'Pensando em minha amada',
-    artist: 'Chitãozinho E Xororó',
+    artist: 'Chitãozinho e Xororó',
     youtubeId: 'hpgdKAsKmI0',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -853,7 +867,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0085',
     song: 'Pra Emoção',
-    artist: 'Chitãozinho E Xororó',
+    artist: 'Chitãozinho e Xororó',
     youtubeId: '8jVN3lyybOA',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -863,7 +877,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0086',
     song: 'Um, dois, três',
-    artist: 'Chitãozinho E Xororó',
+    artist: 'Chitãozinho e Xororó',
     youtubeId: '9rgqa8N0lJw',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -913,17 +927,18 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0091',
     song: 'Fico Assim Sem Você',
-    artist: 'Claudinho E Buchecha',
+    artist: 'Claudinho e Buchecha',
     youtubeId: 'z9As78sHpFI',
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Funk'
+    genre: 'Funk',
+    famousVerse: 'Eu fico assim sem você, não tenho paz de noite, não consigo dormir...'
   },
   {
     code: '0092',
     song: 'Nosso Sonho',
-    artist: 'Claudinho E Buchecha',
+    artist: 'Claudinho e Buchecha',
     youtubeId: '44vcvQuMCss',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -933,7 +948,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0093',
     song: 'Quero Te Encontrar',
-    artist: 'Claudinho E Buchecha',
+    artist: 'Claudinho e Buchecha',
     youtubeId: 'hg4rNn6eSmU',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -1023,7 +1038,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0102',
     song: 'Pouco a pouco',
-    artist: 'Dilsinho feat. Sorisso Maroto',
+    artist: 'Dilsinho feat. Sorriso Maroto',
     youtubeId: '0syWKrmJHQ4',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -1368,7 +1383,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'l86drhSgUEU',
     language: 'pt-BR',
     duration: '4:04',
-    genre: 'Axé'
+    genre: 'Axé',
+    famousVerse: 'Eva, Eva, Eva, eu sou sua costela...'
   },
   {
     code: '0137',
@@ -1393,7 +1409,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0139',
     song: 'Pesadão',
-    artist: 'Iza E Marcelo Falcão',
+    artist: 'Iza e Marcelo Falcão',
     youtubeId: 'rTywHjY221U',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -1462,7 +1478,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   },
   {
     code: '0146',
-    song: 'Pintura Intima',
+    song: 'Pintura Íntima',
     artist: 'Kid Abelha',
     youtubeId: 'hmwkRCFjs3Y',
     OriginalSongId: null,
@@ -1518,7 +1534,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: '0-MSRDgWseE',
     language: 'pt-BR',
     duration: '5:08',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
+    famousVerse: 'É preciso amar as pessoas como se não houvesse amanhã...'
   },
   {
     code: '0152',
@@ -1548,7 +1565,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Forró'
+    genre: 'Forró',
+    famousVerse: 'Quando olhei a terra ardendo qual fogueira de São João...'
   },
   {
     code: '0155',
@@ -1858,7 +1876,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Pagode'
+    genre: 'Pagode',
+    famousVerse: 'Cheia de manias, toda dengosa, menina bonita, sapeca e formosa...'
   },
   {
     code: '0186',
@@ -1963,7 +1982,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0196',
     song: 'Depois Do Prazer',
-    artist: 'Só para Contrariar',
+    artist: 'Só Pra Contrariar',
     youtubeId: 'CMhixcunzmQ',
     OriginalSongId: 'xi80KRIqW7Y',
     language: 'pt-BR',
@@ -1973,7 +1992,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0197',
     song: 'Essa Tal Liberdade',
-    artist: 'Só para Contrariar',
+    artist: 'Só Pra Contrariar',
     youtubeId: 'PnVlFAzNix4',
     OriginalSongId: 'gfXHwBpk-vs',
     language: 'pt-BR',
@@ -1983,7 +2002,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0198',
     song: 'Que Se Chama Amor',
-    artist: 'Só Para Contrariar',
+    artist: 'Só Pra Contrariar',
     youtubeId: '4YYgrtGmikE',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -1993,7 +2012,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
   {
     code: '0199',
     song: 'Sai Da Minha Aba',
-    artist: 'Só para Contrariar',
+    artist: 'Só Pra Contrariar',
     youtubeId: '7kmKCWKk4Vc',
     OriginalSongId: null,
     language: 'pt-BR',
@@ -2098,7 +2117,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Soul'
+    genre: 'Soul',
+    famousVerse: 'Ah, eu vou voltar pro meu lugar, foi lá e é ainda lá que eu hei de ouvir cantar...'
   },
   {
     code: '0210',
@@ -2228,7 +2248,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Samba'
+    genre: 'Samba',
+    famousVerse: 'Deixa a vida me levar, vida leva eu...'
   },
   {
     code: '0223',

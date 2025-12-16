@@ -3,6 +3,9 @@
 
 let audioContext: AudioContext | null = null;
 let currentAudio: HTMLAudioElement | null = null;
+let drumRollAudio: HTMLAudioElement | null = null;
+let drumRollSource: AudioBufferSourceNode | null = null;
+let isDrumRollPlaying = false;
 
 function getAudioContext(): AudioContext {
   if (!audioContext) {
@@ -43,47 +46,122 @@ async function playAudioFile(path: string): Promise<boolean> {
 }
 
 // ============================================
-// RUFAR DE TAMBORES
+// RUFAR DE TAMBORES (LOOP CONTÍNUO)
 // ============================================
-export async function playDrumRoll(durationMs: number = 3000): Promise<void> {
-  // Tentar usar arquivo de áudio primeiro
-  const played = await playAudioFile('/sounds/drumroll.mp3');
-  if (played) return;
 
-  // Fallback: gerar som
+// Buffer para fallback do drum roll
+let drumRollBuffer: AudioBuffer | null = null;
+
+async function createDrumRollBuffer(): Promise<AudioBuffer> {
   const ctx = getAudioContext();
-  const duration = durationMs / 1000;
+  const duration = 2; // 2 segundos para o loop
   const bufferSize = ctx.sampleRate * duration;
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
 
   for (let i = 0; i < bufferSize; i++) {
     const t = i / ctx.sampleRate;
-    const progress = t / duration;
-    const rollFrequency = 15 + progress * 25;
+    const rollFrequency = 20 + Math.sin(t * 0.5) * 5; // Frequência variável para som mais interessante
     const rollPattern = Math.sin(2 * Math.PI * rollFrequency * t);
-    const envelope = 0.3 + progress * 0.7;
+    const envelope = 0.5 + Math.sin(t * Math.PI / duration) * 0.3; // Envelope suave para loop
     const noise = (Math.random() * 2 - 1) * 0.5;
     const drumTone = Math.sin(2 * Math.PI * 100 * t) * 0.3;
     data[i] = (noise * 0.6 + drumTone * 0.4) * envelope * (0.5 + Math.abs(rollPattern) * 0.5);
   }
 
-  const source = ctx.createBufferSource();
-  source.buffer = buffer;
+  return buffer;
+}
 
-  const filter = ctx.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.value = 800;
+/**
+ * Inicia o rufar de tambores em loop contínuo.
+ * O som continua até que stopDrumRoll() seja chamado.
+ */
+export async function startDrumRollLoop(): Promise<void> {
+  if (isDrumRollPlaying) return;
+  isDrumRollPlaying = true;
 
-  const gainNode = ctx.createGain();
-  gainNode.gain.value = 0.4;
+  // Tentar usar arquivo de áudio primeiro (com loop)
+  const exists = await checkAudioFile('/sounds/drumroll.mp3');
+  if (exists) {
+    drumRollAudio = new Audio('/sounds/drumroll.mp3');
+    drumRollAudio.volume = 0.7;
+    drumRollAudio.loop = true;
+    drumRollAudio.play().catch(() => {
+      // Se falhar, usar fallback
+      playDrumRollFallbackLoop();
+    });
+    return;
+  }
 
-  source.connect(filter);
-  filter.connect(gainNode);
-  gainNode.connect(ctx.destination);
-  source.start();
+  // Fallback: usar Web Audio API com loop
+  await playDrumRollFallbackLoop();
+}
 
-  return new Promise(resolve => setTimeout(resolve, durationMs));
+async function playDrumRollFallbackLoop(): Promise<void> {
+  const ctx = getAudioContext();
+
+  if (!drumRollBuffer) {
+    drumRollBuffer = await createDrumRollBuffer();
+  }
+
+  const playLoop = () => {
+    if (!isDrumRollPlaying) return;
+
+    drumRollSource = ctx.createBufferSource();
+    drumRollSource.buffer = drumRollBuffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+
+    const gainNode = ctx.createGain();
+    gainNode.gain.value = 0.4;
+
+    drumRollSource.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    drumRollSource.onended = () => {
+      if (isDrumRollPlaying) {
+        playLoop(); // Continuar o loop
+      }
+    };
+
+    drumRollSource.start();
+  };
+
+  playLoop();
+}
+
+/**
+ * Para o rufar de tambores.
+ */
+export function stopDrumRoll(): void {
+  isDrumRollPlaying = false;
+
+  if (drumRollAudio) {
+    drumRollAudio.pause();
+    drumRollAudio.currentTime = 0;
+    drumRollAudio = null;
+  }
+
+  if (drumRollSource) {
+    try {
+      drumRollSource.stop();
+    } catch {
+      // Ignorar erro se já parou
+    }
+    drumRollSource = null;
+  }
+}
+
+// Manter compatibilidade com código antigo (função antiga)
+export async function playDrumRoll(durationMs: number = 3000): Promise<void> {
+  await startDrumRollLoop();
+  return new Promise(resolve => setTimeout(() => {
+    stopDrumRoll();
+    resolve();
+  }, durationMs));
 }
 
 // ============================================
@@ -289,6 +367,9 @@ export async function playScoreSound(score: number): Promise<void> {
 // PARAR TODOS OS SONS
 // ============================================
 export function stopAllSounds(): void {
+  // Parar rufar de tambores
+  stopDrumRoll();
+
   // Parar áudio HTML5
   if (currentAudio) {
     currentAudio.pause();
@@ -301,4 +382,7 @@ export function stopAllSounds(): void {
     audioContext.close();
     audioContext = null;
   }
+
+  // Limpar buffer do drum roll para recriá-lo com novo context
+  drumRollBuffer = null;
 }
