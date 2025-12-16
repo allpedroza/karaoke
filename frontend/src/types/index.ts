@@ -8,7 +8,6 @@ export interface KaraokeVideo {
   language: 'pt-BR' | 'en' | 'es';
   genre: string;
   duration: string;
-  famousVerse?: string;
 }
 
 export interface PitchStats {
