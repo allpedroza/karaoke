@@ -9,7 +9,7 @@ import { TopSongsPanel } from './components/TopSongsPanel';
 import { TopSingersPanel } from './components/TopSingersPanel';
 import { KaraokeVideo, AppState, PerformanceData, QueueItem } from './types';
 import { evaluatePerformance, recordSession } from './services/api';
-import { playDrumRoll, playScoreSound, stopAllSounds } from './services/soundEffects';
+import { startDrumRollLoop, playScoreSound, stopAllSounds } from './services/soundEffects';
 
 function App() {
   const [state, setState] = useState<AppState>({
@@ -97,8 +97,8 @@ function App() {
 
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
-    // Tocar rufar de tambores enquanto avalia
-    playDrumRoll(8000).catch(() => {}); // Drum roll longo, será interrompido quando resultado chegar
+    // Tocar rufar de tambores em loop enquanto avalia (para quando stopAllSounds é chamado)
+    startDrumRollLoop().catch(() => {});
 
     try {
       // Usar o código da música e dados de pitch para avaliação
