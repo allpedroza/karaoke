@@ -7,8 +7,6 @@ export interface KaraokeSong {
   language: 'pt-BR' | 'en' | 'es';
   duration: string;
   genre: string;
-  /** Versos ou refrões famosos para reconhecimento da música */
-  famousVerse?: string;
 }
 
 export const SONG_CATALOG: KaraokeSong[] = [
@@ -21,7 +19,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '02:50',
     genre: 'Samba',
-    famousVerse: 'Não posso ficar nem mais um minuto com você...'
   },
   {
     code: '0002',
@@ -32,7 +29,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:50',
     genre: 'MPB',
-    famousVerse: 'Devolva-me o céu que eu lhe dei, devolva minha paz...'
   },
   {
     code: '0003',
@@ -43,7 +39,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '02:58',
     genre: 'MPB',
-    famousVerse: 'Mentiras, mentiras, a verdade me faz chorar...'
   },
   {
     code: '0004',
@@ -74,7 +69,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '02:50',
     genre: 'MPB',
-    famousVerse: 'Tu vens, tu vens, eu já escuto os teus sinais...'
   },
   {
     code: '0007',
@@ -125,7 +119,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '04:30',
     genre: 'Samba',
-    famousVerse: 'Não deixe o samba morrer, não deixe o samba acabar...'
   },
   {
     code: '0012',
@@ -216,7 +209,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:00',
     genre: 'Pop',
-    famousVerse: 'Segura teu filho no colo, sorria e abraça os teus pais enquanto é tempo...'
   },
   {
     code: '0021',
@@ -237,7 +229,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:30',
     genre: 'Pop',
-    famousVerse: 'Aí então me abraça forte e diz mais uma vez que já estamos distantes de tudo...'
   },
   {
     code: '0023',
@@ -488,7 +479,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:20',
     genre: 'MPB',
-    famousVerse: 'Às vezes no silêncio da noite eu fico imaginando nós dois...'
   },
   {
     code: '0048',
@@ -629,7 +619,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '04:15',
     genre: 'Rock/MPB',
-    famousVerse: 'Quando o segundo sol chegar para realinhar as órbitas dos planetas...'
   },
   {
     code: '0062',
@@ -650,7 +639,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:40',
     genre: 'Rock Nacional',
-    famousVerse: 'Exagerado, jogado aos teus pés, eu sou mesmo exagerado...'
   },
   {
     code: '0064',
@@ -681,7 +669,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '04:30',
     genre: 'Rock Nacional',
-    famousVerse: 'Dias sim, dias não, eu vou sobrevivendo sem um arranhão...'
   },
   {
     code: '0067',
@@ -832,7 +819,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '4:39',
     genre: 'Sertanejo',
-    famousVerse: 'Quando eu digo que deixei de te amar, é porque eu te amo...'
   },
   {
     code: '0082',
@@ -933,7 +919,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:40',
     genre: 'Funk',
-    famousVerse: 'Eu fico assim sem você, não tenho paz de noite, não consigo dormir...'
   },
   {
     code: '0092',
@@ -1384,7 +1369,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '4:04',
     genre: 'Axé',
-    famousVerse: 'Eva, Eva, Eva, eu sou sua costela...'
   },
   {
     code: '0137',
@@ -1535,7 +1519,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '5:08',
     genre: 'Rock Nacional',
-    famousVerse: 'É preciso amar as pessoas como se não houvesse amanhã...'
   },
   {
     code: '0152',
@@ -1566,7 +1549,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:20',
     genre: 'Forró',
-    famousVerse: 'Quando olhei a terra ardendo qual fogueira de São João...'
   },
   {
     code: '0155',
@@ -1877,7 +1859,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:30',
     genre: 'Pagode',
-    famousVerse: 'Cheia de manias, toda dengosa, menina bonita, sapeca e formosa...'
   },
   {
     code: '0186',
@@ -2118,7 +2099,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:50',
     genre: 'Soul',
-    famousVerse: 'Ah, eu vou voltar pro meu lugar, foi lá e é ainda lá que eu hei de ouvir cantar...'
   },
   {
     code: '0210',
@@ -2249,7 +2229,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:00',
     genre: 'Samba',
-    famousVerse: 'Deixa a vida me levar, vida leva eu...'
   },
   {
     code: '0223',

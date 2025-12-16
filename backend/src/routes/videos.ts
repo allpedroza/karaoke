@@ -15,7 +15,6 @@ function toVideoFormat(song: KaraokeSong) {
     language: song.language,
     genre: song.genre,
     duration: song.duration,
-    famousVerse: song.famousVerse,
   };
 }
 
