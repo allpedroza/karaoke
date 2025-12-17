@@ -48,7 +48,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'qfNmyxV2Ncw',
     language: 'en',
     duration: '05:08',
-    genre: 'Rock'
+    genre: 'Rock',
   },
   {
     code: '0005',
@@ -58,7 +58,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: '89dGC8de0CA',
     language: 'en',
     duration: '04:27',
-    genre: 'Rock'
+    genre: 'Rock',
   },
   {
     code: '0006',
@@ -78,7 +78,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'dEDubYTK5IM',
     language: 'pt-BR',
     duration: '04:10',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0008',
@@ -88,7 +88,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0009',
@@ -98,7 +98,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'UxvTdW9CLfI',
     language: 'pt-BR',
     duration: '04:20',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0010',
@@ -108,7 +108,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: '7zAm_TFOZqQ',
     language: 'pt-BR',
     duration: '04:20',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0011',
@@ -128,7 +128,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'Zh-YpF3I7w8',
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0013',
@@ -138,7 +138,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'sfofElIpqJA',
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0014',
@@ -148,7 +148,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0015',
@@ -158,7 +158,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'HoqSO0hAjZw',
     language: 'en',
     duration: '3:35',
-    genre: 'R&B/Soul'
+    genre: 'R&B/Soul',
   },
   {
     code: '0016',
@@ -168,7 +168,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0017',
@@ -178,7 +178,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0018',
@@ -188,7 +188,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0019',
@@ -198,7 +198,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'UgkcQ78tqDo',
     language: 'pt-BR',
     duration: '5:04',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0020',
@@ -218,7 +218,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Pop'
+    genre: 'Pop',
   },
   {
     code: '0022',
@@ -238,7 +238,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:20',
-    genre: 'Axé'
+    genre: 'Axé',
   },
   {
     code: '0024',
@@ -248,7 +248,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0025',
@@ -258,7 +258,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Calypso'
+    genre: 'Calypso',
   },
   {
     code: '0026',
@@ -268,7 +268,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:45',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0027',
@@ -278,7 +278,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0028',
@@ -288,7 +288,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0029',
@@ -298,7 +298,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0030',
@@ -308,7 +308,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0031',
@@ -318,7 +318,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0032',
@@ -328,7 +328,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0033',
@@ -338,7 +338,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:15',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0034',
@@ -348,7 +348,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'en',
     duration: '03:14',
-    genre: 'Pop'
+    genre: 'Pop',
   },
   {
     code: '0035',
@@ -358,7 +358,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:50',
-    genre: 'Funk'
+    genre: 'Funk',
   },
   {
     code: '0036',
@@ -368,7 +368,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Funk'
+    genre: 'Funk',
   },
   {
     code: '0037',
@@ -378,7 +378,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0038',
@@ -388,7 +388,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0039',
@@ -398,7 +398,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:15',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0040',
@@ -408,7 +408,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0041',
@@ -418,7 +418,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0042',
@@ -428,7 +428,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0043',
@@ -438,7 +438,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:45',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0044',
@@ -448,7 +448,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0045',
@@ -458,7 +458,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:10',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0046',
@@ -468,7 +468,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0047',
@@ -488,7 +488,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: '122xDmxYr8A',
     language: 'pt-BR',
     duration: '4:54',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0049',
@@ -498,7 +498,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:10',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0050',
@@ -508,7 +508,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:10',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0051',
@@ -518,7 +518,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:25',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0052',
@@ -528,7 +528,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0053',
@@ -538,7 +538,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0054',
@@ -548,7 +548,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0055',
@@ -558,7 +558,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0056',
@@ -568,7 +568,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'Rock/MPB'
+    genre: 'Rock/MPB',
   },
   {
     code: '0057',
@@ -578,7 +578,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:10',
-    genre: 'Rock/MPB'
+    genre: 'Rock/MPB',
   },
   {
     code: '0058',
@@ -588,7 +588,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:15',
-    genre: 'Rock/MPB'
+    genre: 'Rock/MPB',
   },
   {
     code: '0059',
@@ -598,7 +598,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Rock/MPB'
+    genre: 'Rock/MPB',
   },
   {
     code: '0060',
@@ -608,7 +608,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'Rock/MPB'
+    genre: 'Rock/MPB',
   },
   {
     code: '0061',
@@ -628,7 +628,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0063',
@@ -648,7 +648,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0065',
@@ -658,7 +658,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:05',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0066',
@@ -678,7 +678,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:30',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0068',
@@ -688,7 +688,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0069',
@@ -698,7 +698,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0070',
@@ -708,7 +708,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0071',
@@ -718,7 +718,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:45',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0072',
@@ -728,7 +728,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0073',
@@ -738,7 +738,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0074',
@@ -748,7 +748,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0075',
@@ -758,7 +758,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:05',
-    genre: 'Samba/MPB'
+    genre: 'Samba/MPB',
   },
   {
     code: '0076',
@@ -768,7 +768,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:40',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0077',
@@ -778,7 +778,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:15',
-    genre: 'Reggae'
+    genre: 'Reggae',
   },
   {
     code: '0078',
@@ -788,7 +788,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Reggae'
+    genre: 'Reggae',
   },
   {
     code: '0079',
@@ -798,7 +798,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0080',
@@ -808,7 +808,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:15',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0081',
@@ -828,7 +828,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:15',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0083',
@@ -838,7 +838,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0084',
@@ -848,7 +848,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0085',
@@ -858,7 +858,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0086',
@@ -868,7 +868,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0087',
@@ -878,7 +878,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'Pop'
+    genre: 'Pop',
   },
   {
     code: '0088',
@@ -888,7 +888,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Pop'
+    genre: 'Pop',
   },
   {
     code: '0089',
@@ -898,7 +898,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:45',
-    genre: 'Pop'
+    genre: 'Pop',
   },
   {
     code: '0090',
@@ -908,7 +908,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Axé'
+    genre: 'Axé',
   },
   {
     code: '0091',
@@ -928,7 +928,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'Funk'
+    genre: 'Funk',
   },
   {
     code: '0093',
@@ -938,7 +938,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Funk'
+    genre: 'Funk',
   },
   {
     code: '0094',
@@ -948,7 +948,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0095',
@@ -958,7 +958,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0096',
@@ -968,7 +968,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:10',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0097',
@@ -978,7 +978,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0098',
@@ -988,7 +988,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0099',
@@ -998,7 +998,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0100',
@@ -1008,7 +1008,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0101',
@@ -1018,7 +1018,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:15',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0102',
@@ -1028,7 +1028,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0103',
@@ -1038,7 +1038,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0104',
@@ -1048,7 +1048,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0105',
@@ -1058,7 +1058,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:40',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0106',
@@ -1068,7 +1068,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0107',
@@ -1078,7 +1078,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0108',
@@ -1088,7 +1088,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:30',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0109',
@@ -1098,7 +1098,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0110',
@@ -1108,7 +1108,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:15',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0111',
@@ -1118,7 +1118,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:45',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0112',
@@ -1128,7 +1128,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:50',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0113',
@@ -1138,7 +1138,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '05:30',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0114',
@@ -1148,7 +1148,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Forró'
+    genre: 'Forró',
   },
   {
     code: '0115',
@@ -1158,7 +1158,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0116',
@@ -1168,7 +1168,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '05:20',
-    genre: 'Rap/Pop'
+    genre: 'Rap/Pop',
   },
   {
     code: '0117',
@@ -1178,7 +1178,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:20',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0118',
@@ -1188,7 +1188,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '05:00',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0119',
@@ -1198,7 +1198,17 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:50',
-    genre: 'MPB'
+    genre: 'MPB',
+  },
+  {
+    code: '0228',
+    song: 'Preciso Desabafar',
+    artist: 'Exaltasamba',
+    youtubeId: '5Pu6c14XBt0',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:30',
+    genre: 'Pagode',
   },
   {
     code: '0120',
@@ -1208,7 +1218,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0121',
@@ -1218,7 +1228,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:30',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0122',
@@ -1228,7 +1238,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0123',
@@ -1238,7 +1248,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0124',
@@ -1248,7 +1258,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0125',
@@ -1258,7 +1268,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0126',
@@ -1268,7 +1278,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:20',
-    genre: 'Forró/MPB'
+    genre: 'Forró/MPB',
   },
   {
     code: '0127',
@@ -1278,7 +1288,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0128',
@@ -1288,7 +1298,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'HyHNuVaZJ-k',
     language: 'en',
     duration: '3:42',
-    genre: 'Alternative/Hip Hop'
+    genre: 'Alternative/Hip Hop',
   },
   {
     code: '0129',
@@ -1298,7 +1308,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0130',
@@ -1308,7 +1318,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0131',
@@ -1318,7 +1328,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:25',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0132',
@@ -1328,7 +1338,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0133',
@@ -1338,7 +1348,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0134',
@@ -1348,7 +1358,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'MLrezTSZWMA',
     language: 'pt-BR',
     duration: '3:32',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0135',
@@ -1358,7 +1368,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:20',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0136',
@@ -1378,7 +1388,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Axé'
+    genre: 'Axé',
   },
   {
     code: '0138',
@@ -1388,7 +1398,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Pop'
+    genre: 'Pop',
   },
   {
     code: '0139',
@@ -1398,7 +1408,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Pop'
+    genre: 'Pop',
   },
   {
     code: '0140',
@@ -1408,7 +1418,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0141',
@@ -1418,7 +1428,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0142',
@@ -1428,7 +1438,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Pop Rock'
+    genre: 'Pop Rock',
   },
   {
     code: '0143',
@@ -1438,7 +1448,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Pop Rock'
+    genre: 'Pop Rock',
   },
   {
     code: '0144',
@@ -1448,7 +1458,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Pop Rock'
+    genre: 'Pop Rock',
   },
   {
     code: '0145',
@@ -1458,7 +1468,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:45',
-    genre: 'Pop Rock'
+    genre: 'Pop Rock',
   },
   {
     code: '0146',
@@ -1468,7 +1478,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Pop Rock'
+    genre: 'Pop Rock',
   },
   {
     code: '0147',
@@ -1478,7 +1488,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Pop'
+    genre: 'Pop',
   },
   {
     code: '0148',
@@ -1488,7 +1498,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'Brega/Forró'
+    genre: 'Brega/Forró',
   },
   {
     code: '0149',
@@ -1498,7 +1508,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0150',
@@ -1508,7 +1518,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'Or0FflpaOQs',
     language: 'pt-BR',
     duration: '4:38',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0151',
@@ -1528,7 +1538,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:40',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0153',
@@ -1538,7 +1548,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:50',
-    genre: 'Axé'
+    genre: 'Axé',
   },
   {
     code: '0154',
@@ -1558,7 +1568,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Forró'
+    genre: 'Forró',
   },
   {
     code: '0156',
@@ -1568,7 +1578,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Pop Rock'
+    genre: 'Pop Rock',
   },
   {
     code: '0157',
@@ -1578,7 +1588,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Rock Cômico'
+    genre: 'Rock Cômico',
   },
   {
     code: '0158',
@@ -1588,7 +1598,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'Rock Cômico'
+    genre: 'Rock Cômico',
   },
   {
     code: '0159',
@@ -1598,7 +1608,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Rock Cômico'
+    genre: 'Rock Cômico',
   },
   {
     code: '0160',
@@ -1608,7 +1618,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Rock Cômico'
+    genre: 'Rock Cômico',
   },
   {
     code: '0161',
@@ -1618,7 +1628,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:40',
-    genre: 'Rock Cômico'
+    genre: 'Rock Cômico',
   },
   {
     code: '0162',
@@ -1628,7 +1638,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0163',
@@ -1638,7 +1648,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0164',
@@ -1648,7 +1658,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0165',
@@ -1658,7 +1668,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:05',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0166',
@@ -1668,7 +1678,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0167',
@@ -1678,7 +1688,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0168',
@@ -1688,7 +1698,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:36',
-    genre: 'Rap/Funk'
+    genre: 'Rap/Funk',
   },
   {
     code: '0169',
@@ -1698,7 +1708,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'x3b1awtKQ7Q',
     language: 'pt-BR',
     duration: '3:52',
-    genre: 'Funk Melody'
+    genre: 'Funk Melody',
   },
   {
     code: '0170',
@@ -1708,7 +1718,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'E_-aqRkADNE',
     language: 'pt-BR',
     duration: '3:41',
-    genre: 'Funk Melody'
+    genre: 'Funk Melody',
   },
   {
     code: '0171',
@@ -1718,7 +1728,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'KaJwzeEWGCM',
     language: 'pt-BR',
     duration: '4:05',
-    genre: 'Funk Melody'
+    genre: 'Funk Melody',
   },
   {
     code: '0172',
@@ -1728,7 +1738,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: '0t0Y5pWm4wE',
     language: 'pt-BR',
     duration: '3:55',
-    genre: 'Funk Melody'
+    genre: 'Funk Melody',
   },
   {
     code: '0173',
@@ -1738,7 +1748,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: '0iA5JGmLoLo',
     language: 'pt-BR',
     duration: '3:34',
-    genre: 'Funk Melody'
+    genre: 'Funk Melody',
   },
   {
     code: '0174',
@@ -1748,7 +1758,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:15',
-    genre: 'Rock/Pop'
+    genre: 'Rock/Pop',
   },
   {
     code: '0175',
@@ -1758,7 +1768,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'Rock/Pop'
+    genre: 'Rock/Pop',
   },
   {
     code: '0176',
@@ -1768,7 +1778,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'MPB/Seresta'
+    genre: 'MPB/Seresta',
   },
   {
     code: '0177',
@@ -1778,7 +1788,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:10',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0178',
@@ -1788,7 +1798,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0179',
@@ -1798,7 +1808,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'uuQK2Q16XuQ',
     language: 'pt-BR',
     duration: '2:48',
-    genre: 'Soul/MPB'
+    genre: 'Soul/MPB',
   },
   {
     code: '0180',
@@ -1808,7 +1818,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'bBHPq3UQFsw',
     language: 'pt-BR',
     duration: '2:47',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0181',
@@ -1818,7 +1828,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0182',
@@ -1828,7 +1838,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0183',
@@ -1838,7 +1848,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:30',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0184',
@@ -1848,7 +1858,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:45',
-    genre: 'Rock Nacional'
+    genre: 'Rock Nacional',
   },
   {
     code: '0185',
@@ -1868,7 +1878,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0187',
@@ -1878,7 +1888,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'v=mdBnm0pUiYk',
     language: 'pt-BR',
     duration: '4:14',
-    genre: 'Brega'
+    genre: 'Brega',
   },
   {
     code: '0188',
@@ -1888,7 +1898,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0189',
@@ -1898,7 +1908,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0190',
@@ -1908,7 +1918,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'Gospel'
+    genre: 'Gospel',
   },
   {
     code: '0191',
@@ -1918,7 +1928,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Soul/Funk'
+    genre: 'Soul/Funk',
   },
   {
     code: '0192',
@@ -1928,7 +1938,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'bWSn9jL1g7I',
     language: 'pt-BR',
     duration: '4:09',
-    genre: 'Samba Rock'
+    genre: 'Samba Rock',
   },
   {
     code: '0193',
@@ -1938,7 +1948,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'xL6ZHzTvm3g',
     language: 'pt-BR',
     duration: '2:39',
-    genre: 'Brega/Pop'
+    genre: 'Brega/Pop',
   },
   {
     code: '0194',
@@ -1948,7 +1958,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:30',
-    genre: 'Pop Rock'
+    genre: 'Pop Rock',
   },
   {
     code: '0195',
@@ -1958,7 +1968,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'Pop Rock'
+    genre: 'Pop Rock',
   },
   {
     code: '0196',
@@ -1968,7 +1978,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'xi80KRIqW7Y',
     language: 'pt-BR',
     duration: '04:15',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0197',
@@ -1978,27 +1988,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'gfXHwBpk-vs',
     language: 'pt-BR',
     duration: '04:20',
-    genre: 'Pagode'
-  },
-  {
-    code: '0198',
-    song: 'Que Se Chama Amor',
-    artist: 'Só Pra Contrariar',
-    youtubeId: '4YYgrtGmikE',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '04:00',
-    genre: 'Pagode'
-  },
-  {
-    code: '0199',
-    song: 'Sai Da Minha Aba',
-    artist: 'Só Pra Contrariar',
-    youtubeId: '7kmKCWKk4Vc',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:40',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0200',
@@ -2008,7 +1998,27 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Pagode'
+    genre: 'Pagode',
+  },
+  {
+    code: '0198',
+    song: 'Que Se Chama Amor',
+    artist: 'Só Pra Contrariar',
+    youtubeId: '4YYgrtGmikE',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '04:00',
+    genre: 'Pagode',
+  },
+  {
+    code: '0199',
+    song: 'Sai Da Minha Aba',
+    artist: 'Só Pra Contrariar',
+    youtubeId: '7kmKCWKk4Vc',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:40',
+    genre: 'Pagode',
   },
   {
     code: '0201',
@@ -2018,7 +2028,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0202',
@@ -2028,7 +2038,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:10',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0203',
@@ -2038,7 +2048,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:25',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0204',
@@ -2048,7 +2058,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:15',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0205',
@@ -2058,7 +2068,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0206',
@@ -2068,7 +2078,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0207',
@@ -2078,7 +2088,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:00',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0208',
@@ -2088,7 +2098,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:10',
-    genre: 'Pagode'
+    genre: 'Pagode',
   },
   {
     code: '0209',
@@ -2108,7 +2118,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Soul'
+    genre: 'Soul',
   },
   {
     code: '0211',
@@ -2118,7 +2128,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:50',
-    genre: 'Soul'
+    genre: 'Soul',
   },
   {
     code: '0212',
@@ -2128,7 +2138,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: 'pq2JKVI6F5s',
     language: 'pt-BR',
     duration: '3:05',
-    genre: 'Sertanejo'
+    genre: 'Sertanejo',
   },
   {
     code: '0213',
@@ -2138,7 +2148,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0214',
@@ -2148,7 +2158,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:30',
-    genre: 'Pop'
+    genre: 'Pop',
   },
   {
     code: '0215',
@@ -2158,7 +2168,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Bossa Nova/MPB'
+    genre: 'Bossa Nova/MPB',
   },
   {
     code: '0216',
@@ -2168,7 +2178,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Sad Station/Rap'
+    genre: 'Sad Station/Rap',
   },
   {
     code: '0217',
@@ -2178,7 +2188,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'Brega'
+    genre: 'Brega',
   },
   {
     code: '0218',
@@ -2188,7 +2198,47 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:00',
-    genre: 'Samba'
+    genre: 'Samba',
+  },
+  {
+    code: '0225',
+    song: 'Avohai',
+    artist: 'Zé Ramalho',
+    youtubeId: 'FR-9N4FhC_Y',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '04:40',
+    genre: 'MPB',
+  },
+  {
+    code: '0226',
+    song: 'Chão de Giz',
+    artist: 'Zé Ramalho',
+    youtubeId: 'kyLIabrj3Zg',
+    OriginalSongId: 'nL_QNpNOssI',
+    language: 'pt-BR',
+    duration: '4:45',
+    genre: 'MPB',
+  },
+  {
+    code: '0227',
+    song: 'Mistérios da Meia Noite',
+    artist: 'Zé Ramalho',
+    youtubeId: 'cKHpfeyGx3c',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:30',
+    genre: 'MPB',
+  },
+  {
+    code: '0224',
+    song: 'Admirável Gado Novo',
+    artist: 'Zé Ramalho e Fagner',
+    youtubeId: '0FRmpckRdjA',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '04:50',
+    genre: 'MPB',
   },
   {
     code: '0219',
@@ -2198,7 +2248,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0220',
@@ -2208,7 +2258,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:10',
-    genre: 'MPB'
+    genre: 'MPB',
   },
   {
     code: '0221',
@@ -2218,7 +2268,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'Samba'
+    genre: 'Samba',
   },
   {
     code: '0222',
@@ -2238,58 +2288,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
-    genre: 'MPB/Pop'
-  },
-  {
-    code: '0224',
-    song: 'Admirável Gado Novo',
-    artist: 'Zé Ramalho e Fagner',
-    youtubeId: '0FRmpckRdjA',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '04:50',
-    genre: 'MPB'
-  },
-  {
-    code: '0225',
-    song: 'Avohai',
-    artist: 'Zé Ramalho',
-    youtubeId: 'FR-9N4FhC_Y',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '04:40',
-    genre: 'MPB'
-  },
-  {
-    code: '0226',
-    song: 'Chão de Giz',
-    artist: 'Zé Ramalho',
-    youtubeId: 'kyLIabrj3Zg',
-    OriginalSongId: 'nL_QNpNOssI',
-    language: 'pt-BR',
-    duration: '4:45',
-    genre: 'MPB'
-  },
-  {
-    code: '0227',
-    song: 'Mistérios da Meia Noite',
-    artist: 'Zé Ramalho',
-    youtubeId: 'cKHpfeyGx3c',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:30',
-    genre: 'MPB'
+    genre: 'MPB/Pop',
   }
- {
-    code: '0228',
-    song: 'Preciso Desabafar',
-    artist: 'Exaltasamba',
-    youtubeId: '5Pu6c14XBt0',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:30',
-    genre: 'Pagode'
-}
 ];
 
 // Funções auxiliares
