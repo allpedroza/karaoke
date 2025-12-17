@@ -6,7 +6,10 @@ import {
   getTopSongsLastMonth,
   getPlayerHistory,
   getTopSingers,
+  getAllPlayers,
+  getPlayerStats,
 } from '../data/database.js';
+import { getSongByCode } from '../data/songCatalog.js';
 
 export const rankingsRoutes = Router();
 
@@ -80,5 +83,58 @@ rankingsRoutes.get('/player/:name', (req: Request, res: Response) => {
   } catch (error) {
     console.error('Erro ao buscar histórico:', error);
     res.status(500).json({ error: 'Erro ao buscar histórico' });
+  }
+});
+
+// Listar todos os jogadores
+rankingsRoutes.get('/players', (_req: Request, res: Response) => {
+  try {
+    const players = getAllPlayers();
+    res.json(players);
+  } catch (error) {
+    console.error('Erro ao buscar jogadores:', error);
+    res.status(500).json({ error: 'Erro ao buscar jogadores' });
+  }
+});
+
+// Estatísticas detalhadas de um jogador
+rankingsRoutes.get('/player/:name/stats', (req: Request, res: Response) => {
+  try {
+    const stats = getPlayerStats(req.params.name);
+
+    if (!stats) {
+      res.status(404).json({ error: 'Jogador não encontrado' });
+      return;
+    }
+
+    // Calcular gênero favorito baseado nas músicas mais cantadas
+    const genreCount: Record<string, number> = {};
+
+    // Buscar todas as sessões do jogador para contar gêneros
+    const history = getPlayerHistory(req.params.name, 100);
+    for (const session of history) {
+      const song = getSongByCode(session.song_code);
+      if (song) {
+        genreCount[song.genre] = (genreCount[song.genre] || 0) + 1;
+      }
+    }
+
+    // Encontrar gênero mais frequente
+    let favoriteGenre: string | null = null;
+    let maxCount = 0;
+    for (const [genre, count] of Object.entries(genreCount)) {
+      if (count > maxCount) {
+        maxCount = count;
+        favoriteGenre = genre;
+      }
+    }
+
+    res.json({
+      ...stats,
+      favorite_genre: favoriteGenre,
+    });
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas do jogador:', error);
+    res.status(500).json({ error: 'Erro ao buscar estatísticas' });
   }
 });

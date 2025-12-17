@@ -96,6 +96,22 @@ export interface SessionRecord {
   created_at: string;
 }
 
+export interface PlayerTopSong {
+  song_code: string;
+  song_title: string;
+  artist: string;
+  play_count: number;
+  avg_score: number;
+}
+
+export interface PlayerStats {
+  player_name: string;
+  total_sessions: number;
+  avg_score: number;
+  favorite_genre: string | null;
+  top_songs: PlayerTopSong[];
+}
+
 // Registrar uma sessão
 export async function recordSession(
   playerName: string,
@@ -142,5 +158,19 @@ export async function getTopSongs(): Promise<TopSong[]> {
 export async function getTopSingers(): Promise<TopSinger[]> {
   const response = await fetch(`${API_BASE}/rankings/top-singers`);
   if (!response.ok) throw new Error('Erro ao buscar top cantores');
+  return response.json();
+}
+
+// Listar todos os jogadores
+export async function getAllPlayers(): Promise<string[]> {
+  const response = await fetch(`${API_BASE}/rankings/players`);
+  if (!response.ok) throw new Error('Erro ao buscar jogadores');
+  return response.json();
+}
+
+// Estatísticas detalhadas de um jogador
+export async function getPlayerStats(playerName: string): Promise<PlayerStats> {
+  const response = await fetch(`${API_BASE}/rankings/player/${encodeURIComponent(playerName)}/stats`);
+  if (!response.ok) throw new Error('Erro ao buscar estatísticas do jogador');
   return response.json();
 }

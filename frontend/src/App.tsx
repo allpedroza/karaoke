@@ -7,6 +7,7 @@ import { PlayerNameModal } from './components/PlayerNameModal';
 import { RankingsPanel } from './components/RankingsPanel';
 import { TopSongsPanel } from './components/TopSongsPanel';
 import { TopSingersPanel } from './components/TopSingersPanel';
+import { SingerStatsPanel } from './components/SingerStatsPanel';
 import { KaraokeVideo, AppState, PerformanceData, QueueItem } from './types';
 import { evaluatePerformance, recordSession } from './services/api';
 import { startDrumRollLoop, playScoreSound, stopAllSounds } from './services/soundEffects';
@@ -210,6 +211,7 @@ function App() {
                   <TopSongsPanel />
                   <RankingsPanel />
                   <TopSingersPanel />
+                  <SingerStatsPanel />
                 </div>
               </div>
             </div>

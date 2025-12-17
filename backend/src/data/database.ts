@@ -61,6 +61,22 @@ export interface TopSinger {
   last_played: string;
 }
 
+export interface PlayerTopSong {
+  song_code: string;
+  song_title: string;
+  artist: string;
+  play_count: number;
+  avg_score: number;
+}
+
+export interface PlayerStats {
+  player_name: string;
+  total_sessions: number;
+  avg_score: number;
+  favorite_genre: string | null;
+  top_songs: PlayerTopSong[];
+}
+
 const TIMEZONE_OFFSET = '-3 hours';
 
 // Registrar uma sessão
@@ -175,6 +191,60 @@ export function getTopSingers(limit: number = 5): TopSinger[] {
   `);
 
   return stmt.all(limit) as TopSinger[];
+}
+
+// Listar todos os jogadores únicos
+export function getAllPlayers(): string[] {
+  const stmt = db.prepare(`
+    SELECT DISTINCT player_name
+    FROM sessions
+    ORDER BY player_name COLLATE NOCASE
+  `);
+
+  return stmt.all().map((row: { player_name: string }) => row.player_name);
+}
+
+// Estatísticas detalhadas de um jogador
+export function getPlayerStats(playerName: string): PlayerStats | null {
+  // Buscar total de sessões e média
+  const statsStmt = db.prepare(`
+    SELECT
+      COUNT(*) as total_sessions,
+      ROUND(AVG(score), 1) as avg_score
+    FROM sessions
+    WHERE player_name = ?
+  `);
+
+  const stats = statsStmt.get(playerName) as { total_sessions: number; avg_score: number } | undefined;
+
+  if (!stats || stats.total_sessions === 0) {
+    return null;
+  }
+
+  // Buscar top 3 músicas mais cantadas
+  const topSongsStmt = db.prepare(`
+    SELECT
+      song_code,
+      song_title,
+      artist,
+      COUNT(*) as play_count,
+      ROUND(AVG(score), 1) as avg_score
+    FROM sessions
+    WHERE player_name = ?
+    GROUP BY song_code
+    ORDER BY play_count DESC, avg_score DESC
+    LIMIT 3
+  `);
+
+  const topSongs = topSongsStmt.all(playerName) as PlayerTopSong[];
+
+  return {
+    player_name: playerName,
+    total_sessions: stats.total_sessions,
+    avg_score: stats.avg_score,
+    favorite_genre: null, // Será preenchido na rota com dados do catálogo
+    top_songs: topSongs,
+  };
 }
 
 export default db;
