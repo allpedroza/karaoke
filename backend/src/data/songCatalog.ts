@@ -2279,8 +2279,8 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:30',
     genre: 'MPB'
-  }
- {
+  },
+  {
     code: '0228',
     song: 'Preciso Desabafar',
     artist: 'Exaltasamba',
@@ -2289,7 +2289,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:30',
     genre: 'Pagode'
-}
+  }
 ];
 
 // Funções auxiliares
