@@ -128,14 +128,14 @@ Gere o JSON de avaliação agora.`;
     const anthropic = getAnthropicClient();
     
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514', // Claude Sonnet 4 (versão válida em 2025)
+      model: 'claude-3-5-sonnet-20240620', // Claude 3.5 Sonnet (versão estável)
       max_tokens: 1024,
       temperature: 0.7, // Um pouco de criatividade para os comentários
       system: systemPrompt,
       messages: [
         { role: 'user', content: userPrompt },
         // TRUQUE DO PREFILL: Força o modelo a começar com JSON
-        { role: 'assistant', content: '{' } 
+        { role: 'assistant', content: '{' }
       ],
     });
 
@@ -143,10 +143,12 @@ Gere o JSON de avaliação agora.`;
     // Como injetamos '{', precisamos concatená-lo de volta na resposta
     const contentBlock = response.content[0];
     const rawText = contentBlock.type === 'text' ? contentBlock.text : '';
-    
+
+    console.log('🤖 Resposta bruta do Claude:', rawText.substring(0, 200) + '...');
+
     // Reconstrói o JSON completo
     const jsonStr = `{${rawText}`;
-    
+
     // Limpeza extra de segurança (caso o modelo ignore o prefill e mande markdown)
     const cleanJsonStr = jsonStr.replace(/```json\n?|```/g, '').trim();
 
@@ -155,6 +157,7 @@ Gere o JSON de avaliação agora.`;
     try {
         parsedData = JSON.parse(cleanJsonStr);
     } catch (e) {
+        console.error('❌ Erro ao parsear JSON. String recebida:', cleanJsonStr.substring(0, 200));
         // Fallback: Tenta encontrar o primeiro JSON válido na string se a limpeza falhou
         const match = cleanJsonStr.match(/\{[\s\S]*\}/);
         if (match) {
@@ -163,6 +166,8 @@ Gere o JSON de avaliação agora.`;
             throw new Error(`Falha ao parsear JSON da IA: ${cleanJsonStr.substring(0, 50)}...`);
         }
     }
+
+    console.log('✅ JSON parseado com sucesso:', JSON.stringify(parsedData).substring(0, 100) + '...');
 
     // 4. VALIDAÇÃO COM ZOD (Garante a tipagem)
     const evaluation = EvaluationSchema.parse(parsedData);
