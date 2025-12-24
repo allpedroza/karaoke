@@ -128,7 +128,7 @@ Gere o JSON de avaliação agora.`;
     const anthropic = getAnthropicClient();
     
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022', // Claude 3.5 Sonnet (versão mais recente)
+      model: 'claude-sonnet-4-20250514', // Claude Sonnet 4 (versão válida em 2025)
       max_tokens: 1024,
       temperature: 0.7, // Um pouco de criatividade para os comentários
       system: systemPrompt,
