@@ -40,6 +40,8 @@ karaoke-ai/
 
 ## Como Executar
 
+> **💻 Usuários Windows:** Consulte o guia detalhado de instalação em [INSTALL_WINDOWS.md](./INSTALL_WINDOWS.md)
+
 ### Pré-requisitos
 
 - Node.js 18+
