@@ -93,7 +93,25 @@ TOM DE VOZ:
 - NUNCA mencione "JSON", "frequência", "algoritmo", "Hz" ou porcentagens no texto final.
 
 OUTPUT:
-Retorne APENAS um JSON válido.`;
+Retorne APENAS um JSON válido com EXATAMENTE esta estrutura:
+{
+  "overallScore": <número de 0 a 100>,
+  "dimensions": {
+    "pitch": {
+      "score": <número de 0 a 100>,
+      "detail": "<comentário sobre afinação e tom>"
+    },
+    "lyrics": {
+      "score": <número de 0 a 100>,
+      "detail": "<comentário sobre letra e dicção>"
+    },
+    "energy": {
+      "score": <número de 0 a 100>,
+      "detail": "<comentário sobre energia e interpretação>"
+    }
+  },
+  "encouragement": "<mensagem motivacional geral>"
+}`;
 
   // 2. CONSTRUÇÃO DO CONTEXTO TÉCNICO (Sem julgamento prévio, apenas dados)
   let technicalContext = '[Sem dados de áudio, avalie apenas pela letra]';
