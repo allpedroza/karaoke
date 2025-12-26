@@ -220,24 +220,8 @@ router.post('/:songCode/process', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/melody/:songCode - Salvar melody map diretamente (para importação manual)
-router.post('/:songCode', (req: Request, res: Response) => {
-  const { songCode } = req.params;
-  const { duration, notes, song_title } = req.body;
-
-  if (!duration || !notes || !Array.isArray(notes)) {
-    res.status(400).json({ error: 'Campos obrigatórios: duration, notes (array)' });
-    return;
-  }
-
-  const melodyMap = saveMelodyMap(songCode, song_title || null, duration, notes);
-
-  console.log(`✅ Melody map salvo manualmente: [${songCode}] (${notes.length} notas)`);
-
-  res.status(201).json(melodyMap);
-});
-
 // POST /api/melody/sync - Sincronizar com o melody-service Python
+// IMPORTANTE: Esta rota deve vir ANTES de /:songCode para não ser capturada pelo wildcard
 router.post('/sync', async (_req: Request, res: Response) => {
   try {
     // Busca lista de melodias disponíveis no serviço Python
@@ -306,6 +290,23 @@ router.post('/sync', async (_req: Request, res: Response) => {
     console.error('Erro na sincronização:', error);
     res.status(500).json({ error: 'Erro ao sincronizar com melody-service' });
   }
+});
+
+// POST /api/melody/:songCode - Salvar melody map diretamente (para importação manual)
+router.post('/:songCode', (req: Request, res: Response) => {
+  const { songCode } = req.params;
+  const { duration, notes, song_title } = req.body;
+
+  if (!duration || !notes || !Array.isArray(notes)) {
+    res.status(400).json({ error: 'Campos obrigatórios: duration, notes (array)' });
+    return;
+  }
+
+  const melodyMap = saveMelodyMap(songCode, song_title || null, duration, notes);
+
+  console.log(`✅ Melody map salvo manualmente: [${songCode}] (${notes.length} notas)`);
+
+  res.status(201).json(melodyMap);
 });
 
 // DELETE /api/melody/:songCode - Deletar melody map
