@@ -90,7 +90,7 @@ export function useYouTubePlayer(options: UseYouTubePlayerOptions = {}): UseYouT
 
     return () => {
       if (timeUpdateRef.current) {
-        clearInterval(timeUpdateRef.current);
+        cancelAnimationFrame(timeUpdateRef.current);
       }
       if (playerInstanceRef.current) {
         playerInstanceRef.current.destroy();
@@ -128,18 +128,20 @@ export function useYouTubePlayer(options: UseYouTubePlayerOptions = {}): UseYouT
           if (event.data === window.YT.PlayerState.PLAYING) {
             setIsPlaying(true);
             setIsEnded(false);
-            // Start time updates
-            timeUpdateRef.current = window.setInterval(() => {
+            // Start time updates using requestAnimationFrame for smooth animation
+            const updateTime = () => {
               if (playerInstanceRef.current) {
                 setCurrentTime(playerInstanceRef.current.getCurrentTime());
               }
-            }, 1000);
+              timeUpdateRef.current = window.requestAnimationFrame(updateTime);
+            };
+            timeUpdateRef.current = window.requestAnimationFrame(updateTime);
           } else if (event.data === window.YT.PlayerState.ENDED) {
             // Vídeo terminou!
             setIsPlaying(false);
             setIsEnded(true);
             if (timeUpdateRef.current) {
-              clearInterval(timeUpdateRef.current);
+              cancelAnimationFrame(timeUpdateRef.current);
               timeUpdateRef.current = null;
             }
             // Chamar callback
@@ -147,7 +149,7 @@ export function useYouTubePlayer(options: UseYouTubePlayerOptions = {}): UseYouT
           } else {
             setIsPlaying(false);
             if (timeUpdateRef.current) {
-              clearInterval(timeUpdateRef.current);
+              cancelAnimationFrame(timeUpdateRef.current);
               timeUpdateRef.current = null;
             }
           }

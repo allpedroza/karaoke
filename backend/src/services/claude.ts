@@ -92,8 +92,16 @@ TOM DE VOZ:
 - Seja encorajador, mas aponte onde melhorar sem ser técnico demais.
 - NUNCA mencione "JSON", "frequência", "algoritmo", "Hz" ou porcentagens no texto final.
 
-OUTPUT:
-Retorne APENAS um JSON válido.`;
+OUTPUT OBRIGATÓRIO (use EXATAMENTE esta estrutura JSON):
+{
+  "overallScore": <número de 0 a 100>,
+  "dimensions": {
+    "pitch": { "score": <0-100>, "detail": "<comentário sobre afinação>" },
+    "lyrics": { "score": <0-100>, "detail": "<comentário sobre letra>" },
+    "energy": { "score": <0-100>, "detail": "<comentário sobre energia/animação>" }
+  },
+  "encouragement": "<mensagem final motivacional>"
+}`;
 
   // 2. CONSTRUÇÃO DO CONTEXTO TÉCNICO (Sem julgamento prévio, apenas dados)
   let technicalContext = '[Sem dados de áudio, avalie apenas pela letra]';
@@ -128,7 +136,7 @@ Gere o JSON de avaliação agora.`;
     const anthropic = getAnthropicClient();
     
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022', // Claude 3.5 Sonnet (versão mais recente)
+      model: 'claude-sonnet-4-20250514', // Claude Sonnet 4
       max_tokens: 1024,
       temperature: 0.7, // Um pouco de criatividade para os comentários
       system: systemPrompt,
@@ -139,28 +147,32 @@ Gere o JSON de avaliação agora.`;
       ],
     });
 
-    // 3. PARSING SEGURO COM PREFILL
-    // Como injetamos '{', precisamos concatená-lo de volta na resposta
+    // 3. PARSING SEGURO
     const contentBlock = response.content[0];
     const rawText = contentBlock.type === 'text' ? contentBlock.text : '';
-    
-    // Reconstrói o JSON completo
-    const jsonStr = `{${rawText}`;
-    
-    // Limpeza extra de segurança (caso o modelo ignore o prefill e mande markdown)
+
+    // Reconstrói o JSON - adiciona '{' apenas se a resposta não começar com ele
+    const needsBrace = !rawText.trimStart().startsWith('{');
+    const jsonStr = needsBrace ? `{${rawText}` : rawText;
+
+    // Limpeza: remove markdown code blocks se existirem
     const cleanJsonStr = jsonStr.replace(/```json\n?|```/g, '').trim();
 
-    // Parse do JSON
+    // Parse do JSON com múltiplas estratégias
     let parsedData;
     try {
         parsedData = JSON.parse(cleanJsonStr);
     } catch (e) {
-        // Fallback: Tenta encontrar o primeiro JSON válido na string se a limpeza falhou
+        // Fallback 1: Extrair JSON do texto
         const match = cleanJsonStr.match(/\{[\s\S]*\}/);
         if (match) {
-            parsedData = JSON.parse(match[0]);
+            try {
+                parsedData = JSON.parse(match[0]);
+            } catch (e2) {
+                throw new Error(`Falha ao parsear JSON da IA: ${cleanJsonStr.substring(0, 100)}...`);
+            }
         } else {
-            throw new Error(`Falha ao parsear JSON da IA: ${cleanJsonStr.substring(0, 50)}...`);
+            throw new Error(`Nenhum JSON encontrado na resposta: ${cleanJsonStr.substring(0, 100)}...`);
         }
     }
 

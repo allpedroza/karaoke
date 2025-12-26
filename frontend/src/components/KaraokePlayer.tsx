@@ -3,7 +3,9 @@ import { Mic, Play, Pause, Square, RotateCcw, Loader2, Send, Minimize2, Move, Li
 import { KaraokeVideo, PerformanceData, QueueItem } from '../types';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
+import { useMelodyMap } from '../hooks/useMelodyMap';
 import { SongQueueDrawer } from './SongQueueDrawer';
+import { SingStarPitchBar } from './SingStarPitchBar';
 
 // Notas musicais para visualização
 const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -61,6 +63,7 @@ export function KaraokePlayer({
     duration,
     pitchStats,
     currentNote,
+    currentFrequency,
     startRecording,
     stopRecording,
     pauseRecording,
@@ -68,6 +71,9 @@ export function KaraokePlayer({
     resetRecording,
     error: recordingError,
   } = useAudioRecorder({ language: video.language });
+
+  // Melody map para a barra de pitch estilo SingStar
+  const { getVisibleNotes, isAvailable: hasMelodyMap } = useMelodyMap(video.code);
 
   // Refs para evitar stale closures nos callbacks
   const transcriptionRef = useRef(transcription);
@@ -107,6 +113,7 @@ export function KaraokePlayer({
   const {
     isReady,
     isEnded,
+    currentTime: videoCurrentTime,
     loadVideo,
     play,
     pause,
@@ -299,8 +306,22 @@ export function KaraokePlayer({
           )}
         </div>
 
-        {/* Barra de Pitch Flutuante (apenas em fullscreen e gravando) */}
-        {isFullscreen && isRecording && !isPaused && (
+        {/* Barra de Pitch SingStar (apenas em fullscreen, gravando, com melody map) */}
+        {isFullscreen && isRecording && !isPaused && hasMelodyMap && (
+          <div className="fixed top-4 left-4 right-4 z-50">
+            <SingStarPitchBar
+              visibleNotes={getVisibleNotes(videoCurrentTime, 4)}
+              currentTime={videoCurrentTime}
+              userNote={currentNote}
+              userFrequency={currentFrequency}
+              windowSize={4}
+              height={100}
+            />
+          </div>
+        )}
+
+        {/* Barra de Pitch Flutuante simples (fallback quando não tem melody map) */}
+        {isFullscreen && isRecording && !isPaused && !hasMelodyMap && (
           <div
             className="fixed z-50 bg-black/70 backdrop-blur-sm rounded-xl p-3 shadow-2xl border border-white/20 select-none touch-none"
             style={{
@@ -413,8 +434,28 @@ export function KaraokePlayer({
         )}
       </div>
 
-      {/* Barra de Pitch fora do fullscreen */}
-      {!isFullscreen && isRecording && !isPaused && (
+      {/* Barra de Pitch SingStar fora do fullscreen */}
+      {!isFullscreen && isRecording && !isPaused && hasMelodyMap && (
+        <div className="card py-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-theme-muted">Guia de afinação:</span>
+            {currentNote && (
+              <span className="text-lg font-bold text-karaoke-accent">{currentNote}</span>
+            )}
+          </div>
+          <SingStarPitchBar
+            visibleNotes={getVisibleNotes(videoCurrentTime, 4)}
+            currentTime={videoCurrentTime}
+            userNote={currentNote}
+            userFrequency={currentFrequency}
+            windowSize={4}
+            height={80}
+          />
+        </div>
+      )}
+
+      {/* Barra de Pitch simples fora do fullscreen (fallback) */}
+      {!isFullscreen && isRecording && !isPaused && !hasMelodyMap && (
         <div className="card py-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-theme-muted">Sua afinação:</span>
