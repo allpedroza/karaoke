@@ -9,7 +9,12 @@ import {
   isMelodyMapProcessing,
   MelodyNote,
 } from '../data/database.js';
-import { getSongByCode } from '../data/songCatalog.js';
+import { getSongByCode, SONG_CATALOG } from '../data/songCatalog.js';
+import {
+  processAllPendingMelodies,
+  getMelodyProcessingStats,
+  isMelodyServiceAvailable,
+} from '../services/melodyService.js';
 
 const router = Router();
 
@@ -54,6 +59,72 @@ router.get('/:songCode/exists', (req: Request, res: Response) => {
 router.get('/', (_req: Request, res: Response) => {
   const melodyMaps = listMelodyMaps();
   res.json(melodyMaps);
+});
+
+// GET /api/melody/stats - Estatísticas de processamento
+router.get('/stats', (_req: Request, res: Response) => {
+  const stats = getMelodyProcessingStats();
+  res.json(stats);
+});
+
+// GET /api/melody/service-status - Status do serviço Python
+router.get('/service-status', async (_req: Request, res: Response) => {
+  const available = await isMelodyServiceAvailable();
+  res.json({
+    available,
+    url: MELODY_SERVICE_URL,
+  });
+});
+
+// GET /api/melody/available - Listar músicas que podem ser processadas (têm OriginalSongId)
+router.get('/available', (_req: Request, res: Response) => {
+  const available = SONG_CATALOG
+    .filter(song => song.OriginalSongId !== null)
+    .map(song => ({
+      code: song.code,
+      song: song.song,
+      artist: song.artist,
+      hasOriginal: true,
+      hasMelodyMap: hasMelodyMap(song.code),
+      isProcessing: isMelodyMapProcessing(song.code),
+    }));
+
+  res.json(available);
+});
+
+// POST /api/melody/batch - Processar todas as músicas pendentes
+router.post('/batch', async (req: Request, res: Response) => {
+  const { maxConcurrent = 2, delayMs = 5000 } = req.body;
+
+  // Verifica se o serviço está disponível
+  const available = await isMelodyServiceAvailable();
+  if (!available) {
+    res.status(503).json({
+      error: 'Serviço de melodia não está disponível',
+      url: MELODY_SERVICE_URL,
+    });
+    return;
+  }
+
+  console.log('🚀 Iniciando batch processing de melodias...');
+
+  // Processa em background para não travar a resposta
+  processAllPendingMelodies(maxConcurrent, delayMs)
+    .then((result) => {
+      console.log('✅ Batch processing concluído:', result);
+    })
+    .catch((error) => {
+      console.error('❌ Erro no batch processing:', error);
+    });
+
+  const stats = getMelodyProcessingStats();
+
+  res.json({
+    message: 'Batch processing iniciado em background',
+    pending: stats.pending,
+    maxConcurrent,
+    delayMs,
+  });
 });
 
 // POST /api/melody/:songCode/process - Processar melodia de uma música
@@ -163,24 +234,6 @@ router.delete('/:songCode', (req: Request, res: Response) => {
   console.log(`🗑️ Melody map deletado: [${songCode}]`);
 
   res.json({ message: 'Melody map deletado com sucesso' });
-});
-
-// GET /api/melody/songs/available - Listar músicas que podem ser processadas (têm OriginalSongId)
-router.get('/songs/available', (_req: Request, res: Response) => {
-  // Import dinâmico para evitar dependência circular
-  import('../data/songCatalog.js').then(({ SONG_CATALOG }) => {
-    const available = SONG_CATALOG
-      .filter(song => song.OriginalSongId !== null)
-      .map(song => ({
-        code: song.code,
-        song: song.song,
-        artist: song.artist,
-        hasOriginal: true,
-        hasMelodyMap: hasMelodyMap(song.code),
-      }));
-
-    res.json(available);
-  });
 });
 
 export default router;
