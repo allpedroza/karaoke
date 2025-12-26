@@ -10,7 +10,7 @@ soundfile==0.12.1
 numpy==1.26.3
 
 # YouTube download
-yt-dlp==2024.1.10
+yt-dlp>=2024.12.13
 
 # Utilities
 pydantic==2.5.3
