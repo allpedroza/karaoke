@@ -37,3 +37,10 @@ coverage/
 
 # Misc
 *.local
+
+# Melody Service (Python)
+melody-service/venv/
+melody-service/cache/
+melody-service/__pycache__/
+melody-service/*.pyc
+melody-service/*.egg-info/
