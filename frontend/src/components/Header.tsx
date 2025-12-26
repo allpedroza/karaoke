@@ -16,7 +16,7 @@ export function Header({ onHomeClick }: HeaderProps) {
           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
           <img
-            src="/cantai_logo.png"
+            src="/cantai_logo.svg"
             alt="CantAI"
             className="h-12 w-auto"
           />

@@ -2279,6 +2279,16 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:30',
     genre: 'MPB'
+  },
+  {
+    code: '0228',
+    song: 'Preciso Desabafar',
+    artist: 'Exaltasamba',
+    youtubeId: '5Pu6c14XBt0',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:30',
+    genre: 'Pagode'
   }
 ];
 

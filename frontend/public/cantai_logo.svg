@@ -1,0 +1,35 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Microfone icon -->
+  <g transform="translate(0, 10)">
+    <circle cx="15" cy="15" r="8" fill="url(#gradient1)" />
+    <rect x="13" y="23" width="4" height="10" fill="url(#gradient1)" />
+    <path d="M 8 28 Q 15 32 22 28" stroke="url(#gradient1)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <line x1="15" y1="33" x2="15" y2="38" stroke="url(#gradient1)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Text CantAI -->
+  <text x="42" y="38" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="url(#gradient2)">
+    Cant<tspan fill="url(#gradient3)">AI</tspan>
+  </text>
+
+  <!-- Subtitle -->
+  <text x="42" y="52" font-family="Arial, sans-serif" font-size="10" fill="#8B5CF6" opacity="0.8">
+    Karaokê com IA
+  </text>
+
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EC4899;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#EC4899;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F97316;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
