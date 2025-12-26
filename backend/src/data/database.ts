@@ -24,6 +24,19 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_sessions_date ON sessions(date(created_at));
   CREATE INDEX IF NOT EXISTS idx_sessions_song ON sessions(song_code);
   CREATE INDEX IF NOT EXISTS idx_sessions_score ON sessions(score DESC);
+
+  CREATE TABLE IF NOT EXISTS melody_maps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    song_code TEXT NOT NULL UNIQUE,
+    song_title TEXT,
+    duration REAL NOT NULL,
+    notes TEXT NOT NULL,
+    total_notes INTEGER NOT NULL,
+    processed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status TEXT DEFAULT 'completed'
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_melody_maps_song_code ON melody_maps(song_code);
 `);
 
 export interface SessionRecord {
@@ -175,6 +188,132 @@ export function getTopSingers(limit: number = 5): TopSinger[] {
   `);
 
   return stmt.all(limit) as TopSinger[];
+}
+
+// --- MELODY MAPS ---
+
+export interface MelodyNote {
+  start: number;
+  end: number;
+  note: string;
+  frequency: number;
+  confidence: number;
+}
+
+export interface MelodyMap {
+  id: number;
+  song_code: string;
+  song_title: string | null;
+  duration: number;
+  notes: MelodyNote[];
+  total_notes: number;
+  processed_at: string;
+  status: string;
+}
+
+interface MelodyMapRow {
+  id: number;
+  song_code: string;
+  song_title: string | null;
+  duration: number;
+  notes: string; // JSON string
+  total_notes: number;
+  processed_at: string;
+  status: string;
+}
+
+// Salvar melody map
+export function saveMelodyMap(
+  songCode: string,
+  songTitle: string | null,
+  duration: number,
+  notes: MelodyNote[]
+): MelodyMap {
+  const notesJson = JSON.stringify(notes);
+
+  const stmt = db.prepare(`
+    INSERT OR REPLACE INTO melody_maps (song_code, song_title, duration, notes, total_notes, status)
+    VALUES (?, ?, ?, ?, ?, 'completed')
+  `);
+
+  const result = stmt.run(songCode, songTitle, duration, notesJson, notes.length);
+
+  return {
+    id: result.lastInsertRowid as number,
+    song_code: songCode,
+    song_title: songTitle,
+    duration,
+    notes,
+    total_notes: notes.length,
+    processed_at: new Date().toISOString(),
+    status: 'completed',
+  };
+}
+
+// Obter melody map por código da música
+export function getMelodyMap(songCode: string): MelodyMap | null {
+  const stmt = db.prepare(`
+    SELECT * FROM melody_maps WHERE song_code = ?
+  `);
+
+  const row = stmt.get(songCode) as MelodyMapRow | undefined;
+
+  if (!row) return null;
+
+  return {
+    ...row,
+    notes: JSON.parse(row.notes) as MelodyNote[],
+  };
+}
+
+// Verificar se melody map existe
+export function hasMelodyMap(songCode: string): boolean {
+  const stmt = db.prepare(`
+    SELECT 1 FROM melody_maps WHERE song_code = ? AND status = 'completed'
+  `);
+
+  return stmt.get(songCode) !== undefined;
+}
+
+// Listar todas as músicas com melody map
+export function listMelodyMaps(): { song_code: string; song_title: string | null; total_notes: number; processed_at: string }[] {
+  const stmt = db.prepare(`
+    SELECT song_code, song_title, total_notes, processed_at
+    FROM melody_maps
+    WHERE status = 'completed'
+    ORDER BY processed_at DESC
+  `);
+
+  return stmt.all() as { song_code: string; song_title: string | null; total_notes: number; processed_at: string }[];
+}
+
+// Deletar melody map
+export function deleteMelodyMap(songCode: string): boolean {
+  const stmt = db.prepare(`
+    DELETE FROM melody_maps WHERE song_code = ?
+  `);
+
+  const result = stmt.run(songCode);
+  return result.changes > 0;
+}
+
+// Marcar como processando (para evitar duplicação)
+export function markMelodyMapProcessing(songCode: string): void {
+  const stmt = db.prepare(`
+    INSERT OR REPLACE INTO melody_maps (song_code, duration, notes, total_notes, status)
+    VALUES (?, 0, '[]', 0, 'processing')
+  `);
+
+  stmt.run(songCode);
+}
+
+// Verificar se está processando
+export function isMelodyMapProcessing(songCode: string): boolean {
+  const stmt = db.prepare(`
+    SELECT 1 FROM melody_maps WHERE song_code = ? AND status = 'processing'
+  `);
+
+  return stmt.get(songCode) !== undefined;
 }
 
 export default db;
