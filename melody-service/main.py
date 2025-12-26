@@ -93,6 +93,15 @@ async def extract_melody(request: ProcessRequest):
             song_code=request.song_code,
             song_title=request.song_title
         )
+
+        # Salva resultado em cache
+        cache_file = CACHE_DIR / f"{request.song_code}.json"
+        with open(cache_file, "w") as f:
+            if isinstance(result, dict):
+                json.dump(result, f)
+            else:
+                json.dump(result.model_dump(), f)
+
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
