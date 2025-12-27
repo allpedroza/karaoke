@@ -5,7 +5,7 @@ import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { useMelodyMap } from '../hooks/useMelodyMap';
 import { SongQueueDrawer } from './SongQueueDrawer';
-import { SingStarPitchBar } from './SingStarPitchBar';
+import { SingStarBar } from './SingStarBar';
 
 // Notas musicais para visualização
 const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -113,7 +113,7 @@ export function KaraokePlayer({
   const {
     isReady,
     isEnded,
-    currentTime: videoCurrentTime,
+    currentTime: videoTime,
     loadVideo,
     play,
     pause,
@@ -306,63 +306,38 @@ export function KaraokePlayer({
           )}
         </div>
 
-        {/* Barra de Pitch SingStar (apenas em fullscreen, gravando, com melody map) */}
-        {isFullscreen && isRecording && !isPaused && hasMelodyMap && (
-          <div className="fixed top-4 left-4 right-4 z-50">
-            <SingStarPitchBar
-              visibleNotes={getVisibleNotes(videoCurrentTime, 4)}
-              currentTime={videoCurrentTime}
-              userNote={currentNote}
-              userFrequency={currentFrequency}
-              windowSize={4}
-              height={100}
-            />
-          </div>
-        )}
-
-        {/* Barra de Pitch Flutuante simples (fallback quando não tem melody map) */}
-        {isFullscreen && isRecording && !isPaused && !hasMelodyMap && (
+        {/* Barra SingStar Flutuante (apenas em fullscreen e gravando) */}
+        {isFullscreen && isRecording && !isPaused && (
           <div
-            className="fixed z-50 bg-black/70 backdrop-blur-sm rounded-xl p-3 shadow-2xl border border-white/20 select-none touch-none"
+            className="fixed z-50 bg-black/90 backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-white/20 select-none"
             style={{
               left: pitchBarPosition.x,
               top: pitchBarPosition.y,
-              minWidth: '280px',
+              minWidth: '600px',
+              maxWidth: '800px',
               cursor: isDragging ? 'grabbing' : 'grab',
             }}
-            onMouseDown={handleDragStart}
-            onTouchStart={handleDragStart}
           >
             {/* Handle de arrastar */}
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2 text-white/70">
-                <Move className="w-4 h-4" />
-                <span className="text-xs">Arraste para mover</span>
-              </div>
+            <div
+              className="flex items-center gap-2 text-white/70 mb-3 cursor-grab active:cursor-grabbing"
+              onMouseDown={handleDragStart}
+              onTouchStart={handleDragStart}
+            >
+              <Move className="w-4 h-4" />
+              <span className="text-xs">Arraste para mover</span>
               {currentNote && (
-                <span className="text-lg font-bold text-karaoke-accent">{currentNote}</span>
+                <span className="ml-auto text-lg font-bold text-karaoke-accent">{currentNote}</span>
               )}
             </div>
 
-            {/* Barras de notas */}
-            <div className="flex gap-1 h-10 items-end">
-              {NOTES.map((note) => {
-                const baseNote = currentNote?.replace(/[0-9]/g, '') || '';
-                const isCurrentNote = baseNote === note;
-
-                return (
-                  <div
-                    key={note}
-                    className={`flex-1 rounded-t transition-all duration-100 ${
-                      isCurrentNote
-                        ? `${NOTE_COLORS[note]} h-full shadow-lg`
-                        : 'bg-white/20 h-1'
-                    }`}
-                    title={note}
-                  />
-                );
-              })}
-            </div>
+            {/* Barra SingStar */}
+            <SingStarBar
+              songCode={video.code}
+              currentTime={videoTime}
+              userNote={currentNote}
+              isRecording={isRecording && !isPaused}
+            />
           </div>
         )}
 
@@ -434,57 +409,15 @@ export function KaraokePlayer({
         )}
       </div>
 
-      {/* Barra de Pitch SingStar fora do fullscreen */}
-      {!isFullscreen && isRecording && !isPaused && hasMelodyMap && (
+      {/* Barra SingStar fora do fullscreen */}
+      {!isFullscreen && isRecording && !isPaused && (
         <div className="card py-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-theme-muted">Guia de afinação:</span>
-            {currentNote && (
-              <span className="text-lg font-bold text-karaoke-accent">{currentNote}</span>
-            )}
-          </div>
-          <SingStarPitchBar
-            visibleNotes={getVisibleNotes(videoCurrentTime, 4)}
-            currentTime={videoCurrentTime}
+          <SingStarBar
+            songCode={video.code}
+            currentTime={videoTime}
             userNote={currentNote}
-            userFrequency={currentFrequency}
-            windowSize={4}
-            height={80}
+            isRecording={isRecording && !isPaused}
           />
-        </div>
-      )}
-
-      {/* Barra de Pitch simples fora do fullscreen (fallback) */}
-      {!isFullscreen && isRecording && !isPaused && !hasMelodyMap && (
-        <div className="card py-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-theme-muted">Sua afinação:</span>
-            {currentNote && (
-              <span className="text-lg font-bold text-karaoke-accent">{currentNote}</span>
-            )}
-          </div>
-          <div className="flex gap-1 h-12 items-end">
-            {NOTES.map((note) => {
-              const baseNote = currentNote?.replace(/[0-9]/g, '') || '';
-              const isCurrentNote = baseNote === note;
-
-              return (
-                <div
-                  key={note}
-                  className={`flex-1 rounded-t transition-all duration-100 ${
-                    isCurrentNote
-                      ? `${NOTE_COLORS[note]} h-full shadow-lg`
-                      : 'bg-gray-700 h-2'
-                  }`}
-                  title={note}
-                />
-              );
-            })}
-          </div>
-          <div className="flex justify-between text-xs text-theme-secondary mt-1">
-            <span>Grave</span>
-            <span>Agudo</span>
-          </div>
         </div>
       )}
 

@@ -92,15 +92,25 @@ TOM DE VOZ:
 - Seja encorajador, mas aponte onde melhorar sem ser técnico demais.
 - NUNCA mencione "JSON", "frequência", "algoritmo", "Hz" ou porcentagens no texto final.
 
-OUTPUT OBRIGATÓRIO (use EXATAMENTE esta estrutura JSON):
+OUTPUT:
+Retorne APENAS um JSON válido com EXATAMENTE esta estrutura:
 {
   "overallScore": <número de 0 a 100>,
   "dimensions": {
-    "pitch": { "score": <0-100>, "detail": "<comentário sobre afinação>" },
-    "lyrics": { "score": <0-100>, "detail": "<comentário sobre letra>" },
-    "energy": { "score": <0-100>, "detail": "<comentário sobre energia/animação>" }
+    "pitch": {
+      "score": <número de 0 a 100>,
+      "detail": "<comentário sobre afinação e tom>"
+    },
+    "lyrics": {
+      "score": <número de 0 a 100>,
+      "detail": "<comentário sobre letra e dicção>"
+    },
+    "energy": {
+      "score": <número de 0 a 100>,
+      "detail": "<comentário sobre energia e interpretação>"
+    }
   },
-  "encouragement": "<mensagem final motivacional>"
+  "encouragement": "<mensagem motivacional geral>"
 }`;
 
   // 2. CONSTRUÇÃO DO CONTEXTO TÉCNICO (Sem julgamento prévio, apenas dados)
@@ -136,14 +146,14 @@ Gere o JSON de avaliação agora.`;
     const anthropic = getAnthropicClient();
     
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514', // Claude Sonnet 4
+      model: 'claude-sonnet-4-20250514', // Claude Sonnet 4 (lançado em maio 2025)
       max_tokens: 1024,
       temperature: 0.7, // Um pouco de criatividade para os comentários
       system: systemPrompt,
       messages: [
         { role: 'user', content: userPrompt },
         // TRUQUE DO PREFILL: Força o modelo a começar com JSON
-        { role: 'assistant', content: '{' } 
+        { role: 'assistant', content: '{' }
       ],
     });
 
@@ -151,11 +161,12 @@ Gere o JSON de avaliação agora.`;
     const contentBlock = response.content[0];
     const rawText = contentBlock.type === 'text' ? contentBlock.text : '';
 
-    // Reconstrói o JSON - adiciona '{' apenas se a resposta não começar com ele
-    const needsBrace = !rawText.trimStart().startsWith('{');
-    const jsonStr = needsBrace ? `{${rawText}` : rawText;
+    console.log('🤖 Resposta bruta do Claude:', rawText.substring(0, 200) + '...');
 
-    // Limpeza: remove markdown code blocks se existirem
+    // Reconstrói o JSON completo
+    const jsonStr = `{${rawText}`;
+
+    // Limpeza extra de segurança (caso o modelo ignore o prefill e mande markdown)
     const cleanJsonStr = jsonStr.replace(/```json\n?|```/g, '').trim();
 
     // Parse do JSON com múltiplas estratégias
@@ -163,7 +174,8 @@ Gere o JSON de avaliação agora.`;
     try {
         parsedData = JSON.parse(cleanJsonStr);
     } catch (e) {
-        // Fallback 1: Extrair JSON do texto
+        console.error('❌ Erro ao parsear JSON. String recebida:', cleanJsonStr.substring(0, 200));
+        // Fallback: Tenta encontrar o primeiro JSON válido na string se a limpeza falhou
         const match = cleanJsonStr.match(/\{[\s\S]*\}/);
         if (match) {
             try {
@@ -175,6 +187,8 @@ Gere o JSON de avaliação agora.`;
             throw new Error(`Nenhum JSON encontrado na resposta: ${cleanJsonStr.substring(0, 100)}...`);
         }
     }
+
+    console.log('✅ JSON parseado com sucesso:', JSON.stringify(parsedData).substring(0, 100) + '...');
 
     // 4. VALIDAÇÃO COM ZOD (Garante a tipagem)
     const evaluation = EvaluationSchema.parse(parsedData);
