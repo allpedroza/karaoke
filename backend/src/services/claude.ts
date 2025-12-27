@@ -157,8 +157,7 @@ Gere o JSON de avaliação agora.`;
       ],
     });
 
-    // 3. PARSING SEGURO COM PREFILL
-    // Como injetamos '{', precisamos concatená-lo de volta na resposta
+    // 3. PARSING SEGURO
     const contentBlock = response.content[0];
     const rawText = contentBlock.type === 'text' ? contentBlock.text : '';
 
@@ -170,7 +169,7 @@ Gere o JSON de avaliação agora.`;
     // Limpeza extra de segurança (caso o modelo ignore o prefill e mande markdown)
     const cleanJsonStr = jsonStr.replace(/```json\n?|```/g, '').trim();
 
-    // Parse do JSON
+    // Parse do JSON com múltiplas estratégias
     let parsedData;
     try {
         parsedData = JSON.parse(cleanJsonStr);
@@ -179,9 +178,13 @@ Gere o JSON de avaliação agora.`;
         // Fallback: Tenta encontrar o primeiro JSON válido na string se a limpeza falhou
         const match = cleanJsonStr.match(/\{[\s\S]*\}/);
         if (match) {
-            parsedData = JSON.parse(match[0]);
+            try {
+                parsedData = JSON.parse(match[0]);
+            } catch (e2) {
+                throw new Error(`Falha ao parsear JSON da IA: ${cleanJsonStr.substring(0, 100)}...`);
+            }
         } else {
-            throw new Error(`Falha ao parsear JSON da IA: ${cleanJsonStr.substring(0, 50)}...`);
+            throw new Error(`Nenhum JSON encontrado na resposta: ${cleanJsonStr.substring(0, 100)}...`);
         }
     }
 

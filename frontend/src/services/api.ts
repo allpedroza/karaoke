@@ -1,4 +1,4 @@
-import { PerformanceEvaluation, KaraokeVideo, PitchStats } from '../types';
+import { PerformanceEvaluation, KaraokeVideo, PitchStats, MelodyMap } from '../types';
 
 const API_BASE = '/api';
 
@@ -142,5 +142,24 @@ export async function getTopSongs(): Promise<TopSong[]> {
 export async function getTopSingers(): Promise<TopSinger[]> {
   const response = await fetch(`${API_BASE}/rankings/top-singers`);
   if (!response.ok) throw new Error('Erro ao buscar top cantores');
+  return response.json();
+}
+
+// ============================================
+// MELODY MAPS (Pitch Bar)
+// ============================================
+
+// Buscar melody map de uma música
+export async function getMelodyMap(songCode: string): Promise<MelodyMap | null> {
+  const response = await fetch(`${API_BASE}/melody/${songCode}`);
+
+  if (response.status === 404) {
+    return null; // Melody map ainda não existe
+  }
+
+  if (!response.ok) {
+    throw new Error('Erro ao buscar melody map');
+  }
+
   return response.json();
 }

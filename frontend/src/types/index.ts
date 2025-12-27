@@ -60,3 +60,21 @@ export interface QueueItem {
   video: KaraokeVideo;
   singerName: string;
 }
+
+// Nota da melodia (para barra de pitch estilo SingStar)
+export interface MelodyNote {
+  time: number;      // Tempo em segundos
+  duration: number;  // Duração em segundos
+  pitch: number;     // Frequência em Hz
+  note: string;      // Nota musical (ex: "C4", "A#3")
+  midi: number;      // Número MIDI (0-127)
+}
+
+// Mapa de melodia completo
+export interface MelodyMap {
+  song_code: string;
+  song_title: string;
+  duration: number;
+  notes: MelodyNote[];
+  status: 'ready' | 'processing' | 'error';
+}

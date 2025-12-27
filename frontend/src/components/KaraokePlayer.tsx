@@ -3,6 +3,7 @@ import { Mic, Play, Pause, Square, RotateCcw, Loader2, Send, Minimize2, Move, Li
 import { KaraokeVideo, PerformanceData, QueueItem } from '../types';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
+import { useMelodyMap } from '../hooks/useMelodyMap';
 import { SongQueueDrawer } from './SongQueueDrawer';
 import { SingStarBar } from './SingStarBar';
 
@@ -62,6 +63,7 @@ export function KaraokePlayer({
     duration,
     pitchStats,
     currentNote,
+    currentFrequency,
     startRecording,
     stopRecording,
     pauseRecording,
@@ -69,6 +71,9 @@ export function KaraokePlayer({
     resetRecording,
     error: recordingError,
   } = useAudioRecorder({ language: video.language });
+
+  // Melody map para a barra de pitch estilo SingStar
+  const { getVisibleNotes, isAvailable: hasMelodyMap } = useMelodyMap(video.code);
 
   // Refs para evitar stale closures nos callbacks
   const transcriptionRef = useRef(transcription);

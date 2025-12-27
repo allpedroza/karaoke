@@ -22,6 +22,7 @@ interface UseAudioRecorderReturn {
   duration: number;
   pitchStats: PitchStats | null;
   currentNote: string | null;
+  currentFrequency: number | null;
   startRecording: () => Promise<void>;
   stopRecording: () => void;
   pauseRecording: () => void;
@@ -260,6 +261,7 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}): UseAudi
     duration,
     pitchStats,
     currentNote: currentPitch?.note || null,
+    currentFrequency: currentPitch?.frequency || null,
     startRecording,
     stopRecording,
     pauseRecording,
