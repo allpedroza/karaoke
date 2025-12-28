@@ -34,7 +34,7 @@ export function KaraokePlayer({
 
   // Estado para barra de pitch arrastável e redimensionável
   const [pitchBarPosition, setPitchBarPosition] = useState({ x: 20, y: 20 });
-  const [pitchBarHeight, setPitchBarHeight] = useState(120);
+  const [pitchBarHeight, setPitchBarHeight] = useState(240); // Dobro do tamanho original
   const [isDragging, setIsDragging] = useState(false);
   const dragOffset = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -293,8 +293,8 @@ export function KaraokePlayer({
             style={{
               left: pitchBarPosition.x,
               top: pitchBarPosition.y,
-              minWidth: '500px',
-              maxWidth: '800px',
+              minWidth: '700px',
+              maxWidth: '1000px',
               cursor: isDragging ? 'grabbing' : 'grab',
             }}
           >
