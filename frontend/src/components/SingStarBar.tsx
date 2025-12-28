@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { SongMelody, fetchMelody } from '../services/melody';
+import { MelodyMap, MelodyNote } from '../types';
+import { getMelodyMap } from '../services/api';
 
 interface SingStarBarProps {
   songCode: string;
@@ -60,11 +61,12 @@ export function SingStarBar({
   userNote,
   userFrequency,
   isRecording,
-  height = 120,
+  height = 240,
   onHeightChange,
 }: SingStarBarProps) {
-  const [melody, setMelody] = useState<SongMelody | null>(null);
+  const [melodyMap, setMelodyMap] = useState<MelodyMap | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -73,16 +75,31 @@ export function SingStarBar({
   const resizeStartY = useRef(0);
   const resizeStartHeight = useRef(height);
 
-  // Carregar melodia da música
+  // Carregar melodia da música via API do backend
   useEffect(() => {
     let mounted = true;
 
     async function loadMelody() {
       setLoading(true);
-      const melodyData = await fetchMelody(songCode);
-      if (mounted) {
-        setMelody(melodyData);
-        setLoading(false);
+      setError(null);
+      try {
+        const data = await getMelodyMap(songCode);
+        if (mounted) {
+          if (data && data.status === 'ready' && data.notes.length > 0) {
+            setMelodyMap(data);
+            console.log(`[SingStarBar] Loaded ${data.notes.length} notes for ${songCode}`);
+          } else {
+            console.warn(`[SingStarBar] No melody data for ${songCode}`, data);
+            setMelodyMap(null);
+          }
+          setLoading(false);
+        }
+      } catch (err) {
+        if (mounted) {
+          console.error('[SingStarBar] Error loading melody:', err);
+          setError('Erro ao carregar melodia');
+          setLoading(false);
+        }
       }
     }
 
@@ -115,7 +132,7 @@ export function SingStarBar({
     if (!isResizing) return;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     const delta = clientY - resizeStartY.current;
-    const newHeight = Math.max(80, Math.min(300, resizeStartHeight.current + delta));
+    const newHeight = Math.max(120, Math.min(500, resizeStartHeight.current + delta));
     onHeightChange?.(newHeight);
   }, [isResizing, onHeightChange]);
 
@@ -142,7 +159,7 @@ export function SingStarBar({
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
-    if (!canvas || !container || !melody || loading) return;
+    if (!canvas || !container || !melodyMap || loading) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -175,7 +192,7 @@ export function SingStarBar({
     // Encontrar notas visíveis
     const startTime = currentTime - 1;
     const endTime = currentTime + windowSize;
-    const visibleNotes = melody.notes.filter((n) => {
+    const visibleNotes = melodyMap.notes.filter((n: MelodyNote) => {
       const noteEnd = n.time + n.duration;
       return noteEnd >= startTime && n.time <= endTime;
     });
@@ -212,11 +229,12 @@ export function SingStarBar({
 
     // Desenha notas da melodia (estilo SingStar - barras coloridas arredondadas)
     for (const note of visibleNotes) {
-      const midi = noteToMidi(note.note);
+      // Usa o midi direto se disponível, senão calcula a partir da nota
+      const midi = note.midi || noteToMidi(note.note);
       const x = timeToX(note.time);
       const noteWidth = Math.max(10, (note.duration * (width - nowLineX)) / windowSize);
       const y = midiToY(midi, canvasHeight);
-      const noteHeight = Math.max(10, canvasHeight / MIDI_RANGE * 2);
+      const noteHeight = Math.max(12, canvasHeight / MIDI_RANGE * 2.5);
 
       // Verifica se a nota está no "agora" (sendo cantada)
       const isActive = currentTime >= note.time && currentTime <= note.time + note.duration;
@@ -229,15 +247,15 @@ export function SingStarBar({
       ctx.shadowBlur = isActive ? 25 : 10;
 
       // Barra da nota (retângulo arredondado estilo SingStar)
-      ctx.fillStyle = isActive ? color : `${color}88`; // Mais opaco se ativo
+      ctx.fillStyle = isActive ? color : `${color}aa`; // Mais opaco
       ctx.beginPath();
       const radius = noteHeight / 2;
       ctx.roundRect(x, y - noteHeight / 2, noteWidth, noteHeight, radius);
       ctx.fill();
 
       // Borda luminosa
-      ctx.strokeStyle = isActive ? '#ffffff' : `${color}cc`;
-      ctx.lineWidth = isActive ? 3 : 1.5;
+      ctx.strokeStyle = isActive ? '#ffffff' : `${color}`;
+      ctx.lineWidth = isActive ? 3 : 2;
       ctx.stroke();
 
       ctx.shadowBlur = 0;
@@ -251,12 +269,12 @@ export function SingStarBar({
 
       // Verifica se o usuário está afinado com alguma nota ativa
       const activeNote = visibleNotes.find(
-        (note) => currentTime >= note.time && currentTime <= note.time + note.duration
+        (note: MelodyNote) => currentTime >= note.time && currentTime <= note.time + note.duration
       );
 
       let isOnPitch = false;
       if (activeNote) {
-        const targetMidi = noteToMidi(activeNote.note);
+        const targetMidi = activeNote.midi || noteToMidi(activeNote.note);
         const midiDiff = Math.abs(userMidi - targetMidi);
         isOnPitch = midiDiff < 1.5; // Dentro de 1.5 semitom
       }
@@ -270,7 +288,7 @@ export function SingStarBar({
       // Círculo principal do usuário
       ctx.fillStyle = indicatorColor;
       ctx.beginPath();
-      ctx.arc(nowLineX, userY, 10, 0, Math.PI * 2);
+      ctx.arc(nowLineX, userY, 12, 0, Math.PI * 2);
       ctx.fill();
 
       // Borda branca brilhante
@@ -280,13 +298,13 @@ export function SingStarBar({
 
       // Trail/rastro do usuário (linha à esquerda)
       ctx.shadowBlur = 0;
-      const gradient = ctx.createLinearGradient(nowLineX - 60, 0, nowLineX, 0);
+      const gradient = ctx.createLinearGradient(nowLineX - 80, 0, nowLineX, 0);
       gradient.addColorStop(0, 'transparent');
       gradient.addColorStop(1, `${indicatorColor}99`);
       ctx.strokeStyle = gradient;
-      ctx.lineWidth = 6;
+      ctx.lineWidth = 8;
       ctx.beginPath();
-      ctx.moveTo(nowLineX - 60, userY);
+      ctx.moveTo(nowLineX - 80, userY);
       ctx.lineTo(nowLineX, userY);
       ctx.stroke();
 
@@ -294,30 +312,30 @@ export function SingStarBar({
     }
 
     // Labels das notas (à esquerda)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.font = '11px monospace';
     ctx.textAlign = 'left';
     const notesLabels = ['C3', 'C4', 'C5', 'C6'];
     for (const label of notesLabels) {
       const midi = noteToMidi(label);
       const y = midiToY(midi, canvasHeight);
-      ctx.fillText(label, 4, y + 3);
+      ctx.fillText(label, 4, y + 4);
     }
-  }, [melody, currentTime, userNote, userFrequency, isRecording, loading, height, midiToY]);
+  }, [melodyMap, currentTime, userNote, userFrequency, isRecording, loading, height, midiToY]);
 
   if (loading) {
     return (
-      <div className="w-full h-24 bg-gray-900/50 rounded-lg flex items-center justify-center">
+      <div className="w-full bg-gray-900/50 rounded-lg flex items-center justify-center" style={{ height }}>
         <span className="text-gray-400 text-sm">Carregando melodia...</span>
       </div>
     );
   }
 
-  if (!melody) {
+  if (error || !melodyMap) {
     return (
-      <div className="w-full h-24 bg-gray-900/50 rounded-lg flex items-center justify-center">
+      <div className="w-full bg-gray-900/50 rounded-lg flex items-center justify-center" style={{ height }}>
         <span className="text-gray-400 text-sm">
-          Melodia não disponível para esta música
+          {error || 'Melodia não disponível para esta música'}
         </span>
       </div>
     );
