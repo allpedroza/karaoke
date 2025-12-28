@@ -1,17 +1,77 @@
-import { useEffect, useState, useRef } from 'react';
-import { MelodyNote, SongMelody, fetchMelody } from '../services/melody';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { SongMelody, fetchMelody } from '../services/melody';
 
 interface SingStarBarProps {
   songCode: string;
   currentTime: number; // Tempo atual do vídeo em segundos
   userNote: string | null; // Nota que o usuário está cantando (ex: "C4")
+  userFrequency?: number | null; // Frequência atual do usuário
   isRecording: boolean;
+  height?: number; // Altura da barra (para resize)
+  onHeightChange?: (height: number) => void; // Callback quando altura mudar
 }
 
-export function SingStarBar({ songCode, currentTime, userNote, isRecording }: SingStarBarProps) {
+// Converte frequência para número MIDI
+function frequencyToMidi(frequency: number): number {
+  return 69 + 12 * Math.log2(frequency / 440);
+}
+
+// Converte nota para MIDI
+function noteToMidi(note: string): number {
+  const noteMatch = note.match(/^([A-G]#?)(\d+)$/);
+  if (!noteMatch) return 60; // C4 default
+  const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const [, noteName, octaveStr] = noteMatch;
+  const octave = parseInt(octaveStr, 10);
+  const noteIndex = noteNames.indexOf(noteName);
+  return (octave + 1) * 12 + noteIndex;
+}
+
+// Range de MIDI notes para vocais (C3 a C6)
+const MIN_MIDI = 48; // C3
+const MAX_MIDI = 84; // C6
+const MIDI_RANGE = MAX_MIDI - MIN_MIDI;
+
+// Cores das notas por classe de pitch (estilo SingStar)
+const NOTE_COLORS: Record<string, string> = {
+  C: '#ef4444',  // red
+  D: '#f97316',  // orange
+  E: '#eab308',  // yellow
+  F: '#22c55e',  // green
+  G: '#06b6d4',  // cyan
+  A: '#3b82f6',  // blue
+  B: '#a855f7',  // purple
+};
+
+// Extrai a nota base (sem oitava)
+function getBaseNote(note: string): string {
+  return note.replace(/[0-9#b]/g, '').charAt(0);
+}
+
+// Obtém cor da nota
+function getNoteColor(note: string): string {
+  const base = getBaseNote(note);
+  return NOTE_COLORS[base] || '#22d3ee'; // cyan default
+}
+
+export function SingStarBar({
+  songCode,
+  currentTime,
+  userNote,
+  userFrequency,
+  isRecording,
+  height = 120,
+  onHeightChange,
+}: SingStarBarProps) {
   const [melody, setMelody] = useState<SongMelody | null>(null);
   const [loading, setLoading] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Estado para resize
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeStartY = useRef(0);
+  const resizeStartHeight = useRef(height);
 
   // Carregar melodia da música
   useEffect(() => {
@@ -33,126 +93,217 @@ export function SingStarBar({ songCode, currentTime, userNote, isRecording }: Si
     };
   }, [songCode]);
 
+  // Calcula posição Y baseado no MIDI
+  const midiToY = useCallback((midi: number, canvasHeight: number): number => {
+    const clampedMidi = Math.max(MIN_MIDI, Math.min(MAX_MIDI, midi));
+    const normalized = (clampedMidi - MIN_MIDI) / MIDI_RANGE;
+    // Inverte porque Y cresce para baixo no canvas
+    return canvasHeight - normalized * canvasHeight;
+  }, []);
+
+  // Resize handlers
+  const handleResizeStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    resizeStartY.current = clientY;
+    resizeStartHeight.current = height;
+  }, [height]);
+
+  const handleResize = useCallback((e: MouseEvent | TouchEvent) => {
+    if (!isResizing) return;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const delta = clientY - resizeStartY.current;
+    const newHeight = Math.max(80, Math.min(300, resizeStartHeight.current + delta));
+    onHeightChange?.(newHeight);
+  }, [isResizing, onHeightChange]);
+
+  const handleResizeEnd = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener('mousemove', handleResize);
+      window.addEventListener('mouseup', handleResizeEnd);
+      window.addEventListener('touchmove', handleResize);
+      window.addEventListener('touchend', handleResizeEnd);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleResize);
+      window.removeEventListener('mouseup', handleResizeEnd);
+      window.removeEventListener('touchmove', handleResize);
+      window.removeEventListener('touchend', handleResizeEnd);
+    };
+  }, [isResizing, handleResize, handleResizeEnd]);
+
   // Renderizar barra estilo SingStar
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !melody || loading) return;
+    const container = containerRef.current;
+    if (!canvas || !container || !melody || loading) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const width = canvas.width;
-    const height = canvas.height;
+    // Ajusta tamanho do canvas para alta resolução
+    const rect = container.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.scale(dpr, dpr);
+
+    const width = rect.width;
+    const canvasHeight = height;
 
     // Limpar canvas
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, width, canvasHeight);
 
-    // Configurações
-    const visibleDuration = 8; // Mostrar 8 segundos à frente
-    const startTime = Math.max(0, currentTime - 1); // 1 segundo atrás
-    const endTime = startTime + visibleDuration;
-
-    // Encontrar faixa de notas (min/max)
-    const visibleNotes = melody.notes.filter(
-      (n) => n.time >= startTime && n.time <= endTime
-    );
-
-    if (visibleNotes.length === 0) return;
-
-    // Extrair octava e índice de nota
-    const getNoteValue = (note: string): number => {
-      const noteMatch = note.match(/^([A-G]#?)(\d+)$/);
-      if (!noteMatch) return 0;
-      const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-      const [, noteName, octaveStr] = noteMatch;
-      const octave = parseInt(octaveStr, 10);
-      const noteIndex = noteNames.indexOf(noteName);
-      return octave * 12 + noteIndex;
-    };
-
-    const allNoteValues = [
-      ...visibleNotes.map((n) => getNoteValue(n.note)),
-      userNote ? getNoteValue(userNote) : 0,
-    ].filter((v) => v > 0);
-
-    const minNote = Math.min(...allNoteValues) - 2; // Margem de 2 semitons
-    const maxNote = Math.max(...allNoteValues) + 2;
-    const noteRange = maxNote - minNote;
+    // Configurações estilo SingStar
+    const windowSize = 6; // Mostrar 6 segundos à frente
+    const nowLineX = width * 0.15; // Linha do "agora" em 15%
 
     // Função auxiliar: tempo -> posição X
     const timeToX = (time: number): number => {
-      return ((time - startTime) / visibleDuration) * width;
+      const pixelsPerSecond = (width - nowLineX) / windowSize;
+      return nowLineX + (time - currentTime) * pixelsPerSecond;
     };
 
-    // Função auxiliar: nota -> posição Y
-    const noteToY = (note: string): number => {
-      const value = getNoteValue(note);
-      return height - ((value - minNote) / noteRange) * height;
-    };
-
-    // Desenhar linha vertical do tempo atual (indicador)
-    const currentX = timeToX(currentTime);
-    ctx.strokeStyle = '#ec4899'; // Rosa
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    ctx.moveTo(currentX, 0);
-    ctx.lineTo(currentX, height);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Desenhar notas da melodia (em azul/ciano)
-    ctx.fillStyle = 'rgba(34, 211, 238, 0.6)'; // Ciano semi-transparente
-    ctx.strokeStyle = 'rgba(34, 211, 238, 1)';
-    ctx.lineWidth = 2;
-
-    visibleNotes.forEach((note) => {
-      const x = timeToX(note.time);
-      const y = noteToY(note.note);
-      const w = (note.duration / visibleDuration) * width;
-      const h = 8; // Altura da barra
-
-      // Barra da melodia
-      ctx.fillRect(x, y - h / 2, w, h);
-      ctx.strokeRect(x, y - h / 2, w, h);
+    // Encontrar notas visíveis
+    const startTime = currentTime - 1;
+    const endTime = currentTime + windowSize;
+    const visibleNotes = melody.notes.filter((n) => {
+      const noteEnd = n.time + n.duration;
+      return noteEnd >= startTime && n.time <= endTime;
     });
 
-    // Desenhar nota do usuário (em verde/amarelo)
-    if (isRecording && userNote) {
-      const userY = noteToY(userNote);
-      const userX = currentX - 20; // Centralizar na linha do tempo
-      const userW = 40;
-      const userH = 10;
-
-      // Verificar se está próximo da nota correta
-      const currentMelodyNote = melody.notes.find(
-        (n) => Math.abs(n.time - currentTime) < 0.5
-      );
-
-      const isCorrect = currentMelodyNote
-        ? Math.abs(getNoteValue(userNote) - getNoteValue(currentMelodyNote.note)) <= 1
-        : false;
-
-      ctx.fillStyle = isCorrect
-        ? 'rgba(34, 197, 94, 0.8)' // Verde se correto
-        : 'rgba(251, 191, 36, 0.8)'; // Amarelo se errado
-      ctx.fillRect(userX, userY - userH / 2, userW, userH);
-
-      ctx.strokeStyle = isCorrect ? 'rgba(34, 197, 94, 1)' : 'rgba(251, 191, 36, 1)';
-      ctx.strokeRect(userX, userY - userH / 2, userW, userH);
-    }
-
-    // Desenhar linhas de grade (oitavas)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    // Linhas de grade horizontais (notas)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.lineWidth = 1;
-    for (let i = minNote; i <= maxNote; i += 12) {
-      const y = height - ((i - minNote) / noteRange) * height;
+    for (let midi = MIN_MIDI; midi <= MAX_MIDI; midi += 2) {
+      const y = midiToY(midi, canvasHeight);
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(width, y);
       ctx.stroke();
     }
-  }, [melody, currentTime, userNote, isRecording, loading]);
+
+    // Linha do "agora" (estilo SingStar - vertical luminosa)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(nowLineX, 0);
+    ctx.lineTo(nowLineX, canvasHeight);
+    ctx.stroke();
+
+    // Glow na linha do agora
+    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 15;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(nowLineX, 0);
+    ctx.lineTo(nowLineX, canvasHeight);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Desenha notas da melodia (estilo SingStar - barras coloridas arredondadas)
+    for (const note of visibleNotes) {
+      const midi = noteToMidi(note.note);
+      const x = timeToX(note.time);
+      const noteWidth = Math.max(10, (note.duration * (width - nowLineX)) / windowSize);
+      const y = midiToY(midi, canvasHeight);
+      const noteHeight = Math.max(10, canvasHeight / MIDI_RANGE * 2);
+
+      // Verifica se a nota está no "agora" (sendo cantada)
+      const isActive = currentTime >= note.time && currentTime <= note.time + note.duration;
+
+      // Cor da nota baseada na nota musical
+      const color = getNoteColor(note.note);
+
+      // Sombra/glow
+      ctx.shadowColor = color;
+      ctx.shadowBlur = isActive ? 25 : 10;
+
+      // Barra da nota (retângulo arredondado estilo SingStar)
+      ctx.fillStyle = isActive ? color : `${color}88`; // Mais opaco se ativo
+      ctx.beginPath();
+      const radius = noteHeight / 2;
+      ctx.roundRect(x, y - noteHeight / 2, noteWidth, noteHeight, radius);
+      ctx.fill();
+
+      // Borda luminosa
+      ctx.strokeStyle = isActive ? '#ffffff' : `${color}cc`;
+      ctx.lineWidth = isActive ? 3 : 1.5;
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+    }
+
+    // Indicador do usuário (se está cantando)
+    const actualFrequency = userFrequency || (userNote ? noteToMidi(userNote) * 8.18 : null);
+    if (actualFrequency && actualFrequency > 50 && isRecording) {
+      const userMidi = userFrequency ? frequencyToMidi(userFrequency) : noteToMidi(userNote || 'C4');
+      const userY = midiToY(userMidi, canvasHeight);
+
+      // Verifica se o usuário está afinado com alguma nota ativa
+      const activeNote = visibleNotes.find(
+        (note) => currentTime >= note.time && currentTime <= note.time + note.duration
+      );
+
+      let isOnPitch = false;
+      if (activeNote) {
+        const targetMidi = noteToMidi(activeNote.note);
+        const midiDiff = Math.abs(userMidi - targetMidi);
+        isOnPitch = midiDiff < 1.5; // Dentro de 1.5 semitom
+      }
+
+      // Cor do indicador (verde se afinado, vermelho se não)
+      const indicatorColor = isOnPitch ? '#22c55e' : '#ef4444';
+
+      ctx.shadowColor = indicatorColor;
+      ctx.shadowBlur = 20;
+
+      // Círculo principal do usuário
+      ctx.fillStyle = indicatorColor;
+      ctx.beginPath();
+      ctx.arc(nowLineX, userY, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Borda branca brilhante
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Trail/rastro do usuário (linha à esquerda)
+      ctx.shadowBlur = 0;
+      const gradient = ctx.createLinearGradient(nowLineX - 60, 0, nowLineX, 0);
+      gradient.addColorStop(0, 'transparent');
+      gradient.addColorStop(1, `${indicatorColor}99`);
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(nowLineX - 60, userY);
+      ctx.lineTo(nowLineX, userY);
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+    }
+
+    // Labels das notas (à esquerda)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'left';
+    const notesLabels = ['C3', 'C4', 'C5', 'C6'];
+    for (const label of notesLabels) {
+      const midi = noteToMidi(label);
+      const y = midiToY(midi, canvasHeight);
+      ctx.fillText(label, 4, y + 3);
+    }
+  }, [melody, currentTime, userNote, userFrequency, isRecording, loading, height, midiToY]);
 
   if (loading) {
     return (
@@ -173,30 +324,43 @@ export function SingStarBar({ songCode, currentTime, userNote, isRecording }: Si
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full select-none">
       <div className="flex items-center justify-between mb-2 text-xs text-gray-400">
-        <span>🎵 Siga a melodia</span>
+        <span className="flex items-center gap-1">
+          <span className="opacity-70">Siga a melodia</span>
+        </span>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 bg-cyan-500 rounded"></div>
+            <div className="w-3 h-3 bg-cyan-500 rounded-full shadow-lg shadow-cyan-500/50"></div>
             <span>Melodia</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 bg-green-500 rounded"></div>
+            <div className="w-3 h-3 bg-green-500 rounded-full shadow-lg shadow-green-500/50"></div>
             <span>Você (afinado)</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+            <div className="w-3 h-3 bg-red-500 rounded-full shadow-lg shadow-red-500/50"></div>
             <span>Você (desafinado)</span>
           </div>
         </div>
       </div>
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={120}
-        className="w-full h-24 bg-black/80 rounded-lg border border-white/10"
-      />
+      <div
+        ref={containerRef}
+        className="relative w-full rounded-lg overflow-hidden border border-white/20"
+        style={{ height }}
+      >
+        <canvas ref={canvasRef} className="w-full h-full" />
+        {/* Handle de resize na borda inferior */}
+        {onHeightChange && (
+          <div
+            className="absolute bottom-0 left-0 right-0 h-3 cursor-ns-resize flex items-center justify-center bg-gradient-to-t from-white/10 to-transparent hover:from-white/20 transition-colors"
+            onMouseDown={handleResizeStart}
+            onTouchStart={handleResizeStart}
+          >
+            <div className="w-12 h-1 rounded-full bg-white/40"></div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,28 +1,10 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Mic, Play, Pause, Square, RotateCcw, Loader2, Send, Minimize2, Move, ListPlus } from 'lucide-react';
+import { Mic, Play, Pause, Square, RotateCcw, Loader2, Send, Minimize2, Move, ListPlus, GripVertical } from 'lucide-react';
 import { KaraokeVideo, PerformanceData, QueueItem } from '../types';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
-import { useMelodyMap } from '../hooks/useMelodyMap';
 import { SongQueueDrawer } from './SongQueueDrawer';
 import { SingStarBar } from './SingStarBar';
-
-// Notas musicais para visualização
-const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-const NOTE_COLORS: Record<string, string> = {
-  'C': 'bg-red-500',
-  'C#': 'bg-red-400',
-  'D': 'bg-orange-500',
-  'D#': 'bg-orange-400',
-  'E': 'bg-yellow-500',
-  'F': 'bg-green-500',
-  'F#': 'bg-green-400',
-  'G': 'bg-cyan-500',
-  'G#': 'bg-cyan-400',
-  'A': 'bg-blue-500',
-  'A#': 'bg-blue-400',
-  'B': 'bg-purple-500',
-};
 
 interface KaraokePlayerProps {
   video: KaraokeVideo;
@@ -50,8 +32,9 @@ export function KaraokePlayer({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showQueueDrawer, setShowQueueDrawer] = useState(false);
 
-  // Estado para barra de pitch arrastável
+  // Estado para barra de pitch arrastável e redimensionável
   const [pitchBarPosition, setPitchBarPosition] = useState({ x: 20, y: 20 });
+  const [pitchBarHeight, setPitchBarHeight] = useState(120);
   const [isDragging, setIsDragging] = useState(false);
   const dragOffset = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -71,9 +54,6 @@ export function KaraokePlayer({
     resetRecording,
     error: recordingError,
   } = useAudioRecorder({ language: video.language });
-
-  // Melody map para a barra de pitch estilo SingStar
-  const { getVisibleNotes, isAvailable: hasMelodyMap } = useMelodyMap(video.code);
 
   // Refs para evitar stale closures nos callbacks
   const transcriptionRef = useRef(transcription);
@@ -309,11 +289,11 @@ export function KaraokePlayer({
         {/* Barra SingStar Flutuante (apenas em fullscreen e gravando) */}
         {isFullscreen && isRecording && !isPaused && (
           <div
-            className="fixed z-50 bg-black/90 backdrop-blur-sm rounded-xl p-4 shadow-2xl border border-white/20 select-none"
+            className="fixed z-50 bg-black/70 backdrop-blur-md rounded-xl p-4 shadow-2xl border border-white/20 select-none"
             style={{
               left: pitchBarPosition.x,
               top: pitchBarPosition.y,
-              minWidth: '600px',
+              minWidth: '500px',
               maxWidth: '800px',
               cursor: isDragging ? 'grabbing' : 'grab',
             }}
@@ -325,18 +305,24 @@ export function KaraokePlayer({
               onTouchStart={handleDragStart}
             >
               <Move className="w-4 h-4" />
-              <span className="text-xs">Arraste para mover</span>
+              <span className="text-xs">Mover</span>
+              <span className="text-white/40 mx-1">|</span>
+              <GripVertical className="w-4 h-4" />
+              <span className="text-xs">Redimensionar na borda</span>
               {currentNote && (
                 <span className="ml-auto text-lg font-bold text-karaoke-accent">{currentNote}</span>
               )}
             </div>
 
-            {/* Barra SingStar */}
+            {/* Barra SingStar com resize */}
             <SingStarBar
               songCode={video.code}
               currentTime={videoTime}
               userNote={currentNote}
+              userFrequency={currentFrequency}
               isRecording={isRecording && !isPaused}
+              height={pitchBarHeight}
+              onHeightChange={setPitchBarHeight}
             />
           </div>
         )}
@@ -411,12 +397,15 @@ export function KaraokePlayer({
 
       {/* Barra SingStar fora do fullscreen */}
       {!isFullscreen && isRecording && !isPaused && (
-        <div className="card py-4">
+        <div className="card py-4 bg-black/70 backdrop-blur-md">
           <SingStarBar
             songCode={video.code}
             currentTime={videoTime}
             userNote={currentNote}
+            userFrequency={currentFrequency}
             isRecording={isRecording && !isPaused}
+            height={pitchBarHeight}
+            onHeightChange={setPitchBarHeight}
           />
         </div>
       )}
