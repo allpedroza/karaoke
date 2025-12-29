@@ -89,6 +89,9 @@ export function SingStarBar({
   const pitchHistoryRef = useRef<Array<{ time: number; midi: number }>>([]);
   const MAX_HISTORY_SECONDS = 8; // Manter histórico de 8 segundos
 
+  // Range MIDI estável para fallback (só expande, nunca contrai durante a sessão)
+  const stableMidiRangeRef = useRef<{ min: number; max: number }>({ min: 60, max: 72 }); // Default C4-C5
+
   // Carregar melodia da música via API do backend
   useEffect(() => {
     let mounted = true;
@@ -255,26 +258,33 @@ export function SingStarBar({
     }
   }, [currentTime, userFrequency, userNote, isRecording]);
 
-  // Range MIDI para modo fallback (baseado no histórico do usuário)
+  // Range MIDI para modo fallback (estável - só expande, nunca contrai)
   const fallbackMidiRange = useMemo(() => {
     if (melodyMap) return { minMidi: 48, maxMidi: 84, midiRange: 36 };
 
     const history = pitchHistoryRef.current;
-    if (history.length === 0) {
-      return { minMidi: 48, maxMidi: 84, midiRange: 36 }; // Default C3-C6
+    const stableRange = stableMidiRangeRef.current;
+
+    if (history.length > 0) {
+      // Encontra o range atual do histórico
+      const historyMin = Math.min(...history.map(p => p.midi));
+      const historyMax = Math.max(...history.map(p => p.midi));
+
+      // Só expande o range, nunca contrai (evita oscilação visual)
+      if (historyMin < stableRange.min) {
+        stableRange.min = Math.max(36, historyMin - 3);
+      }
+      if (historyMax > stableRange.max) {
+        stableRange.max = Math.min(96, historyMax + 3);
+      }
     }
 
-    let min = Math.min(...history.map(p => p.midi));
-    let max = Math.max(...history.map(p => p.midi));
-
-    // Padding
-    min = Math.max(36, min - 5);
-    max = Math.min(96, max + 5);
-
-    // Range mínimo
+    // Garante range mínimo de 12 semitons
+    let { min, max } = stableRange;
     if (max - min < 12) {
-      min = Math.max(36, min - 6);
-      max = Math.min(96, max + 6);
+      const expand = Math.ceil((12 - (max - min)) / 2);
+      min = Math.max(36, min - expand);
+      max = Math.min(96, max + expand);
     }
 
     return { minMidi: min, maxMidi: max, midiRange: max - min };
@@ -490,7 +500,8 @@ export function SingStarBar({
       const x = timeToX(note.time);
       const noteWidth = Math.max(10, (note.duration * (width - nowLineX)) / windowSize);
       const y = midiToY(midi, canvasHeight);
-      const noteHeight = Math.max(12, canvasHeight / midiRange * 2.5);
+      // Altura fixa para evitar oscilação visual quando o range muda
+      const noteHeight = 16;
 
       // Verifica se a nota está no "agora" (sendo cantada) - usa tempo ajustado
       const isActive = adjustedTime >= note.time && adjustedTime <= note.time + note.duration;
@@ -623,7 +634,7 @@ export function SingStarBar({
         </div>
         <div
           ref={containerRef}
-          className="relative w-full rounded-lg overflow-hidden border border-white/20"
+          className="relative w-full rounded-lg overflow-hidden border border-white/20 bg-black/30"
           style={{ height }}
         >
           <canvas ref={canvasRef} className="w-full h-full" />
@@ -705,7 +716,7 @@ export function SingStarBar({
       </div>
       <div
         ref={containerRef}
-        className="relative w-full rounded-lg overflow-hidden border border-white/20"
+        className="relative w-full rounded-lg overflow-hidden border border-white/20 bg-black/30"
         style={{ height }}
       >
         <canvas ref={canvasRef} className="w-full h-full" />

@@ -5,6 +5,7 @@ import { evaluationRoutes } from './routes/evaluation.js';
 import { videosRoutes } from './routes/videos.js';
 import { rankingsRoutes } from './routes/rankings.js';
 import melodyRoutes from './routes/melody.js';
+import queueRoutes from './routes/queue.js';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use('/api', evaluationRoutes);
 app.use('/api/videos', videosRoutes);
 app.use('/api/rankings', rankingsRoutes);
 app.use('/api/melody', melodyRoutes);
+app.use('/api/queue', queueRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

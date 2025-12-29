@@ -182,3 +182,73 @@ export async function saveMelodySyncOffset(songCode: string, syncOffset: number)
 
   return true;
 }
+
+// ============================================
+// QUEUE (Fila de Músicas)
+// ============================================
+
+export interface QueueItemAPI {
+  id: string;
+  songCode: string;
+  songTitle: string;
+  artist: string;
+  thumbnail: string;
+  singerName: string;
+  addedAt: string;
+}
+
+export interface QueueResponse {
+  queue: QueueItemAPI[];
+  count: number;
+  maxSize: number;
+}
+
+export interface AddToQueueResponse {
+  item: QueueItemAPI;
+  position: number;
+  message: string;
+}
+
+// Buscar fila atual
+export async function getQueue(): Promise<QueueResponse> {
+  const response = await fetch(`${API_BASE}/queue`);
+  if (!response.ok) throw new Error('Erro ao buscar fila');
+  return response.json();
+}
+
+// Adicionar música à fila
+export async function addToQueue(songCode: string, singerName: string): Promise<AddToQueueResponse> {
+  const response = await fetch(`${API_BASE}/queue`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ songCode, singerName }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao adicionar à fila');
+  }
+
+  return response.json();
+}
+
+// Remover música da fila
+export async function removeFromQueue(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/queue/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) throw new Error('Erro ao remover da fila');
+}
+
+// Pegar próxima música da fila
+export async function getNextFromQueue(): Promise<{ item: QueueItemAPI; remainingCount: number } | null> {
+  const response = await fetch(`${API_BASE}/queue/next`, {
+    method: 'POST',
+  });
+
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error('Erro ao pegar próxima música');
+
+  return response.json();
+}
