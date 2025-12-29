@@ -165,3 +165,20 @@ export async function getMelodyMap(songCode: string): Promise<MelodyMap | null> 
 
   return response.json();
 }
+
+// Salvar offset de sincronização de um melody map
+export async function saveMelodySyncOffset(songCode: string, syncOffset: number): Promise<boolean> {
+  const response = await fetch(`${API_BASE}/melody/${songCode}/sync-offset`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ syncOffset }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Erro ao salvar sync offset');
+  }
+
+  return true;
+}

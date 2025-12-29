@@ -78,4 +78,5 @@ export interface MelodyMap {
   duration: number;
   notes: MelodyNote[];
   status: 'ready' | 'completed' | 'processing' | 'error';
+  sync_offset?: number; // Offset em segundos para sincronizar com vídeo karaokê
 }

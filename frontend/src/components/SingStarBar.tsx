@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { MelodyMap, MelodyNote } from '../types';
-import { getMelodyMap } from '../services/api';
+import { getMelodyMap, saveMelodySyncOffset } from '../services/api';
 
 interface SingStarBarProps {
   songCode: string;
@@ -82,6 +82,10 @@ export function SingStarBar({
   const resizeStartY = useRef(0);
   const resizeStartHeight = useRef(height);
 
+  // Estado para salvar sync offset
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
   // Carregar melodia da música via API do backend
   useEffect(() => {
     let mounted = true;
@@ -94,7 +98,11 @@ export function SingStarBar({
         if (mounted) {
           if (data && (data.status === 'ready' || data.status === 'completed') && data.notes.length > 0) {
             setMelodyMap(data);
-            console.log(`[SingStarBar] Loaded ${data.notes.length} notes for ${songCode}`);
+            console.log(`[SingStarBar] Loaded ${data.notes.length} notes for ${songCode}, saved offset: ${data.sync_offset ?? 0}s`);
+            // Se existe offset salvo e o parent permite alteração, aplicar
+            if (onSyncOffsetChange && data.sync_offset && data.sync_offset !== 0) {
+              onSyncOffsetChange(data.sync_offset);
+            }
           } else {
             console.warn(`[SingStarBar] No melody data for ${songCode}`, data);
             setMelodyMap(null);
@@ -115,7 +123,7 @@ export function SingStarBar({
     return () => {
       mounted = false;
     };
-  }, [songCode]);
+  }, [songCode, onSyncOffsetChange]);
 
   // Calcula range MIDI dinâmico baseado nas notas da melodia
   const { minMidi, maxMidi, midiRange } = useMemo(() => {
@@ -201,6 +209,29 @@ export function SingStarBar({
       onSyncOffsetChange(syncOffset + delta);
     }
   }, [syncOffset, onSyncOffsetChange]);
+
+  // Salvar sync offset no backend
+  const handleSaveOffset = useCallback(async () => {
+    if (isSaving || !songCode) return;
+
+    setIsSaving(true);
+    setSaveMessage(null);
+
+    try {
+      await saveMelodySyncOffset(songCode, syncOffset);
+      setSaveMessage('✓ Salvo');
+      console.log(`[SingStarBar] Sync offset saved: ${syncOffset}s for ${songCode}`);
+
+      // Limpa mensagem após 2 segundos
+      setTimeout(() => setSaveMessage(null), 2000);
+    } catch (err) {
+      console.error('[SingStarBar] Error saving sync offset:', err);
+      setSaveMessage('✗ Erro');
+      setTimeout(() => setSaveMessage(null), 3000);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [songCode, syncOffset, isSaving]);
 
   // Tempo ajustado com offset
   const adjustedTime = currentTime + syncOffset;
@@ -432,6 +463,25 @@ export function SingStarBar({
               >
                 ▶
               </button>
+              <button
+                onClick={handleSaveOffset}
+                disabled={isSaving}
+                className={`ml-1 px-2 py-0.5 rounded text-[10px] transition-colors ${
+                  isSaving
+                    ? 'bg-gray-500/50 cursor-not-allowed'
+                    : 'bg-green-600/70 hover:bg-green-500/80'
+                }`}
+                title="Salvar offset de sincronização"
+              >
+                {isSaving ? '...' : 'Salvar'}
+              </button>
+              {saveMessage && (
+                <span className={`ml-1 text-[10px] ${
+                  saveMessage.includes('✓') ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {saveMessage}
+                </span>
+              )}
             </span>
           )}
         </span>
