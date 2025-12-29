@@ -85,7 +85,7 @@ export function SingStarBar({
       try {
         const data = await getMelodyMap(songCode);
         if (mounted) {
-          if (data && data.status === 'ready' && data.notes.length > 0) {
+          if (data && (data.status === 'ready' || data.status === 'completed') && data.notes.length > 0) {
             setMelodyMap(data);
             console.log(`[SingStarBar] Loaded ${data.notes.length} notes for ${songCode}`);
           } else {
