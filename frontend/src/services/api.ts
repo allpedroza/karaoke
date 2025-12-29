@@ -252,3 +252,33 @@ export async function getNextFromQueue(): Promise<{ item: QueueItemAPI; remainin
 
   return response.json();
 }
+
+// Interface para estado de reprodução
+export interface PlaybackState {
+  isPlaying: boolean;
+  currentSong: QueueItemAPI | null;
+  startedAt: string | null;
+}
+
+export interface QueueStatusResponse {
+  playback: PlaybackState;
+  queue: QueueItemAPI[];
+  count: number;
+  version: number;
+}
+
+// Buscar status completo da fila (reprodução + fila)
+export async function getQueueStatus(): Promise<QueueStatusResponse> {
+  const response = await fetch(`${API_BASE}/queue/status`);
+  if (!response.ok) throw new Error('Erro ao buscar status da fila');
+  return response.json();
+}
+
+// Atualizar estado de reprodução
+export async function updatePlaybackStatus(isPlaying: boolean, currentSong?: QueueItemAPI): Promise<void> {
+  await fetch(`${API_BASE}/queue/status`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ isPlaying, currentSong }),
+  });
+}

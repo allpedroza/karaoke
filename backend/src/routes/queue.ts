@@ -20,9 +20,26 @@ interface QueueItem {
   addedAt: Date;
 }
 
+// Interface para estado de reprodução
+interface PlaybackState {
+  isPlaying: boolean;
+  currentSong: QueueItem | null;
+  startedAt: Date | null;
+}
+
 // Fila em memória (persistente enquanto o servidor estiver rodando)
 let songQueue: QueueItem[] = [];
 const MAX_QUEUE_SIZE = 20;
+
+// Estado de reprodução atual
+let playbackState: PlaybackState = {
+  isPlaying: false,
+  currentSong: null,
+  startedAt: null,
+};
+
+// Versão para detectar mudanças (incrementa a cada mudança na fila ou estado)
+let queueVersion = 0;
 
 // Gerar ID único
 function generateId(): string {
@@ -35,7 +52,43 @@ router.get('/', (_req: Request, res: Response) => {
     queue: songQueue,
     count: songQueue.length,
     maxSize: MAX_QUEUE_SIZE,
+    version: queueVersion,
   });
+});
+
+// GET /api/queue/status - Status completo (fila + reprodução)
+router.get('/status', (_req: Request, res: Response) => {
+  res.json({
+    playback: playbackState,
+    queue: songQueue,
+    count: songQueue.length,
+    version: queueVersion,
+  });
+});
+
+// PUT /api/queue/status - Atualizar estado de reprodução (chamado pelo app principal)
+router.put('/status', (req: Request, res: Response) => {
+  const { isPlaying, currentSong } = req.body;
+
+  if (typeof isPlaying === 'boolean') {
+    playbackState.isPlaying = isPlaying;
+
+    if (isPlaying && currentSong) {
+      playbackState.currentSong = currentSong;
+      playbackState.startedAt = new Date();
+      console.log(`▶️ Reproduzindo: [${currentSong.songCode}] ${currentSong.songTitle} - ${currentSong.singerName}`);
+    } else if (!isPlaying) {
+      if (playbackState.currentSong) {
+        console.log(`⏹️ Parou: [${playbackState.currentSong.songCode}] ${playbackState.currentSong.songTitle}`);
+      }
+      playbackState.currentSong = null;
+      playbackState.startedAt = null;
+    }
+
+    queueVersion++;
+  }
+
+  res.json({ success: true, playback: playbackState, version: queueVersion });
 });
 
 // POST /api/queue - Adicionar música à fila
@@ -80,13 +133,18 @@ router.post('/', (req: Request, res: Response) => {
   };
 
   songQueue.push(newItem);
+  queueVersion++;
 
   console.log(`🎵 Adicionado à fila: [${songCode}] ${song.song} - ${singerName}`);
 
+  // Retorna também se está tocando algo (para o mobile saber)
   res.status(201).json({
     item: newItem,
     position: songQueue.length,
-    message: `Música adicionada! Posição na fila: ${songQueue.length}`,
+    message: playbackState.isPlaying
+      ? `Música adicionada! Posição na fila: ${songQueue.length}`
+      : `Música adicionada! Será a próxima a tocar.`,
+    isPlaying: playbackState.isPlaying,
   });
 });
 
@@ -102,6 +160,7 @@ router.delete('/:id', (req: Request, res: Response) => {
   }
 
   const removed = songQueue.splice(index, 1)[0];
+  queueVersion++;
 
   console.log(`🗑️ Removido da fila: [${removed.songCode}] ${removed.songTitle} - ${removed.singerName}`);
 
@@ -116,6 +175,7 @@ router.post('/next', (_req: Request, res: Response) => {
   }
 
   const nextItem = songQueue.shift()!;
+  queueVersion++;
 
   console.log(`▶️ Próxima música: [${nextItem.songCode}] ${nextItem.songTitle} - ${nextItem.singerName}`);
 
@@ -129,6 +189,7 @@ router.post('/next', (_req: Request, res: Response) => {
 router.delete('/', (_req: Request, res: Response) => {
   const count = songQueue.length;
   songQueue = [];
+  queueVersion++;
 
   console.log(`🧹 Fila limpa (${count} itens removidos)`);
 
@@ -151,6 +212,7 @@ router.put('/reorder', (req: Request, res: Response) => {
 
   const [item] = songQueue.splice(fromIndex, 1);
   songQueue.splice(toIndex, 0, item);
+  queueVersion++;
 
   res.json({ success: true, queue: songQueue });
 });

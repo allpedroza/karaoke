@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Header } from './components/Header';
 import { VideoSearch } from './components/VideoSearch';
 import { KaraokePlayer } from './components/KaraokePlayer';
@@ -8,7 +8,14 @@ import { RankingsPanel } from './components/RankingsPanel';
 import { TopSongsPanel } from './components/TopSongsPanel';
 import { TopSingersPanel } from './components/TopSingersPanel';
 import { KaraokeVideo, AppState, PerformanceData, QueueItem } from './types';
-import { evaluatePerformance, recordSession } from './services/api';
+import {
+  evaluatePerformance,
+  recordSession,
+  getQueueStatus,
+  updatePlaybackStatus,
+  getNextFromQueue,
+  QueueItemAPI,
+} from './services/api';
 import { startDrumRollLoop, playScoreSound, stopAllSounds } from './services/soundEffects';
 
 function App() {
@@ -23,8 +30,91 @@ function App() {
   const [pendingVideo, setPendingVideo] = useState<KaraokeVideo | null>(null);
   const [playerName, setPlayerName] = useState('');
   const [songQueue, setSongQueue] = useState<QueueItem[]>([]);
+  const [remoteQueueCount, setRemoteQueueCount] = useState(0);
+
+  // Ref para controlar se está tocando (evita loops de polling)
+  const isPlayingRef = useRef(false);
+  const lastQueueVersionRef = useRef(0);
 
   const MAX_QUEUE_SIZE = 5;
+
+  // Converter QueueItemAPI para KaraokeVideo
+  const queueItemToVideo = useCallback((item: QueueItemAPI): KaraokeVideo => ({
+    id: item.id,
+    code: item.songCode,
+    title: item.songTitle,
+    thumbnail: item.thumbnail,
+    artist: item.artist,
+    song: item.songTitle,
+    language: 'pt-BR',
+    genre: '',
+    duration: '',
+  }), []);
+
+  // Iniciar reprodução de uma música da fila remota
+  const playFromRemoteQueue = useCallback(async () => {
+    try {
+      const result = await getNextFromQueue();
+      if (result) {
+        const video = queueItemToVideo(result.item);
+        setPlayerName(result.item.singerName);
+        isPlayingRef.current = true;
+
+        // Notificar backend que está tocando
+        await updatePlaybackStatus(true, result.item);
+
+        setState(prev => ({
+          ...prev,
+          currentView: 'karaoke',
+          selectedVideo: video,
+          evaluation: null,
+          error: null,
+        }));
+      }
+    } catch (error) {
+      console.error('Erro ao iniciar música da fila:', error);
+    }
+  }, [queueItemToVideo]);
+
+  // Polling da fila remota quando estiver na home
+  useEffect(() => {
+    if (state.currentView !== 'home') return;
+
+    const checkQueue = async () => {
+      try {
+        const status = await getQueueStatus();
+        setRemoteQueueCount(status.count);
+
+        // Se a fila mudou e tem itens, e não está tocando nada
+        if (status.version !== lastQueueVersionRef.current) {
+          lastQueueVersionRef.current = status.version;
+
+          // Se tem músicas na fila e nada está tocando, iniciar
+          if (status.count > 0 && !status.playback.isPlaying && !isPlayingRef.current) {
+            console.log('🎵 Nova música na fila - iniciando reprodução automática');
+            playFromRemoteQueue();
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao verificar fila:', error);
+      }
+    };
+
+    // Verificar imediatamente
+    checkQueue();
+
+    // Polling a cada 2 segundos
+    const interval = setInterval(checkQueue, 2000);
+    return () => clearInterval(interval);
+  }, [state.currentView, playFromRemoteQueue]);
+
+  // Atualizar status quando sair do karaoke
+  useEffect(() => {
+    if (state.currentView === 'home') {
+      isPlayingRef.current = false;
+      updatePlaybackStatus(false).catch(() => {});
+    }
+  }, [state.currentView]);
 
   // Quando seleciona um vídeo, mostra o modal de nome primeiro
   const handleVideoSelect = (video: KaraokeVideo) => {
@@ -33,11 +123,25 @@ function App() {
   };
 
   // Quando confirma o nome, vai para o karaokê
-  const handleNameConfirm = (name: string) => {
+  const handleNameConfirm = async (name: string) => {
     if (!pendingVideo) return;
 
     setPlayerName(name);
     setShowNameModal(false);
+    isPlayingRef.current = true;
+
+    // Notificar backend que está tocando
+    const currentSong: QueueItemAPI = {
+      id: `local-${Date.now()}`,
+      songCode: pendingVideo.code,
+      songTitle: pendingVideo.song,
+      artist: pendingVideo.artist,
+      thumbnail: pendingVideo.thumbnail,
+      singerName: name,
+      addedAt: new Date().toISOString(),
+    };
+    await updatePlaybackStatus(true, currentSong);
+
     setState(prev => ({
       ...prev,
       currentView: 'karaoke',
@@ -74,22 +178,62 @@ function App() {
     setSongQueue(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Tocar próxima música da fila
-  const handlePlayNextFromQueue = () => {
-    if (songQueue.length === 0) {
-      handleGoHome();
+  // Tocar próxima música da fila (local ou remota)
+  const handlePlayNextFromQueue = async () => {
+    // Primeiro, verificar fila local
+    if (songQueue.length > 0) {
+      const nextItem = songQueue[0];
+      setSongQueue(prev => prev.slice(1));
+      setPlayerName(nextItem.singerName);
+      isPlayingRef.current = true;
+
+      // Notificar backend
+      const currentSong: QueueItemAPI = {
+        id: `local-${Date.now()}`,
+        songCode: nextItem.video.code,
+        songTitle: nextItem.video.song,
+        artist: nextItem.video.artist,
+        thumbnail: nextItem.video.thumbnail,
+        singerName: nextItem.singerName,
+        addedAt: new Date().toISOString(),
+      };
+      await updatePlaybackStatus(true, currentSong);
+
+      setState(prev => ({
+        ...prev,
+        currentView: 'karaoke',
+        selectedVideo: nextItem.video,
+        evaluation: null,
+        error: null,
+      }));
       return;
     }
-    const nextItem = songQueue[0];
-    setSongQueue(prev => prev.slice(1));
-    setPlayerName(nextItem.singerName); // Define o nome do cantor da fila
-    setState(prev => ({
-      ...prev,
-      currentView: 'karaoke',
-      selectedVideo: nextItem.video,
-      evaluation: null,
-      error: null,
-    }));
+
+    // Se não tem fila local, verificar fila remota
+    try {
+      const result = await getNextFromQueue();
+      if (result) {
+        const video = queueItemToVideo(result.item);
+        setPlayerName(result.item.singerName);
+        isPlayingRef.current = true;
+
+        await updatePlaybackStatus(true, result.item);
+
+        setState(prev => ({
+          ...prev,
+          currentView: 'karaoke',
+          selectedVideo: video,
+          evaluation: null,
+          error: null,
+        }));
+        return;
+      }
+    } catch {
+      // Fila remota vazia
+    }
+
+    // Nenhuma música na fila
+    handleGoHome();
   };
 
   const handleFinishSinging = async (data: PerformanceData) => {
@@ -154,7 +298,10 @@ function App() {
     }));
   };
 
-  const handleGoHome = () => {
+  const handleGoHome = async () => {
+    isPlayingRef.current = false;
+    await updatePlaybackStatus(false);
+
     setState({
       currentView: 'home',
       selectedVideo: null,
@@ -196,6 +343,17 @@ function App() {
                 <span className="flex items-center gap-2">📝 <strong className="text-theme">Letra</strong></span>
                 <span className="flex items-center gap-2">🔥 <strong className="text-theme">Energia</strong></span>
               </div>
+
+              {/* Indicador de fila remota */}
+              {remoteQueueCount > 0 && (
+                <div className="mt-6 p-4 bg-theme-card border border-theme rounded-lg">
+                  <p className="text-theme-muted">
+                    <span className="font-bold text-theme" style={{ color: 'var(--color-accent)' }}>
+                      {remoteQueueCount}
+                    </span> música{remoteQueueCount > 1 ? 's' : ''} na fila aguardando...
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Layout com catálogo e rankings */}
