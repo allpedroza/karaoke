@@ -39,29 +39,9 @@ interface MelodyServiceResponse {
   processed_at: string;
 }
 
-// GET /api/melody/:songCode - Obter melody map de uma música
-router.get('/:songCode', (req: Request, res: Response) => {
-  const { songCode } = req.params;
-
-  const melodyMap = getMelodyMap(songCode);
-
-  if (!melodyMap) {
-    res.status(404).json({ error: 'Melody map não encontrado para esta música' });
-    return;
-  }
-
-  res.json(melodyMap);
-});
-
-// GET /api/melody/:songCode/exists - Verificar se melody map existe
-router.get('/:songCode/exists', (req: Request, res: Response) => {
-  const { songCode } = req.params;
-
-  const exists = hasMelodyMap(songCode);
-  const processing = isMelodyMapProcessing(songCode);
-
-  res.json({ exists, processing });
-});
+// ============================================
+// ROTAS ESTÁTICAS (devem vir ANTES de /:songCode)
+// ============================================
 
 // GET /api/melody - Listar todas as músicas com melody map
 router.get('/', (_req: Request, res: Response) => {
@@ -133,6 +113,91 @@ router.post('/batch', async (req: Request, res: Response) => {
     maxConcurrent,
     delayMs,
   });
+});
+
+// POST /api/melody/sync - Sincronizar com o melody-service Python
+router.post('/sync', async (_req: Request, res: Response) => {
+  try {
+    // Busca lista de melodias disponíveis no serviço Python
+    const listResponse = await fetch(`${MELODY_SERVICE_URL}/melodies`);
+
+    // Se o endpoint /melodies não existir, busca do cache diretamente
+    if (!listResponse.ok) {
+      // Tenta buscar melodias individualmente das músicas que têm OriginalSongId
+      const songsWithOriginal = SONG_CATALOG.filter(s => s.OriginalSongId);
+      let imported = 0;
+      let skipped = 0;
+      let errors = 0;
+
+      for (const song of songsWithOriginal) {
+        try {
+          // Pula se já existe no backend
+          if (hasMelodyMap(song.code)) {
+            skipped++;
+            continue;
+          }
+
+          // Busca do melody-service
+          const melodyResponse = await fetch(`${MELODY_SERVICE_URL}/melody/${song.code}`);
+          if (!melodyResponse.ok) {
+            continue; // Não existe no serviço Python
+          }
+
+          const melodyData = await melodyResponse.json() as MelodyServiceResponse;
+
+          // Mapeia o formato do Python para o formato do backend
+          const notes: MelodyNote[] = melodyData.notes.map(note => ({
+            time: note.start,
+            duration: note.end - note.start,
+            note: note.note,
+            frequency: note.frequency,
+            confidence: note.confidence,
+          }));
+
+          // Salva no banco
+          saveMelodyMap(
+            song.code,
+            melodyData.song_title || `${song.song} - ${song.artist}`,
+            melodyData.duration,
+            notes
+          );
+
+          imported++;
+          console.log(`✅ Sync: Importado ${song.code} - ${song.song}`);
+        } catch (err) {
+          errors++;
+          console.error(`❌ Sync: Erro ao importar ${song.code}:`, err);
+        }
+      }
+
+      res.json({
+        message: 'Sincronização concluída',
+        imported,
+        skipped,
+        errors,
+      });
+      return;
+    }
+
+    res.json({ message: 'Sync completed' });
+  } catch (error) {
+    console.error('Erro na sincronização:', error);
+    res.status(500).json({ error: 'Erro ao sincronizar com melody-service' });
+  }
+});
+
+// ============================================
+// ROTAS DINÂMICAS (devem vir DEPOIS das estáticas)
+// ============================================
+
+// GET /api/melody/:songCode/exists - Verificar se melody map existe
+router.get('/:songCode/exists', (req: Request, res: Response) => {
+  const { songCode } = req.params;
+
+  const exists = hasMelodyMap(songCode);
+  const processing = isMelodyMapProcessing(songCode);
+
+  res.json({ exists, processing });
 });
 
 // POST /api/melody/:songCode/process - Processar melodia de uma música
@@ -220,76 +285,18 @@ router.post('/:songCode/process', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/melody/sync - Sincronizar com o melody-service Python
-// IMPORTANTE: Esta rota deve vir ANTES de /:songCode para não ser capturada pelo wildcard
-router.post('/sync', async (_req: Request, res: Response) => {
-  try {
-    // Busca lista de melodias disponíveis no serviço Python
-    const listResponse = await fetch(`${MELODY_SERVICE_URL}/melodies`);
+// GET /api/melody/:songCode - Obter melody map de uma música
+router.get('/:songCode', (req: Request, res: Response) => {
+  const { songCode } = req.params;
 
-    // Se o endpoint /melodies não existir, busca do cache diretamente
-    if (!listResponse.ok) {
-      // Tenta buscar melodias individualmente das músicas que têm OriginalSongId
-      const songsWithOriginal = SONG_CATALOG.filter(s => s.OriginalSongId);
-      let imported = 0;
-      let skipped = 0;
-      let errors = 0;
+  const melodyMap = getMelodyMap(songCode);
 
-      for (const song of songsWithOriginal) {
-        try {
-          // Pula se já existe no backend
-          if (hasMelodyMap(song.code)) {
-            skipped++;
-            continue;
-          }
-
-          // Busca do melody-service
-          const melodyResponse = await fetch(`${MELODY_SERVICE_URL}/melody/${song.code}`);
-          if (!melodyResponse.ok) {
-            continue; // Não existe no serviço Python
-          }
-
-          const melodyData = await melodyResponse.json() as MelodyServiceResponse;
-
-          // Mapeia o formato do Python para o formato do backend
-          const notes: MelodyNote[] = melodyData.notes.map(note => ({
-            time: note.start,
-            duration: note.end - note.start,
-            note: note.note,
-            frequency: note.frequency,
-            confidence: note.confidence,
-          }));
-
-          // Salva no banco
-          saveMelodyMap(
-            song.code,
-            melodyData.song_title || `${song.song} - ${song.artist}`,
-            melodyData.duration,
-            notes
-          );
-
-          imported++;
-          console.log(`✅ Sync: Importado ${song.code} - ${song.song}`);
-        } catch (err) {
-          errors++;
-          console.error(`❌ Sync: Erro ao importar ${song.code}:`, err);
-        }
-      }
-
-      res.json({
-        message: 'Sincronização concluída',
-        imported,
-        skipped,
-        errors,
-      });
-      return;
-    }
-
-    res.json({ message: 'Sync completed' });
-  } catch (error) {
-    console.error('Erro na sincronização:', error);
-    res.status(500).json({ error: 'Erro ao sincronizar com melody-service' });
+  if (!melodyMap) {
+    res.status(404).json({ error: 'Melody map não encontrado para esta música' });
+    return;
   }
+
+  res.json(melodyMap);
 });
 
 // POST /api/melody/:songCode - Salvar melody map diretamente (para importação manual)
