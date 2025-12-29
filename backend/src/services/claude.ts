@@ -3,6 +3,13 @@ import { z } from 'zod';
 
 // --- CONFIGURAÇÃO E VALIDAÇÃO (ZOD) ---
 
+// Pesos das dimensões de avaliação (devem somar 1.0)
+const DIMENSION_WEIGHTS = {
+  pitch: 0.45,   // Tom: 45% - Mais importante, é a base do canto
+  lyrics: 0.35,  // Letra: 35% - Importante, mas considera que nem todos sabem a letra
+  energy: 0.20,  // Energia: 20% - Complementar, engajamento e interpretação
+};
+
 // Schema de validação robusta para garantir a estrutura do JSON
 const EvaluationSchema = z.object({
   overallScore: z.number().min(0).max(100),
@@ -315,9 +322,12 @@ Gere o JSON de avaliação agora. Lembre-se: o score de letra deve ser próximo 
       evaluation.dimensions.lyrics.score = Math.round(finalLyricsScore);
     }
 
-    // Recalcula overall score com o lyrics ajustado
-    const avgScore = (evaluation.dimensions.pitch.score + evaluation.dimensions.lyrics.score + evaluation.dimensions.energy.score) / 3;
-    evaluation.overallScore = Math.round(avgScore);
+    // Recalcula overall score com pesos (tom tem mais peso)
+    const weightedScore =
+      evaluation.dimensions.pitch.score * DIMENSION_WEIGHTS.pitch +
+      evaluation.dimensions.lyrics.score * DIMENSION_WEIGHTS.lyrics +
+      evaluation.dimensions.energy.score * DIMENSION_WEIGHTS.energy;
+    evaluation.overallScore = Math.round(weightedScore);
 
     return evaluation as PerformanceEvaluation;
 
@@ -345,8 +355,14 @@ function createDefaultEvaluation(
   const pitchScore = hasContent ? Math.round(55 + lyricsCoverage * 0.35) : 30;
   const energyScore = hasContent ? Math.round(60 + lyricsCoverage * 0.3) : 35;
 
+  // Calcula score geral com pesos
+  const weightedScore =
+    pitchScore * DIMENSION_WEIGHTS.pitch +
+    lyricsScore * DIMENSION_WEIGHTS.lyrics +
+    energyScore * DIMENSION_WEIGHTS.energy;
+
   return {
-    overallScore: Math.round((pitchScore + lyricsScore + energyScore) / 3),
+    overallScore: Math.round(weightedScore),
     dimensions: {
       pitch: {
         score: pitchScore,
