@@ -22,6 +22,7 @@ export interface PitchStats {
 export interface PerformanceData {
   transcription: string;
   pitchStats: PitchStats | null;
+  recordingDuration?: number; // Duração da gravação em segundos
 }
 
 export interface DimensionScore {

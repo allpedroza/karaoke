@@ -8,11 +8,12 @@ interface EvaluateRequest {
   transcription: string;
   songCode: string;
   pitchStats?: PitchStats | null;
+  recordingDuration?: number; // Duração da gravação em segundos
 }
 
 evaluationRoutes.post('/evaluate', async (req: Request<object, object, EvaluateRequest>, res: Response) => {
   try {
-    const { transcription, songCode, pitchStats } = req.body;
+    const { transcription, songCode, pitchStats, recordingDuration } = req.body;
 
     // songCode é obrigatório, mas transcription pode ser vazia se tiver pitchStats
     if (!songCode) {
@@ -55,6 +56,8 @@ evaluationRoutes.post('/evaluate', async (req: Request<object, object, EvaluateR
       artist: song.artist,
       language: song.language,
       pitchStats: pitchStats || undefined,
+      songDuration: song.duration,
+      recordingDuration: recordingDuration,
     });
 
     console.log(`✅ Score: ${evaluation.overallScore}/100`);

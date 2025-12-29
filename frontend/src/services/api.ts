@@ -5,7 +5,8 @@ const API_BASE = '/api';
 export async function evaluatePerformance(
   transcription: string,
   songCode: string,
-  pitchStats: PitchStats | null
+  pitchStats: PitchStats | null,
+  recordingDuration?: number
 ): Promise<PerformanceEvaluation> {
   const response = await fetch(`${API_BASE}/evaluate`, {
     method: 'POST',
@@ -16,6 +17,7 @@ export async function evaluatePerformance(
       transcription,
       songCode,
       pitchStats,
+      recordingDuration,
     }),
   });
 
