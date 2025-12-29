@@ -1365,7 +1365,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Eva',
     artist: 'Ivete Sangalo',
     youtubeId: 'ArQA_uAVPac',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:04',
     genre: 'Axé',
@@ -1505,7 +1505,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Dezesseis',
     artist: 'Legião Urbana',
     youtubeId: 'kZEiEw-lVV8',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:38',
     genre: 'Rock Nacional'
@@ -1515,7 +1515,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Pais e Filhos',
     artist: 'Legião Urbana',
     youtubeId: 'G73LBvMd84Q',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '5:08',
     genre: 'Rock Nacional',
@@ -1695,7 +1695,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Garota Nota 100',
     artist: 'MC Marcinho',
     youtubeId: 'dKpVuuKcugs',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:52',
     genre: 'Funk Melody'
@@ -1705,7 +1705,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Glamurosa',
     artist: 'MC Marcinho',
     youtubeId: 'd6U1MbLMDVw',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:41',
     genre: 'Funk Melody'
@@ -1715,7 +1715,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Princesa',
     artist: 'MC Marcinho',
     youtubeId: 'ndVU9blYYF8',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:05',
     genre: 'Funk Melody'
@@ -1725,7 +1725,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Rap do Solitário',
     artist: 'MC Marcinho',
     youtubeId: 'qfgFJHj3vSI',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:55',
     genre: 'Funk Melody'
@@ -1735,7 +1735,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Tudo é Festa',
     artist: 'MC Marcinho',
     youtubeId: 'pd9LB3Kz1Ug',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:34',
     genre: 'Funk Melody'
@@ -1795,7 +1795,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'De zero a cem',
     artist: 'Os Garotin, Anchietx',
     youtubeId: 'qHI5OH7bVm8',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '2:48',
     genre: 'Soul/MPB'
@@ -1805,7 +1805,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Várias Queixas',
     artist: 'Os Gilsons',
     youtubeId: '9LKIlW3DhpY',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '2:47',
     genre: 'MPB'
@@ -1875,7 +1875,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Garçom',
     artist: 'Reginaldo Rossi',
     youtubeId: 'dhDBR7AGVhU',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:14',
     genre: 'Brega'
@@ -1925,7 +1925,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Burguesinha',
     artist: 'Seu Jorge',
     youtubeId: 'EfTzWbIN0_M',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:09',
     genre: 'Samba Rock'
@@ -1935,7 +1935,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Sandra Rosa Madalena',
     artist: 'Sidney Magal',
     youtubeId: 'sk8yiqSR3uI',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '2:39',
     genre: 'Brega/Pop'
@@ -1965,7 +1965,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Depois Do Prazer',
     artist: 'Só Pra Contrariar',
     youtubeId: 'CMhixcunzmQ',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:15',
     genre: 'Pagode'
@@ -1975,7 +1975,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Essa Tal Liberdade',
     artist: 'Só Pra Contrariar',
     youtubeId: 'PnVlFAzNix4',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:20',
     genre: 'Pagode'
@@ -2125,7 +2125,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Telefone Mudo',
     artist: 'Trio Parada Dura',
     youtubeId: 'nJR1pGpG7n0',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:05',
     genre: 'Sertanejo'
@@ -2265,7 +2265,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Chão de Giz',
     artist: 'Zé Ramalho',
     youtubeId: 'kyLIabrj3Zg',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:45',
     genre: 'MPB'
@@ -2289,6 +2289,56 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:30',
     genre: 'Pagode'
+  },
+  {
+    code: '0229',
+    song: 'Pra Gente Acordar',
+    artist: 'Os Gilsons',
+    youtubeId: '1Ky6YIjx0hw',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:30',
+    genre: 'MPB'
+  },
+  {
+    code: '0230',
+    song: 'Tô Tranquilão',
+    artist: 'MC Sapão',
+    youtubeId: 'qlbWcjV7B7g',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '04:00',
+    genre: 'Funk'
+  },
+  {
+    code: '0231',
+    song: 'Zero (Deixa Eu Bagunçar Você)',
+    artist: 'Liniker',
+    youtubeId: '3emoWjfbhRg',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:30',
+    genre: 'MPB/Soul'
+  },
+  {
+    code: '0232',
+    song: 'Fico Assim Sem Você',
+    artist: 'Adriana Calcanhotto',
+    youtubeId: 'AFAxerjbI9Y',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:40',
+    genre: 'MPB'
+  },
+  {
+    code: '0233',
+    song: 'Beijo Sem',
+    artist: 'Adriana Calcanhotto',
+    youtubeId: 'tYRm-Bpg4Bc',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:20',
+    genre: 'MPB'
   }
 ];
 
