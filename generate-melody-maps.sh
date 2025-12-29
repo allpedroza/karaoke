@@ -87,23 +87,62 @@ echo ""
 echo "🎶 Músicas disponíveis para processamento:"
 echo ""
 
-curl -s "${BACKEND_URL}/api/melody/available" | python3 -c "
+AVAILABLE_RESPONSE=$(curl -s "${BACKEND_URL}/api/melody/available")
+
+if [ -z "$AVAILABLE_RESPONSE" ]; then
+    echo "❌ Erro: API não retornou dados"
+    echo "   Verifique se o backend está rodando corretamente"
+    exit 1
+fi
+
+echo "$AVAILABLE_RESPONSE" | python3 -c "
 import json, sys
-data = json.load(sys.stdin)
-pending = [s for s in data if not s['hasMelodyMap'] and not s['isProcessing']]
-processed = [s for s in data if s['hasMelodyMap']]
 
-if pending:
-    print('PENDENTES:')
-    for i, song in enumerate(pending, 1):
-        print(f\"  {i}. [{song['code']}] {song['song']} - {song['artist']}\")
-    print()
+try:
+    raw = sys.stdin.read()
+    if not raw.strip():
+        print('❌ Resposta vazia da API')
+        sys.exit(1)
 
-if processed:
-    print('JÁ PROCESSADAS:')
-    for i, song in enumerate(processed, 1):
-        print(f\"  ✓ [{song['code']}] {song['song']} - {song['artist']}\")
-    print()
+    data = json.loads(raw)
+
+    if isinstance(data, str):
+        print(f'❌ API retornou string: {data[:100]}')
+        sys.exit(1)
+
+    if not isinstance(data, list):
+        print(f'❌ Formato inesperado: {type(data).__name__}')
+        print(f'   Conteúdo: {str(data)[:200]}')
+        sys.exit(1)
+
+    if len(data) == 0:
+        print('Nenhuma música com OriginalSongId encontrada.')
+        sys.exit(0)
+
+    pending = [s for s in data if isinstance(s, dict) and not s.get('hasMelodyMap', False) and not s.get('isProcessing', False)]
+    processed = [s for s in data if isinstance(s, dict) and s.get('hasMelodyMap', False)]
+
+    if pending:
+        print('PENDENTES:')
+        for i, song in enumerate(pending, 1):
+            print(f\"  {i}. [{song.get('code', '?')}] {song.get('song', '?')} - {song.get('artist', '?')}\")
+        print()
+
+    if processed:
+        print('JÁ PROCESSADAS:')
+        for i, song in enumerate(processed, 1):
+            print(f\"  ✓ [{song.get('code', '?')}] {song.get('song', '?')} - {song.get('artist', '?')}\")
+        print()
+
+    if not pending and not processed:
+        print('Nenhuma música encontrada para processar.')
+except json.JSONDecodeError as e:
+    print(f'❌ Erro ao parsear JSON: {e}')
+    print(f'   Resposta recebida: {raw[:200]}')
+    sys.exit(1)
+except Exception as e:
+    print(f'❌ Erro: {e}')
+    sys.exit(1)
 "
 
 if [ "$PENDING" = "0" ]; then
