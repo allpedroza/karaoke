@@ -76,5 +76,5 @@ export interface MelodyMap {
   song_title: string;
   duration: number;
   notes: MelodyNote[];
-  status: 'ready' | 'processing' | 'error';
+  status: 'ready' | 'completed' | 'processing' | 'error';
 }
