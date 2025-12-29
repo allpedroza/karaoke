@@ -33,11 +33,20 @@ db.exec(`
     notes TEXT NOT NULL,
     total_notes INTEGER NOT NULL,
     processed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    status TEXT DEFAULT 'completed'
+    status TEXT DEFAULT 'completed',
+    sync_offset REAL DEFAULT 0
   );
 
   CREATE INDEX IF NOT EXISTS idx_melody_maps_song_code ON melody_maps(song_code);
 `);
+
+// Migration: Add sync_offset column if it doesn't exist
+try {
+  db.exec(`ALTER TABLE melody_maps ADD COLUMN sync_offset REAL DEFAULT 0`);
+  console.log('✅ Added sync_offset column to melody_maps table');
+} catch {
+  // Column already exists, ignore
+}
 
 export interface SessionRecord {
   id: number;
@@ -209,6 +218,7 @@ export interface MelodyMap {
   total_notes: number;
   processed_at: string;
   status: string;
+  sync_offset: number; // Offset em segundos para sincronizar com vídeo karaokê
 }
 
 interface MelodyMapRow {
@@ -220,6 +230,7 @@ interface MelodyMapRow {
   total_notes: number;
   processed_at: string;
   status: string;
+  sync_offset: number;
 }
 
 // Salvar melody map
@@ -232,8 +243,8 @@ export function saveMelodyMap(
   const notesJson = JSON.stringify(notes);
 
   const stmt = db.prepare(`
-    INSERT OR REPLACE INTO melody_maps (song_code, song_title, duration, notes, total_notes, status)
-    VALUES (?, ?, ?, ?, ?, 'completed')
+    INSERT OR REPLACE INTO melody_maps (song_code, song_title, duration, notes, total_notes, status, sync_offset)
+    VALUES (?, ?, ?, ?, ?, 'completed', 0)
   `);
 
   const result = stmt.run(songCode, songTitle, duration, notesJson, notes.length);
@@ -247,6 +258,7 @@ export function saveMelodyMap(
     total_notes: notes.length,
     processed_at: new Date().toISOString(),
     status: 'completed',
+    sync_offset: 0,
   };
 }
 
@@ -314,6 +326,26 @@ export function isMelodyMapProcessing(songCode: string): boolean {
   `);
 
   return stmt.get(songCode) !== undefined;
+}
+
+// Atualizar offset de sincronização de um melody map
+export function updateMelodySyncOffset(songCode: string, syncOffset: number): boolean {
+  const stmt = db.prepare(`
+    UPDATE melody_maps SET sync_offset = ? WHERE song_code = ?
+  `);
+
+  const result = stmt.run(syncOffset, songCode);
+  return result.changes > 0;
+}
+
+// Obter apenas o offset de sincronização
+export function getMelodySyncOffset(songCode: string): number {
+  const stmt = db.prepare(`
+    SELECT sync_offset FROM melody_maps WHERE song_code = ?
+  `);
+
+  const row = stmt.get(songCode) as { sync_offset: number } | undefined;
+  return row?.sync_offset ?? 0;
 }
 
 export default db;

@@ -155,7 +155,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Rehab',
     artist: 'Amy Winehouse',
     youtubeId: 'KS7emVBQ368',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'en',
     duration: '3:35',
     genre: 'R&B/Soul'
@@ -815,7 +815,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Evidências',
     artist: 'Chitãozinho e Xororó',
     youtubeId: 'TGXkdU9S0OU',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:39',
     genre: 'Sertanejo',
@@ -1285,7 +1285,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Feel Good Inc.',
     artist: 'Gorillaz',
     youtubeId: 'uQW9ysQrMCE',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'en',
     duration: '3:42',
     genre: 'Alternative/Hip Hop'
@@ -1345,7 +1345,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Vai Lá Vai Lá',
     artist: 'Grupo Revelação',
     youtubeId: 'ek_Kk3uiG0U',
-    OriginalSongId: Null,
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:32',
     genre: 'Pagode'

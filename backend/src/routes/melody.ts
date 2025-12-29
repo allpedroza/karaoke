@@ -7,6 +7,7 @@ import {
   deleteMelodyMap,
   markMelodyMapProcessing,
   isMelodyMapProcessing,
+  updateMelodySyncOffset,
   MelodyNote,
 } from '../data/database.js';
 import { getSongByCode, SONG_CATALOG } from '../data/songCatalog.js';
@@ -198,6 +199,32 @@ router.get('/:songCode/exists', (req: Request, res: Response) => {
   const processing = isMelodyMapProcessing(songCode);
 
   res.json({ exists, processing });
+});
+
+// PUT /api/melody/:songCode/sync-offset - Atualizar offset de sincronização
+router.put('/:songCode/sync-offset', (req: Request, res: Response) => {
+  const { songCode } = req.params;
+  const { syncOffset } = req.body;
+
+  if (typeof syncOffset !== 'number') {
+    res.status(400).json({ error: 'syncOffset deve ser um número' });
+    return;
+  }
+
+  // Verifica se melody map existe
+  if (!hasMelodyMap(songCode)) {
+    res.status(404).json({ error: 'Melody map não encontrado para esta música' });
+    return;
+  }
+
+  const updated = updateMelodySyncOffset(songCode, syncOffset);
+
+  if (updated) {
+    console.log(`🔄 Sync offset atualizado: [${songCode}] = ${syncOffset}s`);
+    res.json({ success: true, songCode, syncOffset });
+  } else {
+    res.status(500).json({ error: 'Erro ao atualizar sync offset' });
+  }
 });
 
 // POST /api/melody/:songCode/process - Processar melodia de uma música

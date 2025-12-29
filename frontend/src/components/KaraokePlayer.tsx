@@ -36,6 +36,7 @@ export function KaraokePlayer({
   const [pitchBarPosition, setPitchBarPosition] = useState({ x: 20, y: 20 });
   const [pitchBarHeight, setPitchBarHeight] = useState(240); // Dobro do tamanho original
   const [isDragging, setIsDragging] = useState(false);
+  const [melodyOffset, setMelodyOffset] = useState(0); // Offset em segundos para sincronizar melodia
   const dragOffset = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -58,6 +59,7 @@ export function KaraokePlayer({
   // Refs para evitar stale closures nos callbacks
   const transcriptionRef = useRef(transcription);
   const pitchStatsRef = useRef(pitchStats);
+  const durationRef = useRef(duration);
 
   useEffect(() => {
     transcriptionRef.current = transcription;
@@ -66,6 +68,10 @@ export function KaraokePlayer({
   useEffect(() => {
     pitchStatsRef.current = pitchStats;
   }, [pitchStats]);
+
+  useEffect(() => {
+    durationRef.current = duration;
+  }, [duration]);
 
   // Fullscreen handlers
   const exitFullscreen = useCallback(() => {
@@ -85,6 +91,7 @@ export function KaraokePlayer({
         onFinish({
           transcription: transcriptionRef.current || '',
           pitchStats: pitchStatsRef.current,
+          recordingDuration: durationRef.current,
         });
       }, 800);
     }
@@ -115,10 +122,11 @@ export function KaraokePlayer({
         onFinish({
           transcription: transcription || '',
           pitchStats,
+          recordingDuration: duration,
         });
       }, 500);
     }
-  }, [isEnded, hasStarted, isRecording, transcription, pitchStats, autoSubmitted, isEvaluating, onFinish, exitFullscreen]);
+  }, [isEnded, hasStarted, isRecording, transcription, pitchStats, duration, autoSubmitted, isEvaluating, onFinish, exitFullscreen]);
 
   const enterFullscreen = async () => {
     if (containerRef.current) {
@@ -218,6 +226,7 @@ export function KaraokePlayer({
       onFinish({
         transcription: transcription || '',
         pitchStats,
+        recordingDuration: duration,
       });
     }
   };
@@ -323,6 +332,8 @@ export function KaraokePlayer({
               isRecording={isRecording && !isPaused}
               height={pitchBarHeight}
               onHeightChange={setPitchBarHeight}
+              syncOffset={melodyOffset}
+              onSyncOffsetChange={setMelodyOffset}
             />
           </div>
         )}
@@ -406,6 +417,8 @@ export function KaraokePlayer({
             isRecording={isRecording && !isPaused}
             height={pitchBarHeight}
             onHeightChange={setPitchBarHeight}
+            syncOffset={melodyOffset}
+            onSyncOffsetChange={setMelodyOffset}
           />
         </div>
       )}

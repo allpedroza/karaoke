@@ -3,6 +3,13 @@ import { z } from 'zod';
 
 // --- CONFIGURAÇÃO E VALIDAÇÃO (ZOD) ---
 
+// Pesos das dimensões de avaliação (devem somar 1.0)
+const DIMENSION_WEIGHTS = {
+  pitch: 0.45,   // Tom: 45% - Mais importante, é a base do canto
+  lyrics: 0.35,  // Letra: 35% - Importante, mas considera que nem todos sabem a letra
+  energy: 0.20,  // Energia: 20% - Complementar, engajamento e interpretação
+};
+
 // Schema de validação robusta para garantir a estrutura do JSON
 const EvaluationSchema = z.object({
   overallScore: z.number().min(0).max(100),
@@ -48,6 +55,8 @@ export interface EvaluationInput {
   artist: string;
   language: string;
   pitchStats?: PitchStats;
+  songDuration?: string; // Duração da música no formato "MM:SS"
+  recordingDuration?: number; // Duração da gravação em segundos
 }
 
 export interface DimensionScore {
@@ -65,10 +74,102 @@ export interface PerformanceEvaluation {
   encouragement: string;
 }
 
+// --- FUNÇÕES AUXILIARES ---
+
+/**
+ * Converte duração no formato "MM:SS" para segundos
+ */
+function parseDuration(duration: string): number {
+  const parts = duration.split(':');
+  if (parts.length === 2) {
+    const minutes = parseInt(parts[0], 10);
+    const seconds = parseInt(parts[1], 10);
+    return minutes * 60 + seconds;
+  }
+  return 180; // Default 3 minutos
+}
+
+/**
+ * Conta palavras significativas na transcrição (ignora interjeições curtas isoladas)
+ */
+function countSignificantWords(text: string): number {
+  if (!text || !text.trim()) return 0;
+
+  // Remove pontuação e normaliza
+  const cleaned = text.toLowerCase().replace(/[.,!?;:'"()-]/g, ' ');
+  const words = cleaned.split(/\s+/).filter(w => w.length > 0);
+
+  // Conta palavras com 2+ caracteres (ignora "a", "e", "o" isolados mas conta "ah", "ei", etc)
+  return words.filter(w => w.length >= 2).length;
+}
+
+/**
+ * Calcula a cobertura de letra baseada em palavras por minuto esperadas
+ * Uma música típica tem entre 30-50 palavras por minuto de canto
+ * Consideramos ~35 palavras/minuto como média para karaokê (tem pausas instrumentais)
+ */
+function calculateLyricsCoverage(
+  transcription: string,
+  songDurationSeconds: number,
+  recordingDurationSeconds?: number
+): { coverage: number; wordCount: number; expectedWords: number; analysis: string } {
+  const wordCount = countSignificantWords(transcription);
+
+  // Usa a duração da gravação se disponível, senão usa a da música
+  const effectiveDuration = recordingDurationSeconds || songDurationSeconds;
+  const durationMinutes = effectiveDuration / 60;
+
+  // Estimativa: ~35 palavras por minuto em média para karaokê
+  // (considera pausas instrumentais, introduções, etc)
+  const expectedWords = Math.round(durationMinutes * 35);
+
+  // Calcula cobertura (máximo 100%, mínimo 0%)
+  const rawCoverage = expectedWords > 0 ? (wordCount / expectedWords) * 100 : 0;
+  const coverage = Math.min(100, Math.max(0, rawCoverage));
+
+  // Análise textual
+  let analysis: string;
+  if (coverage >= 90) {
+    analysis = 'Excelente cobertura! Cantou praticamente toda a letra.';
+  } else if (coverage >= 70) {
+    analysis = 'Boa cobertura da letra, acompanhou a maior parte da música.';
+  } else if (coverage >= 50) {
+    analysis = 'Cobertura parcial - cantou cerca de metade da letra.';
+  } else if (coverage >= 25) {
+    analysis = 'Cantou pouco da letra - tente acompanhar mais a música.';
+  } else if (coverage > 0) {
+    analysis = 'Cobertura muito baixa - precisa cantar mais junto com a música.';
+  } else {
+    analysis = 'Não detectamos canto - tente cantar mais alto e acompanhar a letra.';
+  }
+
+  return { coverage, wordCount, expectedWords, analysis };
+}
+
+/**
+ * Calcula score base de letra (0-100) baseado na cobertura
+ * Curva suave: penaliza mais quem canta muito pouco
+ */
+function calculateLyricsBaseScore(coverage: number): number {
+  if (coverage >= 90) return 95 + (coverage - 90) * 0.5; // 95-100
+  if (coverage >= 70) return 80 + (coverage - 70) * 0.75; // 80-95
+  if (coverage >= 50) return 60 + (coverage - 50) * 1; // 60-80
+  if (coverage >= 25) return 35 + (coverage - 25) * 1; // 35-60
+  if (coverage >= 10) return 15 + (coverage - 10) * 1.33; // 15-35
+  return coverage * 1.5; // 0-15
+}
+
 // --- FUNÇÃO PRINCIPAL ---
 
 export async function evaluateWithClaude(input: EvaluationInput): Promise<PerformanceEvaluation> {
-  const { transcription, songTitle, artist, language, pitchStats } = input;
+  const { transcription, songTitle, artist, language, pitchStats, songDuration, recordingDuration } = input;
+
+  // Calcula cobertura de letra
+  const songDurationSeconds = songDuration ? parseDuration(songDuration) : 180;
+  const lyricsCoverage = calculateLyricsCoverage(transcription, songDurationSeconds, recordingDuration);
+  const lyricsBaseScore = calculateLyricsBaseScore(lyricsCoverage.coverage);
+
+  console.log(`📝 Análise de Letra: ${lyricsCoverage.wordCount} palavras detectadas, esperado ~${lyricsCoverage.expectedWords} (${lyricsCoverage.coverage.toFixed(1)}% cobertura, score base: ${lyricsBaseScore.toFixed(0)})`);
 
   // 1. SYSTEM PROMPT OTIMIZADO: Focado em interpretação de contexto musical
   const systemPrompt = `Você é o "KaraokeAI", um jurado de karaokê experiente, carismático e técnico.
@@ -84,7 +185,11 @@ COMO INTERPRETAR OS DADOS (Raciocínio Interno):
 3. **Analise a Precisão (Pitch Accuracy):**
    - >70% é excelente. Entre 50-70% é aceitável para amadores.
    - Esta métrica já considera transposição (o usuário pode cantar em outra oitava).
-4. **Letra:**
+4. **IMPORTANTE - Letra (Lyrics Score):**
+   - O SCORE BASE de letra já foi calculado automaticamente: ${lyricsBaseScore.toFixed(0)}/100
+   - Este score é baseado na quantidade de palavras cantadas vs esperado para a duração da música
+   - Você pode ajustar ±10 pontos baseado na dicção e qualidade, mas RESPEITE o score base
+   - Se o score base é baixo (<50), a pessoa cantou pouco - NÃO dê nota alta de letra
    - "Yeah", "Uhu", "Ah", "Ei" são sinais de animação, não erros de letra.
 
 TOM DE VOZ:
@@ -102,7 +207,7 @@ Retorne APENAS um JSON válido com EXATAMENTE esta estrutura:
       "detail": "<comentário sobre afinação e tom>"
     },
     "lyrics": {
-      "score": <número de 0 a 100>,
+      "score": <número próximo ao score base ${lyricsBaseScore.toFixed(0)}, ajuste ±10 máximo>,
       "detail": "<comentário sobre letra e dicção>"
     },
     "energy": {
@@ -115,11 +220,11 @@ Retorne APENAS um JSON válido com EXATAMENTE esta estrutura:
 
   // 2. CONSTRUÇÃO DO CONTEXTO TÉCNICO (Sem julgamento prévio, apenas dados)
   let technicalContext = '[Sem dados de áudio, avalie apenas pela letra]';
-  
+
   if (pitchStats && pitchStats.validSamples > 0) {
     const presencePct = Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100);
     const chorusText = pitchStats.chorusDetected ? 'Sim (Público/Backing vocals detectados)' : 'Não';
-    
+
     technicalContext = `
 [DADOS DOS SENSORES - Use isso para calibrar sua avaliação]
 - Precisão Melódica (Accuracy): ${Math.round(pitchStats.pitchAccuracy)}% (Quão bem ele acertou as notas alvo)
@@ -130,21 +235,34 @@ Retorne APENAS um JSON válido com EXATAMENTE esta estrutura:
     `;
   }
 
+  // Contexto de cobertura de letra
+  const lyricsContext = `
+[ANÁLISE DE LETRA - IMPORTANTE]
+- Palavras detectadas: ${lyricsCoverage.wordCount}
+- Palavras esperadas (baseado na duração): ~${lyricsCoverage.expectedWords}
+- Cobertura calculada: ${lyricsCoverage.coverage.toFixed(1)}%
+- Score base de letra: ${lyricsBaseScore.toFixed(0)}/100
+- Análise: ${lyricsCoverage.analysis}
+`;
+
   const userPrompt = `
 # DADOS DA PERFORMANCE
 **Música:** "${songTitle}" - ${artist}
 **Idioma:** ${language === 'pt-BR' ? 'Português' : 'Estrangeiro'}
+**Duração da música:** ${songDuration || '~3:00'}
 
 **Transcrição (O que o cantor disse):**
 "${transcription || '(silêncio/apenas instrumental)'}"
 
+${lyricsContext}
+
 ${technicalContext}
 
-Gere o JSON de avaliação agora.`;
+Gere o JSON de avaliação agora. Lembre-se: o score de letra deve ser próximo a ${lyricsBaseScore.toFixed(0)} (±10 pontos).`;
 
   try {
     const anthropic = getAnthropicClient();
-    
+
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514', // Claude Sonnet 4 (lançado em maio 2025)
       max_tokens: 1024,
@@ -193,44 +311,81 @@ Gere o JSON de avaliação agora.`;
     // 4. VALIDAÇÃO COM ZOD (Garante a tipagem)
     const evaluation = EvaluationSchema.parse(parsedData);
 
+    // 5. AJUSTE FINAL: Garante que o score de letra está dentro do range esperado
+    const finalLyricsScore = Math.max(
+      lyricsBaseScore - 15,
+      Math.min(lyricsBaseScore + 15, evaluation.dimensions.lyrics.score)
+    );
+
+    if (Math.abs(evaluation.dimensions.lyrics.score - lyricsBaseScore) > 15) {
+      console.log(`⚠️ Ajustando score de letra: ${evaluation.dimensions.lyrics.score} -> ${finalLyricsScore} (base: ${lyricsBaseScore.toFixed(0)})`);
+      evaluation.dimensions.lyrics.score = Math.round(finalLyricsScore);
+    }
+
+    // Recalcula overall score com pesos (tom tem mais peso)
+    const weightedScore =
+      evaluation.dimensions.pitch.score * DIMENSION_WEIGHTS.pitch +
+      evaluation.dimensions.lyrics.score * DIMENSION_WEIGHTS.lyrics +
+      evaluation.dimensions.energy.score * DIMENSION_WEIGHTS.energy;
+    evaluation.overallScore = Math.round(weightedScore);
+
     return evaluation as PerformanceEvaluation;
 
   } catch (error) {
     console.error('Erro ao avaliar com Claude:', error);
     // Retornar avaliação padrão segura em caso de falha na API ou Parsing
-    return createDefaultEvaluation(transcription);
+    return createDefaultEvaluation(transcription, lyricsCoverage.coverage, lyricsBaseScore);
   }
 }
 
 // --- FALLBACK EM CASO DE ERRO ---
 
-function createDefaultEvaluation(transcription: string): PerformanceEvaluation {
+function createDefaultEvaluation(
+  transcription: string,
+  lyricsCoverage: number,
+  lyricsBaseScore: number
+): PerformanceEvaluation {
   const wordCount = (transcription || '').split(' ').filter(w => w.trim()).length;
   const hasContent = wordCount > 5;
 
+  // Usa o score base calculado para lyrics
+  const lyricsScore = Math.round(lyricsBaseScore);
+
+  // Calcula outros scores baseado na cobertura também
+  const pitchScore = hasContent ? Math.round(55 + lyricsCoverage * 0.35) : 30;
+  const energyScore = hasContent ? Math.round(60 + lyricsCoverage * 0.3) : 35;
+
+  // Calcula score geral com pesos
+  const weightedScore =
+    pitchScore * DIMENSION_WEIGHTS.pitch +
+    lyricsScore * DIMENSION_WEIGHTS.lyrics +
+    energyScore * DIMENSION_WEIGHTS.energy;
+
   return {
-    overallScore: hasContent ? 65 : 30,
+    overallScore: Math.round(weightedScore),
     dimensions: {
       pitch: {
-        score: hasContent ? 65 : 30,
+        score: pitchScore,
         detail: hasContent
           ? 'Você cantou com desenvoltura! Continue praticando para refinar a afinação.'
           : 'Parece que você cantou bem baixinho. Solte mais a voz!',
       },
       lyrics: {
-        score: hasContent ? 60 : 25,
-        detail: hasContent
-          ? 'Você acompanhou a música! Com mais prática, vai acertar cada vez mais.'
-          : 'Parece que você não acompanhou a letra. Tente cantar junto na próxima!',
+        score: lyricsScore,
+        detail: lyricsCoverage >= 70
+          ? 'Você acompanhou bem a letra da música!'
+          : lyricsCoverage >= 40
+          ? 'Você acompanhou parte da letra. Tente cantar mais trechos!'
+          : 'Parece que você não acompanhou muito a letra. Tente cantar junto na próxima!',
       },
       energy: {
-        score: hasContent ? 70 : 35,
+        score: energyScore,
         detail: hasContent
           ? 'Boa energia! O importante é se divertir.'
           : 'Solte a voz! O karaokê é seu momento de brilhar.',
       },
     },
-    encouragement: hasContent
+    encouragement: lyricsCoverage >= 50
       ? 'Você está no caminho certo! Continue cantando e cada vez ficará melhor. 🎤'
       : 'Não desista! Cante mais alto e acompanhe a letra. Estamos torcendo por você! 🌟',
   };

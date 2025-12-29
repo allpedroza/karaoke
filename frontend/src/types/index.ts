@@ -22,6 +22,7 @@ export interface PitchStats {
 export interface PerformanceData {
   transcription: string;
   pitchStats: PitchStats | null;
+  recordingDuration?: number; // Duração da gravação em segundos
 }
 
 export interface DimensionScore {
@@ -76,5 +77,6 @@ export interface MelodyMap {
   song_title: string;
   duration: number;
   notes: MelodyNote[];
-  status: 'ready' | 'processing' | 'error';
+  status: 'ready' | 'completed' | 'processing' | 'error';
+  sync_offset?: number; // Offset em segundos para sincronizar com vídeo karaokê
 }
