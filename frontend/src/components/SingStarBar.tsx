@@ -73,7 +73,6 @@ export function SingStarBar({
 }: SingStarBarProps) {
   const [melodyMap, setMelodyMap] = useState<MelodyMap | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -86,13 +85,16 @@ export function SingStarBar({
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
+  // Histórico de pitch do usuário (para modo sem melodia de referência)
+  const pitchHistoryRef = useRef<Array<{ time: number; midi: number }>>([]);
+  const MAX_HISTORY_SECONDS = 8; // Manter histórico de 8 segundos
+
   // Carregar melodia da música via API do backend
   useEffect(() => {
     let mounted = true;
 
     async function loadMelody() {
       setLoading(true);
-      setError(null);
       try {
         const data = await getMelodyMap(songCode);
         if (mounted) {
@@ -112,7 +114,7 @@ export function SingStarBar({
       } catch (err) {
         if (mounted) {
           console.error('[SingStarBar] Error loading melody:', err);
-          setError('Erro ao carregar melodia');
+          setMelodyMap(null); // Will trigger fallback mode
           setLoading(false);
         }
       }
@@ -236,7 +238,180 @@ export function SingStarBar({
   // Tempo ajustado com offset
   const adjustedTime = currentTime + syncOffset;
 
-  // Renderizar barra estilo SingStar
+  // Atualiza histórico de pitch do usuário
+  useEffect(() => {
+    if (!isRecording) return;
+
+    const actualFrequency = userFrequency || (userNote ? noteToMidi(userNote) * 8.18 : null);
+    if (actualFrequency && actualFrequency > 50) {
+      const userMidi = userFrequency ? frequencyToMidi(userFrequency) : noteToMidi(userNote || 'C4');
+
+      // Adiciona nova amostra
+      pitchHistoryRef.current.push({ time: currentTime, midi: userMidi });
+
+      // Remove amostras antigas
+      const cutoffTime = currentTime - MAX_HISTORY_SECONDS;
+      pitchHistoryRef.current = pitchHistoryRef.current.filter(p => p.time >= cutoffTime);
+    }
+  }, [currentTime, userFrequency, userNote, isRecording]);
+
+  // Range MIDI para modo fallback (baseado no histórico do usuário)
+  const fallbackMidiRange = useMemo(() => {
+    if (melodyMap) return { minMidi: 48, maxMidi: 84, midiRange: 36 };
+
+    const history = pitchHistoryRef.current;
+    if (history.length === 0) {
+      return { minMidi: 48, maxMidi: 84, midiRange: 36 }; // Default C3-C6
+    }
+
+    let min = Math.min(...history.map(p => p.midi));
+    let max = Math.max(...history.map(p => p.midi));
+
+    // Padding
+    min = Math.max(36, min - 5);
+    max = Math.min(96, max + 5);
+
+    // Range mínimo
+    if (max - min < 12) {
+      min = Math.max(36, min - 6);
+      max = Math.min(96, max + 6);
+    }
+
+    return { minMidi: min, maxMidi: max, midiRange: max - min };
+  }, [melodyMap, currentTime]);
+
+  // Renderiza visualizador de pitch quando NÃO tem melodia de referência
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    // Renderiza se não tem melody map ou se teve erro (mas só se não está carregando)
+    if (!canvas || !container || loading || melodyMap) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const rect = container.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.scale(dpr, dpr);
+
+    const width = rect.width;
+    const canvasHeight = height;
+
+    ctx.clearRect(0, 0, width, canvasHeight);
+
+    const { minMidi: fMinMidi, maxMidi: fMaxMidi, midiRange: fMidiRange } = fallbackMidiRange;
+
+    // Função para converter MIDI para Y
+    const midiToYFallback = (midi: number): number => {
+      const clamped = Math.max(fMinMidi, Math.min(fMaxMidi, midi));
+      const normalized = (clamped - fMinMidi) / fMidiRange;
+      return canvasHeight - normalized * canvasHeight;
+    };
+
+    // Linhas de grade horizontais
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1;
+    for (let midi = fMinMidi; midi <= fMaxMidi; midi += 2) {
+      const y = midiToYFallback(midi);
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    // Linha do "agora"
+    const nowLineX = width * 0.85; // Posição mais à direita no modo fallback
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(nowLineX, 0);
+    ctx.lineTo(nowLineX, canvasHeight);
+    ctx.stroke();
+
+    // Desenha histórico de pitch como trail colorido
+    const history = pitchHistoryRef.current;
+    if (history.length > 1) {
+      const windowSize = MAX_HISTORY_SECONDS;
+      const pixelsPerSecond = nowLineX / windowSize;
+
+      // Desenha linha conectando os pontos
+      ctx.lineWidth = 6;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      for (let i = 1; i < history.length; i++) {
+        const prev = history[i - 1];
+        const curr = history[i];
+
+        const x1 = nowLineX - (currentTime - prev.time) * pixelsPerSecond;
+        const x2 = nowLineX - (currentTime - curr.time) * pixelsPerSecond;
+        const y1 = midiToYFallback(prev.midi);
+        const y2 = midiToYFallback(curr.midi);
+
+        // Cor baseada na nota
+        const noteName = midiToNoteName(Math.round(curr.midi));
+        const color = getNoteColor(noteName);
+
+        // Gradiente de opacidade (mais recente = mais opaco)
+        const age = currentTime - curr.time;
+        const opacity = Math.max(0.2, 1 - age / windowSize);
+
+        ctx.strokeStyle = `${color}${Math.round(opacity * 255).toString(16).padStart(2, '0')}`;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+    }
+
+    // Indicador atual do usuário
+    const actualFrequency = userFrequency || (userNote ? noteToMidi(userNote) * 8.18 : null);
+    if (actualFrequency && actualFrequency > 50 && isRecording) {
+      const userMidi = userFrequency ? frequencyToMidi(userFrequency) : noteToMidi(userNote || 'C4');
+      const userY = midiToYFallback(userMidi);
+      const noteName = midiToNoteName(Math.round(userMidi));
+      const indicatorColor = getNoteColor(noteName);
+
+      ctx.shadowColor = indicatorColor;
+      ctx.shadowBlur = 20;
+
+      ctx.fillStyle = indicatorColor;
+      ctx.beginPath();
+      ctx.arc(nowLineX, userY, 14, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Mostra nome da nota
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 12px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(noteName, nowLineX, userY + 4);
+
+      ctx.shadowBlur = 0;
+    }
+
+    // Labels das notas (à direita)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.font = '11px monospace';
+    ctx.textAlign = 'right';
+
+    for (let midi = Math.ceil(fMinMidi / 12) * 12; midi <= fMaxMidi; midi += 12) {
+      const y = midiToYFallback(midi);
+      ctx.fillText(midiToNoteName(midi), width - 4, y + 4);
+    }
+
+  }, [melodyMap, loading, currentTime, userNote, userFrequency, isRecording, height, fallbackMidiRange]);
+
+  // Renderizar barra estilo SingStar (quando TEM melodia de referência)
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -428,12 +603,40 @@ export function SingStarBar({
     );
   }
 
-  if (error || !melodyMap) {
+  // Modo visualizador de pitch (sem melodia de referência)
+  const isFallbackMode = !melodyMap && !loading;
+
+  // Renderização do modo fallback (visualizador de pitch)
+  if (isFallbackMode) {
     return (
-      <div className="w-full bg-gray-900/50 rounded-lg flex items-center justify-center" style={{ height }}>
-        <span className="text-gray-400 text-sm">
-          {error || 'Melodia não disponível para esta música'}
-        </span>
+      <div className="w-full select-none">
+        <div className="flex items-center justify-between mb-2 text-xs text-gray-400">
+          <span className="flex items-center gap-1">
+            <span className="opacity-70">Visualizador de tom</span>
+          </span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 rounded-full"></div>
+              <span>Sua voz</span>
+            </div>
+          </div>
+        </div>
+        <div
+          ref={containerRef}
+          className="relative w-full rounded-lg overflow-hidden border border-white/20"
+          style={{ height }}
+        >
+          <canvas ref={canvasRef} className="w-full h-full" />
+          {onHeightChange && (
+            <div
+              className="absolute bottom-0 left-0 right-0 h-3 cursor-ns-resize flex items-center justify-center bg-gradient-to-t from-white/10 to-transparent hover:from-white/20 transition-colors"
+              onMouseDown={handleResizeStart}
+              onTouchStart={handleResizeStart}
+            >
+              <div className="w-12 h-1 rounded-full bg-white/40"></div>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
