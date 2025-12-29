@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { MelodyMap, MelodyNote } from '../types';
 import { getMelodyMap } from '../services/api';
 
@@ -10,6 +10,8 @@ interface SingStarBarProps {
   isRecording: boolean;
   height?: number; // Altura da barra (para resize)
   onHeightChange?: (height: number) => void; // Callback quando altura mudar
+  syncOffset?: number; // Offset em segundos para sincronizar com o vídeo (positivo = melodia atrasada)
+  onSyncOffsetChange?: (offset: number) => void; // Callback para ajustar offset
 }
 
 // Converte frequência para número MIDI
@@ -28,10 +30,13 @@ function noteToMidi(note: string): number {
   return (octave + 1) * 12 + noteIndex;
 }
 
-// Range de MIDI notes para vocais (C3 a C6)
-const MIN_MIDI = 48; // C3
-const MAX_MIDI = 84; // C6
-const MIDI_RANGE = MAX_MIDI - MIN_MIDI;
+// Converte MIDI para nome da nota
+function midiToNoteName(midi: number): string {
+  const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const octave = Math.floor(midi / 12) - 1;
+  const noteIndex = midi % 12;
+  return `${noteNames[noteIndex]}${octave}`;
+}
 
 // Cores das notas por classe de pitch (estilo SingStar)
 const NOTE_COLORS: Record<string, string> = {
@@ -63,6 +68,8 @@ export function SingStarBar({
   isRecording,
   height = 240,
   onHeightChange,
+  syncOffset = 0,
+  onSyncOffsetChange,
 }: SingStarBarProps) {
   const [melodyMap, setMelodyMap] = useState<MelodyMap | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,13 +117,46 @@ export function SingStarBar({
     };
   }, [songCode]);
 
-  // Calcula posição Y baseado no MIDI
+  // Calcula range MIDI dinâmico baseado nas notas da melodia
+  const { minMidi, maxMidi, midiRange } = useMemo(() => {
+    if (!melodyMap || melodyMap.notes.length === 0) {
+      return { minMidi: 48, maxMidi: 84, midiRange: 36 }; // Default C3-C6
+    }
+
+    let min = Infinity;
+    let max = -Infinity;
+
+    for (const note of melodyMap.notes) {
+      const midi = note.midi || noteToMidi(note.note);
+      if (midi < min) min = midi;
+      if (midi > max) max = midi;
+    }
+
+    // Adiciona padding de 3 semitons acima e abaixo
+    const padding = 3;
+    min = Math.max(36, min - padding); // No mínimo C2
+    max = Math.min(96, max + padding); // No máximo C7
+
+    // Garante range mínimo de 12 semitons (1 oitava)
+    const range = max - min;
+    if (range < 12) {
+      const expand = Math.ceil((12 - range) / 2);
+      min = Math.max(36, min - expand);
+      max = Math.min(96, max + expand);
+    }
+
+    console.log(`[SingStarBar] Dynamic MIDI range: ${midiToNoteName(min)} (${min}) to ${midiToNoteName(max)} (${max})`);
+
+    return { minMidi: min, maxMidi: max, midiRange: max - min };
+  }, [melodyMap]);
+
+  // Calcula posição Y baseado no MIDI (com range dinâmico)
   const midiToY = useCallback((midi: number, canvasHeight: number): number => {
-    const clampedMidi = Math.max(MIN_MIDI, Math.min(MAX_MIDI, midi));
-    const normalized = (clampedMidi - MIN_MIDI) / MIDI_RANGE;
+    const clampedMidi = Math.max(minMidi, Math.min(maxMidi, midi));
+    const normalized = (clampedMidi - minMidi) / midiRange;
     // Inverte porque Y cresce para baixo no canvas
     return canvasHeight - normalized * canvasHeight;
-  }, []);
+  }, [minMidi, maxMidi, midiRange]);
 
   // Resize handlers
   const handleResizeStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -155,6 +195,16 @@ export function SingStarBar({
     };
   }, [isResizing, handleResize, handleResizeEnd]);
 
+  // Ajuste de sync offset com teclas
+  const adjustOffset = useCallback((delta: number) => {
+    if (onSyncOffsetChange) {
+      onSyncOffsetChange(syncOffset + delta);
+    }
+  }, [syncOffset, onSyncOffsetChange]);
+
+  // Tempo ajustado com offset
+  const adjustedTime = currentTime + syncOffset;
+
   // Renderizar barra estilo SingStar
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -183,24 +233,24 @@ export function SingStarBar({
     const windowSize = 6; // Mostrar 6 segundos à frente
     const nowLineX = width * 0.15; // Linha do "agora" em 15%
 
-    // Função auxiliar: tempo -> posição X
+    // Função auxiliar: tempo -> posição X (usa tempo ajustado)
     const timeToX = (time: number): number => {
       const pixelsPerSecond = (width - nowLineX) / windowSize;
-      return nowLineX + (time - currentTime) * pixelsPerSecond;
+      return nowLineX + (time - adjustedTime) * pixelsPerSecond;
     };
 
-    // Encontrar notas visíveis
-    const startTime = currentTime - 1;
-    const endTime = currentTime + windowSize;
+    // Encontrar notas visíveis (usa tempo ajustado)
+    const startTime = adjustedTime - 1;
+    const endTime = adjustedTime + windowSize;
     const visibleNotes = melodyMap.notes.filter((n: MelodyNote) => {
       const noteEnd = n.time + n.duration;
       return noteEnd >= startTime && n.time <= endTime;
     });
 
-    // Linhas de grade horizontais (notas)
+    // Linhas de grade horizontais (notas) - usa range dinâmico
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.lineWidth = 1;
-    for (let midi = MIN_MIDI; midi <= MAX_MIDI; midi += 2) {
+    for (let midi = minMidi; midi <= maxMidi; midi += 2) {
       const y = midiToY(midi, canvasHeight);
       ctx.beginPath();
       ctx.moveTo(0, y);
@@ -234,10 +284,10 @@ export function SingStarBar({
       const x = timeToX(note.time);
       const noteWidth = Math.max(10, (note.duration * (width - nowLineX)) / windowSize);
       const y = midiToY(midi, canvasHeight);
-      const noteHeight = Math.max(12, canvasHeight / MIDI_RANGE * 2.5);
+      const noteHeight = Math.max(12, canvasHeight / midiRange * 2.5);
 
-      // Verifica se a nota está no "agora" (sendo cantada)
-      const isActive = currentTime >= note.time && currentTime <= note.time + note.duration;
+      // Verifica se a nota está no "agora" (sendo cantada) - usa tempo ajustado
+      const isActive = adjustedTime >= note.time && adjustedTime <= note.time + note.duration;
 
       // Cor da nota baseada na nota musical
       const color = getNoteColor(note.note);
@@ -267,9 +317,9 @@ export function SingStarBar({
       const userMidi = userFrequency ? frequencyToMidi(userFrequency) : noteToMidi(userNote || 'C4');
       const userY = midiToY(userMidi, canvasHeight);
 
-      // Verifica se o usuário está afinado com alguma nota ativa
+      // Verifica se o usuário está afinado com alguma nota ativa (usa tempo ajustado)
       const activeNote = visibleNotes.find(
-        (note: MelodyNote) => currentTime >= note.time && currentTime <= note.time + note.duration
+        (note: MelodyNote) => adjustedTime >= note.time && adjustedTime <= note.time + note.duration
       );
 
       let isOnPitch = false;
@@ -311,17 +361,33 @@ export function SingStarBar({
       ctx.shadowBlur = 0;
     }
 
-    // Labels das notas (à esquerda)
+    // Labels das notas (à esquerda) - usa range dinâmico
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.font = '11px monospace';
     ctx.textAlign = 'left';
-    const notesLabels = ['C3', 'C4', 'C5', 'C6'];
-    for (const label of notesLabels) {
-      const midi = noteToMidi(label);
-      const y = midiToY(midi, canvasHeight);
-      ctx.fillText(label, 4, y + 4);
+
+    // Gera labels baseados no range real
+    const labelMidis: number[] = [];
+    for (let midi = Math.ceil(minMidi / 12) * 12; midi <= maxMidi; midi += 12) {
+      if (midi >= minMidi && midi <= maxMidi) {
+        labelMidis.push(midi);
+      }
     }
-  }, [melodyMap, currentTime, userNote, userFrequency, isRecording, loading, height, midiToY]);
+    // Adiciona notas intermediárias se o range for pequeno
+    if (labelMidis.length < 3 && midiRange <= 24) {
+      for (let midi = Math.ceil(minMidi / 6) * 6; midi <= maxMidi; midi += 6) {
+        if (!labelMidis.includes(midi) && midi >= minMidi && midi <= maxMidi) {
+          labelMidis.push(midi);
+        }
+      }
+      labelMidis.sort((a, b) => a - b);
+    }
+
+    for (const midi of labelMidis) {
+      const y = midiToY(midi, canvasHeight);
+      ctx.fillText(midiToNoteName(midi), 4, y + 4);
+    }
+  }, [melodyMap, adjustedTime, userNote, userFrequency, isRecording, loading, height, midiToY, minMidi, maxMidi, midiRange]);
 
   if (loading) {
     return (
@@ -346,6 +412,28 @@ export function SingStarBar({
       <div className="flex items-center justify-between mb-2 text-xs text-gray-400">
         <span className="flex items-center gap-1">
           <span className="opacity-70">Siga a melodia</span>
+          {/* Controle de sync offset */}
+          {onSyncOffsetChange && (
+            <span className="ml-2 flex items-center gap-1">
+              <button
+                onClick={() => adjustOffset(-0.5)}
+                className="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[10px]"
+                title="Adiantar melodia 0.5s"
+              >
+                ◀
+              </button>
+              <span className="text-[10px] min-w-[60px] text-center">
+                Sync: {syncOffset >= 0 ? '+' : ''}{syncOffset.toFixed(1)}s
+              </span>
+              <button
+                onClick={() => adjustOffset(0.5)}
+                className="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[10px]"
+                title="Atrasar melodia 0.5s"
+              >
+                ▶
+              </button>
+            </span>
+          )}
         </span>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">

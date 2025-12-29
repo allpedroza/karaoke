@@ -36,6 +36,7 @@ export function KaraokePlayer({
   const [pitchBarPosition, setPitchBarPosition] = useState({ x: 20, y: 20 });
   const [pitchBarHeight, setPitchBarHeight] = useState(240); // Dobro do tamanho original
   const [isDragging, setIsDragging] = useState(false);
+  const [melodyOffset, setMelodyOffset] = useState(0); // Offset em segundos para sincronizar melodia
   const dragOffset = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -323,6 +324,8 @@ export function KaraokePlayer({
               isRecording={isRecording && !isPaused}
               height={pitchBarHeight}
               onHeightChange={setPitchBarHeight}
+              syncOffset={melodyOffset}
+              onSyncOffsetChange={setMelodyOffset}
             />
           </div>
         )}
@@ -406,6 +409,8 @@ export function KaraokePlayer({
             isRecording={isRecording && !isPaused}
             height={pitchBarHeight}
             onHeightChange={setPitchBarHeight}
+            syncOffset={melodyOffset}
+            onSyncOffsetChange={setMelodyOffset}
           />
         </div>
       )}
