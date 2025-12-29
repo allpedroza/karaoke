@@ -193,6 +193,7 @@ export interface QueueItemAPI {
   songTitle: string;
   artist: string;
   thumbnail: string;
+  youtubeId: string;
   singerName: string;
   addedAt: string;
 }

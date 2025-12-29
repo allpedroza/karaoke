@@ -16,6 +16,7 @@ interface QueueItem {
   songTitle: string;
   artist: string;
   thumbnail: string;
+  youtubeId: string;
   singerName: string;
   addedAt: Date;
 }
@@ -128,6 +129,7 @@ router.post('/', (req: Request, res: Response) => {
     songTitle: song.song,
     artist: song.artist,
     thumbnail: `https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg`,
+    youtubeId: song.youtubeId,
     singerName: singerName.trim(),
     addedAt: new Date(),
   };

@@ -40,7 +40,7 @@ function App() {
 
   // Converter QueueItemAPI para KaraokeVideo
   const queueItemToVideo = useCallback((item: QueueItemAPI): KaraokeVideo => ({
-    id: item.id,
+    id: item.youtubeId, // YouTube video ID para o player
     code: item.songCode,
     title: item.songTitle,
     thumbnail: item.thumbnail,
@@ -137,6 +137,7 @@ function App() {
       songTitle: pendingVideo.song,
       artist: pendingVideo.artist,
       thumbnail: pendingVideo.thumbnail,
+      youtubeId: pendingVideo.id, // video.id é o YouTube ID
       singerName: name,
       addedAt: new Date().toISOString(),
     };
@@ -194,6 +195,7 @@ function App() {
         songTitle: nextItem.video.song,
         artist: nextItem.video.artist,
         thumbnail: nextItem.video.thumbnail,
+        youtubeId: nextItem.video.id, // video.id é o YouTube ID
         singerName: nextItem.singerName,
         addedAt: new Date().toISOString(),
       };
