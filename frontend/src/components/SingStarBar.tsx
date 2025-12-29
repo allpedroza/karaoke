@@ -500,7 +500,8 @@ export function SingStarBar({
       const x = timeToX(note.time);
       const noteWidth = Math.max(10, (note.duration * (width - nowLineX)) / windowSize);
       const y = midiToY(midi, canvasHeight);
-      const noteHeight = Math.max(12, canvasHeight / midiRange * 2.5);
+      // Altura fixa para evitar oscilação visual quando o range muda
+      const noteHeight = 16;
 
       // Verifica se a nota está no "agora" (sendo cantada) - usa tempo ajustado
       const isActive = adjustedTime >= note.time && adjustedTime <= note.time + note.duration;
