@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Move, X, Search, Trash2, Smartphone } from 'lucide-react';
+import { Move, X, Search, Trash2 } from 'lucide-react';
 import { KaraokeVideo, QueueItem } from '../types';
 import { searchVideos, getQueue, removeFromQueue, QueueItemAPI } from '../services/api';
 
@@ -241,11 +241,6 @@ export function SongQueueDrawer({
           </div>
           <p className="text-sm text-theme-muted">
             <span className="text-karaoke-accent font-semibold">{queue.length + remoteQueue.length}</span> na fila
-            {remoteQueue.length > 0 && (
-              <span className="ml-1 text-green-400">
-                ({remoteQueue.length} via celular)
-              </span>
-            )}
             {isFullscreen && <span className="ml-2 text-xs">(arraste para mover)</span>}
           </p>
         </div>
@@ -284,20 +279,18 @@ export function SongQueueDrawer({
           </div>
         )}
 
-        {/* Remote Queue (from mobile) */}
-        {remoteQueue.length > 0 && (
-          <div className="p-3 border-b border-green-500/20 bg-green-900/20 max-h-48 overflow-y-auto">
-            <h3 className="text-xs font-semibold text-green-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-              <Smartphone className="w-3 h-3" />
-              Fila do Celular:
-            </h3>
+        {/* Fila Unificada */}
+        {(queue.length > 0 || remoteQueue.length > 0) && (
+          <div className="p-3 border-b border-theme bg-theme-secondary/50 max-h-48 overflow-y-auto">
+            <h3 className="text-xs font-semibold text-theme-muted mb-2 uppercase tracking-wide">Próximas:</h3>
             <div className="space-y-2">
+              {/* Remote queue items first (they were added first via mobile) */}
               {remoteQueue.map((item, index) => (
                 <div
                   key={item.id}
                   className="flex items-center gap-2 bg-black/30 rounded-lg p-2"
                 >
-                  <span className="text-green-400 text-sm font-bold w-5">
+                  <span className="text-karaoke-accent text-sm font-bold w-5">
                     {index + 1}.
                   </span>
                   <img
@@ -306,8 +299,8 @@ export function SongQueueDrawer({
                     className="w-8 h-8 rounded object-cover"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm truncate">{item.songTitle}</p>
-                    <p className="text-green-300 text-xs truncate">🎤 {item.singerName}</p>
+                    <p className="text-theme text-sm truncate">{item.songTitle}</p>
+                    <p className="text-theme-muted text-xs truncate">🎤 {item.singerName}</p>
                   </div>
                   <button
                     onClick={() => handleRemoveFromRemoteQueue(item.id)}
@@ -318,22 +311,14 @@ export function SongQueueDrawer({
                   </button>
                 </div>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* Local Queue (added from desktop) */}
-        {queue.length > 0 && (
-          <div className="p-3 border-b border-theme bg-theme-secondary/50 max-h-40 overflow-y-auto">
-            <h3 className="text-xs font-semibold text-theme-muted mb-2 uppercase tracking-wide">Fila Local:</h3>
-            <div className="space-y-2">
+              {/* Local queue items */}
               {queue.map((item, index) => (
                 <div
                   key={`${item.video.code}-${item.singerName}-${index}`}
                   className="flex items-center gap-2 bg-black/30 rounded-lg p-2"
                 >
                   <span className="text-karaoke-accent text-sm font-bold w-5">
-                    {index + 1}.
+                    {remoteQueue.length + index + 1}.
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className="text-theme text-sm truncate">{item.video.title}</p>
