@@ -229,8 +229,8 @@ export function SongQueueDrawer({
         >
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-lg font-bold text-theme flex items-center gap-2">
-              {isFullscreen && <Move className="w-4 h-4" style={{ color: 'var(--color-accent)' }} />}
-              <span style={{ color: 'var(--color-accent)' }}>📋</span> Fila de Músicas
+              {isFullscreen && <Move className="w-4 h-4 text-karaoke-accent" />}
+              <span className="text-karaoke-accent">📋</span> Fila de Músicas
             </h2>
             <button
               onClick={onClose}
@@ -240,7 +240,7 @@ export function SongQueueDrawer({
             </button>
           </div>
           <p className="text-sm text-theme-muted">
-            <span style={{ color: 'var(--color-accent)' }}>{queue.length + remoteQueue.length}</span> na fila
+            <span className="text-karaoke-accent font-semibold">{queue.length + remoteQueue.length}</span> na fila
             {remoteQueue.length > 0 && (
               <span className="ml-1 text-green-400">
                 ({remoteQueue.length} via celular)
@@ -264,15 +264,13 @@ export function SongQueueDrawer({
                 placeholder="Nome do cantor"
                 autoFocus
                 maxLength={30}
-                className="flex-1 px-3 py-2 bg-white/10 border border-theme rounded-lg text-theme placeholder-gray-400 text-sm focus:outline-none focus:ring-2"
-                style={{ '--tw-ring-color': 'var(--color-accent)' } as React.CSSProperties}
+                className="flex-1 px-3 py-2 bg-white/10 border border-theme rounded-lg text-theme placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-karaoke-accent"
                 onKeyDown={e => e.key === 'Enter' && handleConfirmAdd()}
               />
               <button
                 onClick={handleConfirmAdd}
                 disabled={!singerName.trim()}
-                className="px-3 py-2 text-white text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ backgroundColor: 'var(--color-accent)' }}
+                className="px-3 py-2 bg-karaoke-accent hover:brightness-110 text-white text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 ✓
               </button>
@@ -334,7 +332,7 @@ export function SongQueueDrawer({
                   key={`${item.video.code}-${item.singerName}-${index}`}
                   className="flex items-center gap-2 bg-black/30 rounded-lg p-2"
                 >
-                  <span className="text-sm font-bold w-5" style={{ color: 'var(--color-accent)' }}>
+                  <span className="text-karaoke-accent text-sm font-bold w-5">
                     {index + 1}.
                   </span>
                   <div className="flex-1 min-w-0">
@@ -364,14 +362,13 @@ export function SongQueueDrawer({
         {/* Search */}
         <div className="p-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--color-accent)' }} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-karaoke-accent" />
             <input
               type="text"
               placeholder="Buscar música..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white/10 border border-theme rounded-lg text-theme placeholder-gray-400 text-sm focus:outline-none focus:ring-2"
-              style={{ '--tw-ring-color': 'var(--color-accent)' } as React.CSSProperties}
+              className="w-full pl-10 pr-4 py-2 bg-white/10 border border-theme rounded-lg text-theme placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-karaoke-accent"
             />
           </div>
         </div>
@@ -380,7 +377,7 @@ export function SongQueueDrawer({
         <div className={`flex-1 overflow-y-auto p-3 pt-0 ${isFullscreen ? 'max-h-60' : ''}`}>
           {isLoading ? (
             <div className="flex items-center justify-center py-6">
-              <div className="animate-spin rounded-full h-6 w-6 border-2 border-t-transparent" style={{ borderColor: 'var(--color-accent)', borderTopColor: 'transparent' }}></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-karaoke-accent border-t-transparent"></div>
             </div>
           ) : searchResults.length === 0 ? (
             <div className="text-center py-6 text-theme-muted text-sm">
@@ -413,15 +410,14 @@ export function SongQueueDrawer({
                         🎤
                       </span>
                     ) : inQueue ? (
-                      <span className="text-xs px-2 py-1 rounded" style={{ color: 'var(--color-accent)', backgroundColor: 'var(--color-accent-light, rgba(255,255,255,0.1))' }}>
+                      <span className="text-karaoke-accent text-xs px-2 py-1 bg-karaoke-accent/20 rounded">
                         ✓
                       </span>
                     ) : (
                       <button
                         onClick={() => handleSelectToAdd(video)}
                         disabled={queueFull || selectedVideo !== null}
-                        className="px-2 py-1 text-white text-xs rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-80"
-                        style={{ backgroundColor: 'var(--color-accent)' }}
+                        className="px-2 py-1 bg-karaoke-accent hover:brightness-110 text-white text-xs rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         + Fila
                       </button>
