@@ -262,7 +262,7 @@ export function KaraokePlayer({
               disabled={isEvaluating}
             >
               <ListPlus className="w-4 h-4" />
-              Fila ({queue.length + remoteQueueCount}/{maxQueueSize})
+              Fila ({queue.length + remoteQueueCount})
             </button>
             <button onClick={onBack} className="btn-secondary text-sm" disabled={isEvaluating}>
               Voltar
