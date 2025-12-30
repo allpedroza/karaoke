@@ -15,6 +15,7 @@ interface KaraokePlayerProps {
   onAddToQueue: (video: KaraokeVideo, singerName: string) => boolean;
   onRemoveFromQueue: (index: number) => void;
   maxQueueSize: number;
+  remoteQueueCount?: number;
 }
 
 export function KaraokePlayer({
@@ -26,6 +27,7 @@ export function KaraokePlayer({
   onAddToQueue,
   onRemoveFromQueue,
   maxQueueSize,
+  remoteQueueCount = 0,
 }: KaraokePlayerProps) {
   const [hasStarted, setHasStarted] = useState(false);
   const [autoSubmitted, setAutoSubmitted] = useState(false);
@@ -260,7 +262,7 @@ export function KaraokePlayer({
               disabled={isEvaluating}
             >
               <ListPlus className="w-4 h-4" />
-              Fila ({queue.length}/{maxQueueSize})
+              Fila ({queue.length + remoteQueueCount}/{maxQueueSize})
             </button>
             <button onClick={onBack} className="btn-secondary text-sm" disabled={isEvaluating}>
               Voltar
@@ -356,9 +358,9 @@ export function KaraokePlayer({
                   title="Adicionar à fila"
                 >
                   <ListPlus className="w-6 h-6" />
-                  {queue.length > 0 && (
+                  {(queue.length + remoteQueueCount) > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 rounded-full text-xs flex items-center justify-center">
-                      {queue.length}
+                      {queue.length + remoteQueueCount}
                     </span>
                   )}
                 </button>

@@ -76,21 +76,21 @@ function App() {
     }
   }, [queueItemToVideo]);
 
-  // Polling da fila remota quando estiver na home
+  // Polling da fila remota (home e karaoke views)
   useEffect(() => {
-    if (state.currentView !== 'home') return;
+    if (state.currentView !== 'home' && state.currentView !== 'karaoke') return;
 
     const checkQueue = async () => {
       try {
         const status = await getQueueStatus();
         setRemoteQueueCount(status.count);
 
-        // Se a fila mudou e tem itens, e não está tocando nada
+        // Se a fila mudou e tem itens, e não está tocando nada (apenas na home)
         if (status.version !== lastQueueVersionRef.current) {
           lastQueueVersionRef.current = status.version;
 
-          // Se tem músicas na fila e nada está tocando, iniciar
-          if (status.count > 0 && !status.playback.isPlaying && !isPlayingRef.current) {
+          // Se tem músicas na fila e nada está tocando, iniciar (apenas na home)
+          if (state.currentView === 'home' && status.count > 0 && !status.playback.isPlaying && !isPlayingRef.current) {
             console.log('🎵 Nova música na fila - iniciando reprodução automática');
             playFromRemoteQueue();
           }
@@ -388,6 +388,7 @@ function App() {
             onAddToQueue={handleAddToQueue}
             onRemoveFromQueue={handleRemoveFromQueue}
             maxQueueSize={MAX_QUEUE_SIZE}
+            remoteQueueCount={remoteQueueCount}
           />
         )}
 
