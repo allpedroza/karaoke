@@ -219,10 +219,10 @@ export function MobilePage() {
       {showQueue && (
         <div className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm" onClick={() => setShowQueue(false)}>
           <div
-            className="absolute top-0 left-0 right-0 max-h-[70vh] bg-theme-card border-b border-theme overflow-y-auto"
+            className="absolute top-[120px] left-0 right-0 max-h-[calc(100vh-140px)] bg-theme-card border border-theme rounded-t-2xl overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 bg-theme-card px-4 py-3 border-b border-theme flex items-center justify-between">
+            <div className="sticky top-0 bg-theme-card px-4 py-3 border-b border-theme flex items-center justify-between rounded-t-2xl">
               <h2 className="text-theme font-bold flex items-center gap-2">
                 <List className="w-5 h-5" style={{ color: 'var(--color-accent)' }} />
                 Fila de Músicas ({queue.length})
@@ -239,7 +239,7 @@ export function MobilePage() {
                 <p className="text-sm mt-1">Adicione músicas do catálogo!</p>
               </div>
             ) : (
-              <div className="p-4 space-y-3">
+              <div className="p-4 pb-8 space-y-3">
                 {queue.map((item, index) => (
                   <div
                     key={item.id}

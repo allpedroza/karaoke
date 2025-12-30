@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Move, X, Search, Trash2 } from 'lucide-react';
+import { Move, X, Search, Trash2, Smartphone } from 'lucide-react';
 import { KaraokeVideo, QueueItem } from '../types';
-import { searchVideos } from '../services/api';
+import { searchVideos, getQueue, removeFromQueue, QueueItemAPI } from '../services/api';
 
 interface SongQueueDrawerProps {
   isOpen: boolean;
@@ -34,6 +34,9 @@ export function SongQueueDrawer({
   const [selectedVideo, setSelectedVideo] = useState<KaraokeVideo | null>(null);
   const [singerName, setSingerName] = useState('');
 
+  // Fila remota (adicionada pelo celular)
+  const [remoteQueue, setRemoteQueue] = useState<QueueItemAPI[]>([]);
+
   // Estado para arrastar em fullscreen
   const [position, setPosition] = useState({ x: 100, y: 100 });
   const [isDragging, setIsDragging] = useState(false);
@@ -46,6 +49,34 @@ export function SongQueueDrawer({
       loadAllSongs();
     }
   }, [isOpen, allSongs.length]);
+
+  // Carregar fila remota periodicamente
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const loadRemoteQueue = async () => {
+      try {
+        const response = await getQueue();
+        setRemoteQueue(response.queue);
+      } catch (error) {
+        console.error('Erro ao carregar fila remota:', error);
+      }
+    };
+
+    loadRemoteQueue();
+    const interval = setInterval(loadRemoteQueue, 3000);
+    return () => clearInterval(interval);
+  }, [isOpen]);
+
+  // Remover item da fila remota
+  const handleRemoveFromRemoteQueue = async (id: string) => {
+    try {
+      await removeFromQueue(id);
+      setRemoteQueue(prev => prev.filter(item => item.id !== id));
+    } catch (error) {
+      console.error('Erro ao remover da fila remota:', error);
+    }
+  };
 
   // Reset do formulário quando fecha
   useEffect(() => {
@@ -209,7 +240,12 @@ export function SongQueueDrawer({
             </button>
           </div>
           <p className="text-sm text-purple-300">
-            {queue.length}/{maxQueueSize} na fila
+            {queue.length + remoteQueue.length} na fila
+            {remoteQueue.length > 0 && (
+              <span className="ml-1 text-green-400">
+                ({remoteQueue.length} via celular)
+              </span>
+            )}
             {isFullscreen && <span className="ml-2 text-xs">(arraste para mover)</span>}
           </p>
         </div>
@@ -248,10 +284,48 @@ export function SongQueueDrawer({
           </div>
         )}
 
-        {/* Current Queue */}
+        {/* Remote Queue (from mobile) */}
+        {remoteQueue.length > 0 && (
+          <div className="p-3 border-b border-green-500/20 bg-green-900/20 max-h-48 overflow-y-auto">
+            <h3 className="text-xs font-semibold text-green-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+              <Smartphone className="w-3 h-3" />
+              Fila do Celular:
+            </h3>
+            <div className="space-y-2">
+              {remoteQueue.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-2 bg-black/30 rounded-lg p-2"
+                >
+                  <span className="text-green-400 text-sm font-bold w-5">
+                    {index + 1}.
+                  </span>
+                  <img
+                    src={item.thumbnail}
+                    alt={item.songTitle}
+                    className="w-8 h-8 rounded object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm truncate">{item.songTitle}</p>
+                    <p className="text-green-300 text-xs truncate">🎤 {item.singerName}</p>
+                  </div>
+                  <button
+                    onClick={() => handleRemoveFromRemoteQueue(item.id)}
+                    className="text-red-400 hover:text-red-300 p-1"
+                    title="Remover da fila"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Local Queue (added from desktop) */}
         {queue.length > 0 && (
           <div className="p-3 border-b border-purple-500/20 bg-purple-900/20 max-h-40 overflow-y-auto">
-            <h3 className="text-xs font-semibold text-purple-300 mb-2 uppercase tracking-wide">Na fila:</h3>
+            <h3 className="text-xs font-semibold text-purple-300 mb-2 uppercase tracking-wide">Fila Local:</h3>
             <div className="space-y-2">
               {queue.map((item, index) => (
                 <div
