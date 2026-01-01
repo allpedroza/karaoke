@@ -147,10 +147,38 @@ export function usePitchDetection(): UsePitchDetectionReturn {
     // Média de frequência
     const avgFreq = validPitches.reduce((sum: number, p: PitchData) => sum + p.frequency, 0) / validPitches.length;
 
-    // Estabilidade (baseada no desvio padrão)
-    const variance = validPitches.reduce((sum: number, p: PitchData) => sum + Math.pow(p.frequency - avgFreq, 2), 0) / validPitches.length;
-    const stdDev = Math.sqrt(variance);
-    const stability = Math.max(0, 100 - (stdDev / avgFreq) * 100);
+    // Estabilidade: mede quão bem o cantor sustenta cada nota (baseada em cents, não frequência)
+    // Agrupa pitches consecutivos da mesma nota e calcula estabilidade dentro de cada grupo
+    let totalStability = 0;
+    let groupCount = 0;
+    let currentNote = '';
+    let currentGroup: PitchData[] = [];
+
+    for (const pitch of validPitches) {
+      if (pitch.note === currentNote) {
+        currentGroup.push(pitch);
+      } else {
+        // Calcular estabilidade do grupo anterior
+        if (currentGroup.length >= 3) {
+          const groupCentsVariance = currentGroup.reduce((sum, p) => sum + Math.pow(p.cents, 2), 0) / currentGroup.length;
+          const groupStability = Math.max(0, 100 - Math.sqrt(groupCentsVariance) * 2);
+          totalStability += groupStability;
+          groupCount++;
+        }
+        // Iniciar novo grupo
+        currentNote = pitch.note;
+        currentGroup = [pitch];
+      }
+    }
+    // Processar último grupo
+    if (currentGroup.length >= 3) {
+      const groupCentsVariance = currentGroup.reduce((sum, p) => sum + Math.pow(p.cents, 2), 0) / currentGroup.length;
+      const groupStability = Math.max(0, 100 - Math.sqrt(groupCentsVariance) * 2);
+      totalStability += groupStability;
+      groupCount++;
+    }
+
+    const stability = groupCount > 0 ? Math.round(totalStability / groupCount) : 50;
 
     // Notas únicas detectadas
     const uniqueNotes: string[] = [...new Set(validPitches.map((p: PitchData) => p.note).filter((n: string) => n))];

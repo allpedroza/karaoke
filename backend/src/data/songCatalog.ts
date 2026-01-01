@@ -7,8 +7,6 @@ export interface KaraokeSong {
   language: 'pt-BR' | 'en' | 'es';
   duration: string;
   genre: string;
-  /** Versos ou refrões famosos para reconhecimento da música */
-  famousVerse?: string;
 }
 
 export const SONG_CATALOG: KaraokeSong[] = [
@@ -17,40 +15,37 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Trem Das Onze',
     artist: 'Adoniran Barbosa',
     youtubeId: 'f3vHCf1pFBQ',
-    OriginalSongId: 'p5OI0YlcSXs',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:50',
     genre: 'Samba',
-    famousVerse: 'Não posso ficar nem mais um minuto com você...'
   },
   {
     code: '0002',
     song: 'Devolva-me',
     artist: 'Adriana Calcanhotto',
     youtubeId: 'egp2GyPnQdY',
-    OriginalSongId: 'k3l_A6J2Mk4',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:50',
     genre: 'MPB',
-    famousVerse: 'Devolva-me o céu que eu lhe dei, devolva minha paz...'
   },
   {
     code: '0003',
     song: 'Mentiras',
     artist: 'Adriana Calcanhotto',
     youtubeId: 'pjAZPO_6L7o',
-    OriginalSongId: 'BtKY0HJa2jY',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:58',
     genre: 'MPB',
-    famousVerse: 'Mentiras, mentiras, a verdade me faz chorar...'
   },
   {
     code: '0004',
     song: "Cryin'",
     artist: 'Aerosmith',
     youtubeId: 'KzTTeFiBEwo',
-    OriginalSongId: 'qfNmyxV2Ncw',
+    OriginalSongId: null,
     language: 'en',
     duration: '05:08',
     genre: 'Rock'
@@ -60,7 +55,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Dream On',
     artist: 'Aerosmith',
     youtubeId: 'AhXiU4gdUDY',
-    OriginalSongId: '89dGC8de0CA',
+    OriginalSongId: null,
     language: 'en',
     duration: '04:27',
     genre: 'Rock'
@@ -70,18 +65,17 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Anunciação',
     artist: 'Alceu Valença',
     youtubeId: 'ZXiMbZcxDkU',
-    OriginalSongId: 'j42byy7G_Ow',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '02:50',
     genre: 'MPB',
-    famousVerse: 'Tu vens, tu vens, eu já escuto os teus sinais...'
   },
   {
     code: '0007',
     song: 'Coração bobo',
     artist: 'Alceu Valença',
     youtubeId: 'Uj3bC74XaO0',
-    OriginalSongId: 'dEDubYTK5IM',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:10',
     genre: 'MPB'
@@ -101,7 +95,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'La Belle de Jour',
     artist: 'Alceu Valença',
     youtubeId: '226V2Y0-fMY',
-    OriginalSongId: 'UxvTdW9CLfI',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:20',
     genre: 'MPB'
@@ -111,7 +105,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'A Loba',
     artist: 'Alcione',
     youtubeId: 'pJ0gMD83mbc',
-    OriginalSongId: '7zAm_TFOZqQ',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:20',
     genre: 'Samba'
@@ -121,18 +115,17 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Não deixe o samba morrer',
     artist: 'Alcione',
     youtubeId: 'D6eJ-jNW8xc',
-    OriginalSongId: '6d6fIM54Vkk',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:30',
     genre: 'Samba',
-    famousVerse: 'Não deixe o samba morrer, não deixe o samba acabar...'
   },
   {
     code: '0012',
     song: 'Você me vira a cabeça',
     artist: 'Alcione',
     youtubeId: '76foKvqqDas',
-    OriginalSongId: 'Zh-YpF3I7w8',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:20',
     genre: 'Samba'
@@ -142,7 +135,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Vem me amar',
     artist: 'Alexandre Pires',
     youtubeId: 'P9NIUX99MAo',
-    OriginalSongId: 'sfofElIpqJA',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '03:40',
     genre: 'Pagode'
@@ -162,7 +155,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Rehab',
     artist: 'Amy Winehouse',
     youtubeId: 'KS7emVBQ368',
-    OriginalSongId: 'HoqSO0hAjZw',
+    OriginalSongId: null,
     language: 'en',
     duration: '3:35',
     genre: 'R&B/Soul'
@@ -202,7 +195,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Quem de Nós Dois',
     artist: 'Ana Carolina',
     youtubeId: '0H820U7Wpu8',
-    OriginalSongId: 'UgkcQ78tqDo',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '5:04',
     genre: 'MPB'
@@ -216,7 +209,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:00',
     genre: 'Pop',
-    famousVerse: 'Segura teu filho no colo, sorria e abraça os teus pais enquanto é tempo...'
   },
   {
     code: '0021',
@@ -237,7 +229,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:30',
     genre: 'Pop',
-    famousVerse: 'Aí então me abraça forte e diz mais uma vez que já estamos distantes de tudo...'
   },
   {
     code: '0023',
@@ -488,14 +479,13 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:20',
     genre: 'MPB',
-    famousVerse: 'Às vezes no silêncio da noite eu fico imaginando nós dois...'
   },
   {
     code: '0048',
     song: 'Você é Linda',
     artist: 'Caetano Veloso',
     youtubeId: 'Fr794p3aG-g',
-    OriginalSongId: '122xDmxYr8A',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:54',
     genre: 'MPB'
@@ -629,7 +619,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '04:15',
     genre: 'Rock/MPB',
-    famousVerse: 'Quando o segundo sol chegar para realinhar as órbitas dos planetas...'
   },
   {
     code: '0062',
@@ -650,7 +639,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:40',
     genre: 'Rock Nacional',
-    famousVerse: 'Exagerado, jogado aos teus pés, eu sou mesmo exagerado...'
   },
   {
     code: '0064',
@@ -681,7 +669,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '04:30',
     genre: 'Rock Nacional',
-    famousVerse: 'Dias sim, dias não, eu vou sobrevivendo sem um arranhão...'
   },
   {
     code: '0067',
@@ -828,11 +815,10 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Evidências',
     artist: 'Chitãozinho e Xororó',
     youtubeId: 'TGXkdU9S0OU',
-    OriginalSongId: 'etHo9ZOGgdY',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:39',
     genre: 'Sertanejo',
-    famousVerse: 'Quando eu digo que deixei de te amar, é porque eu te amo...'
   },
   {
     code: '0082',
@@ -933,7 +919,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:40',
     genre: 'Funk',
-    famousVerse: 'Eu fico assim sem você, não tenho paz de noite, não consigo dormir...'
   },
   {
     code: '0092',
@@ -1300,7 +1285,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Feel Good Inc.',
     artist: 'Gorillaz',
     youtubeId: 'uQW9ysQrMCE',
-    OriginalSongId: 'HyHNuVaZJ-k',
+    OriginalSongId: null,
     language: 'en',
     duration: '3:42',
     genre: 'Alternative/Hip Hop'
@@ -1360,7 +1345,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Vai Lá Vai Lá',
     artist: 'Grupo Revelação',
     youtubeId: 'ek_Kk3uiG0U',
-    OriginalSongId: 'MLrezTSZWMA',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:32',
     genre: 'Pagode'
@@ -1380,11 +1365,10 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Eva',
     artist: 'Ivete Sangalo',
     youtubeId: 'ArQA_uAVPac',
-    OriginalSongId: 'l86drhSgUEU',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:04',
     genre: 'Axé',
-    famousVerse: 'Eva, Eva, Eva, eu sou sua costela...'
   },
   {
     code: '0137',
@@ -1521,7 +1505,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Dezesseis',
     artist: 'Legião Urbana',
     youtubeId: 'kZEiEw-lVV8',
-    OriginalSongId: 'Or0FflpaOQs',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:38',
     genre: 'Rock Nacional'
@@ -1531,11 +1515,10 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Pais e Filhos',
     artist: 'Legião Urbana',
     youtubeId: 'G73LBvMd84Q',
-    OriginalSongId: '0-MSRDgWseE',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '5:08',
     genre: 'Rock Nacional',
-    famousVerse: 'É preciso amar as pessoas como se não houvesse amanhã...'
   },
   {
     code: '0152',
@@ -1566,7 +1549,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:20',
     genre: 'Forró',
-    famousVerse: 'Quando olhei a terra ardendo qual fogueira de São João...'
   },
   {
     code: '0155',
@@ -1713,7 +1695,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Garota Nota 100',
     artist: 'MC Marcinho',
     youtubeId: 'dKpVuuKcugs',
-    OriginalSongId: 'x3b1awtKQ7Q',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:52',
     genre: 'Funk Melody'
@@ -1723,7 +1705,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Glamurosa',
     artist: 'MC Marcinho',
     youtubeId: 'd6U1MbLMDVw',
-    OriginalSongId: 'E_-aqRkADNE',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:41',
     genre: 'Funk Melody'
@@ -1733,7 +1715,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Princesa',
     artist: 'MC Marcinho',
     youtubeId: 'ndVU9blYYF8',
-    OriginalSongId: 'KaJwzeEWGCM',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:05',
     genre: 'Funk Melody'
@@ -1743,7 +1725,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Rap do Solitário',
     artist: 'MC Marcinho',
     youtubeId: 'qfgFJHj3vSI',
-    OriginalSongId: '0t0Y5pWm4wE',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:55',
     genre: 'Funk Melody'
@@ -1753,7 +1735,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Tudo é Festa',
     artist: 'MC Marcinho',
     youtubeId: 'pd9LB3Kz1Ug',
-    OriginalSongId: '0iA5JGmLoLo',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:34',
     genre: 'Funk Melody'
@@ -1813,7 +1795,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'De zero a cem',
     artist: 'Os Garotin, Anchietx',
     youtubeId: 'qHI5OH7bVm8',
-    OriginalSongId: 'uuQK2Q16XuQ',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '2:48',
     genre: 'Soul/MPB'
@@ -1823,7 +1805,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Várias Queixas',
     artist: 'Os Gilsons',
     youtubeId: '9LKIlW3DhpY',
-    OriginalSongId: 'bBHPq3UQFsw',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '2:47',
     genre: 'MPB'
@@ -1877,7 +1859,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:30',
     genre: 'Pagode',
-    famousVerse: 'Cheia de manias, toda dengosa, menina bonita, sapeca e formosa...'
   },
   {
     code: '0186',
@@ -1894,7 +1875,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Garçom',
     artist: 'Reginaldo Rossi',
     youtubeId: 'dhDBR7AGVhU',
-    OriginalSongId: 'v=mdBnm0pUiYk',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:14',
     genre: 'Brega'
@@ -1944,7 +1925,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Burguesinha',
     artist: 'Seu Jorge',
     youtubeId: 'EfTzWbIN0_M',
-    OriginalSongId: 'bWSn9jL1g7I',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:09',
     genre: 'Samba Rock'
@@ -1954,7 +1935,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Sandra Rosa Madalena',
     artist: 'Sidney Magal',
     youtubeId: 'sk8yiqSR3uI',
-    OriginalSongId: 'xL6ZHzTvm3g',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '2:39',
     genre: 'Brega/Pop'
@@ -1984,7 +1965,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Depois Do Prazer',
     artist: 'Só Pra Contrariar',
     youtubeId: 'CMhixcunzmQ',
-    OriginalSongId: 'xi80KRIqW7Y',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:15',
     genre: 'Pagode'
@@ -1994,7 +1975,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Essa Tal Liberdade',
     artist: 'Só Pra Contrariar',
     youtubeId: 'PnVlFAzNix4',
-    OriginalSongId: 'gfXHwBpk-vs',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '04:20',
     genre: 'Pagode'
@@ -2118,7 +2099,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:50',
     genre: 'Soul',
-    famousVerse: 'Ah, eu vou voltar pro meu lugar, foi lá e é ainda lá que eu hei de ouvir cantar...'
   },
   {
     code: '0210',
@@ -2145,7 +2125,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Telefone Mudo',
     artist: 'Trio Parada Dura',
     youtubeId: 'nJR1pGpG7n0',
-    OriginalSongId: 'pq2JKVI6F5s',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '3:05',
     genre: 'Sertanejo'
@@ -2249,7 +2229,6 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:00',
     genre: 'Samba',
-    famousVerse: 'Deixa a vida me levar, vida leva eu...'
   },
   {
     code: '0223',
@@ -2286,7 +2265,7 @@ export const SONG_CATALOG: KaraokeSong[] = [
     song: 'Chão de Giz',
     artist: 'Zé Ramalho',
     youtubeId: 'kyLIabrj3Zg',
-    OriginalSongId: 'nL_QNpNOssI',
+    OriginalSongId: null,
     language: 'pt-BR',
     duration: '4:45',
     genre: 'MPB'

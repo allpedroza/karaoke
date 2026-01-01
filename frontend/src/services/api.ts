@@ -1,11 +1,12 @@
-import { PerformanceEvaluation, KaraokeVideo, PitchStats } from '../types';
+import { PerformanceEvaluation, KaraokeVideo, PitchStats, MelodyMap } from '../types';
 
 const API_BASE = '/api';
 
 export async function evaluatePerformance(
   transcription: string,
   songCode: string,
-  pitchStats: PitchStats | null
+  pitchStats: PitchStats | null,
+  recordingDuration?: number
 ): Promise<PerformanceEvaluation> {
   const response = await fetch(`${API_BASE}/evaluate`, {
     method: 'POST',
@@ -16,6 +17,7 @@ export async function evaluatePerformance(
       transcription,
       songCode,
       pitchStats,
+      recordingDuration,
     }),
   });
 
@@ -142,5 +144,111 @@ export async function getTopSongs(): Promise<TopSong[]> {
 export async function getTopSingers(): Promise<TopSinger[]> {
   const response = await fetch(`${API_BASE}/rankings/top-singers`);
   if (!response.ok) throw new Error('Erro ao buscar top cantores');
+  return response.json();
+}
+
+// ============================================
+// MELODY MAPS (Pitch Bar)
+// ============================================
+
+// Buscar melody map de uma música
+export async function getMelodyMap(songCode: string): Promise<MelodyMap | null> {
+  const response = await fetch(`${API_BASE}/melody/${songCode}`);
+
+  if (response.status === 404) {
+    return null; // Melody map ainda não existe
+  }
+
+  if (!response.ok) {
+    throw new Error('Erro ao buscar melody map');
+  }
+
+  return response.json();
+}
+
+// Salvar offset de sincronização de um melody map
+export async function saveMelodySyncOffset(songCode: string, syncOffset: number): Promise<boolean> {
+  const response = await fetch(`${API_BASE}/melody/${songCode}/sync-offset`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ syncOffset }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Erro ao salvar sync offset');
+  }
+
+  return true;
+}
+
+// ============================================
+// QUEUE (Fila de Músicas)
+// ============================================
+
+export interface QueueItemAPI {
+  id: string;
+  songCode: string;
+  songTitle: string;
+  artist: string;
+  thumbnail: string;
+  singerName: string;
+  addedAt: string;
+}
+
+export interface QueueResponse {
+  queue: QueueItemAPI[];
+  count: number;
+  maxSize: number;
+}
+
+export interface AddToQueueResponse {
+  item: QueueItemAPI;
+  position: number;
+  message: string;
+}
+
+// Buscar fila atual
+export async function getQueue(): Promise<QueueResponse> {
+  const response = await fetch(`${API_BASE}/queue`);
+  if (!response.ok) throw new Error('Erro ao buscar fila');
+  return response.json();
+}
+
+// Adicionar música à fila
+export async function addToQueue(songCode: string, singerName: string): Promise<AddToQueueResponse> {
+  const response = await fetch(`${API_BASE}/queue`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ songCode, singerName }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao adicionar à fila');
+  }
+
+  return response.json();
+}
+
+// Remover música da fila
+export async function removeFromQueue(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/queue/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) throw new Error('Erro ao remover da fila');
+}
+
+// Pegar próxima música da fila
+export async function getNextFromQueue(): Promise<{ item: QueueItemAPI; remainingCount: number } | null> {
+  const response = await fetch(`${API_BASE}/queue/next`, {
+    method: 'POST',
+  });
+
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error('Erro ao pegar próxima música');
+
   return response.json();
 }

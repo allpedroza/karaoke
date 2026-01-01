@@ -105,7 +105,8 @@ function App() {
       const evaluation = await evaluatePerformance(
         data.transcription,
         state.selectedVideo.code,
-        data.pitchStats
+        data.pitchStats,
+        data.recordingDuration
       );
 
       // Parar drum roll e tocar som baseado na nota
