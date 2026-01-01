@@ -1,6 +1,6 @@
 # 🎤 Catálogo de Músicas - CantAI Karaokê
 
-> Atualizado automaticamente em 16/12/2025 | Total: **227 músicas**
+> Atualizado automaticamente em 01/01/2026 | Total: **230 músicas**
 
 ## Músicas Disponíveis
 
@@ -233,6 +233,9 @@
 | 0225 | Avohai | Zé Ramalho | MPB | 🇧🇷 | 04:40 | - |
 | 0226 | Chão de Giz | Zé Ramalho | MPB | 🇧🇷 | 4:45 | - |
 | 0227 | Mistérios da Meia Noite | Zé Ramalho | MPB | 🇧🇷 | 03:30 | - |
+| 0228 | Novos Tempos | Grupo Revelação | Pagode | 🇧🇷 | 04:30 | - |
+| 0229 | A Carta | Exaltasamba | Pagode | 🇧🇷 | 04:00 | - |
+| 0230 | Depois do Amor | Perla e Belo | Pagode | 🇧🇷 | 04:15 | - |
 
 ---
 
@@ -241,7 +244,7 @@
 ### Por Idioma
 | Idioma | Quantidade |
 |--------|------------|
-| 🇧🇷 Português | 222 |
+| 🇧🇷 Português | 225 |
 | 🇺🇸 Inglês | 5 |
 | 🇪🇸 Espanhol | 0 |
 
@@ -249,7 +252,7 @@
 | Gênero | Quantidade |
 |--------|------------|
 | MPB | 47 |
-| Pagode | 37 |
+| Pagode | 40 |
 | Rock Nacional | 31 |
 | Samba | 18 |
 | Sertanejo | 18 |
@@ -286,7 +289,7 @@
 
 ### Versos Famosos
 - **19** músicas têm versos famosos cadastrados
-- **208** músicas aguardam cadastro de versos
+- **211** músicas aguardam cadastro de versos
 
 ---
 

@@ -2300,6 +2300,36 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:30',
     genre: 'MPB'
+  },
+  {
+    code: '0228',
+    song: 'Novos Tempos',
+    artist: 'Grupo Revelação',
+    youtubeId: 'd-Vvob6OLns',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '04:30',
+    genre: 'Pagode'
+  },
+  {
+    code: '0229',
+    song: 'A Carta',
+    artist: 'Exaltasamba',
+    youtubeId: '2UWucD0fgkE',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '04:00',
+    genre: 'Pagode'
+  },
+  {
+    code: '0230',
+    song: 'Depois do Amor',
+    artist: 'Perla e Belo',
+    youtubeId: 'zisB_0SCYLA',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '04:15',
+    genre: 'Pagode'
   }
 ];
 
