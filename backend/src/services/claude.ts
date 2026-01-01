@@ -74,6 +74,116 @@ export interface PerformanceEvaluation {
   encouragement: string;
 }
 
+// --- TEORIA MUSICAL: ESCALAS ---
+
+// Notas musicais (sem oitava)
+const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+// Intervalos das escalas (em semitons a partir da tônica)
+const SCALE_INTERVALS = {
+  major: [0, 2, 4, 5, 7, 9, 11],      // Escala maior: T T S T T T S
+  minor: [0, 2, 3, 5, 7, 8, 10],      // Escala menor natural
+  pentatonic: [0, 2, 4, 7, 9],        // Pentatônica maior (comum em pop/rock)
+  minorPentatonic: [0, 3, 5, 7, 10],  // Pentatônica menor (comum em blues/rock)
+};
+
+/**
+ * Extrai apenas o nome da nota (sem oitava): "C#4" -> "C#"
+ */
+function extractNoteName(noteWithOctave: string): string {
+  return noteWithOctave.replace(/[0-9]/g, '');
+}
+
+/**
+ * Converte nome da nota para índice (0-11): "C" -> 0, "C#" -> 1, etc.
+ */
+function noteToIndex(note: string): number {
+  const noteName = extractNoteName(note);
+  const index = NOTE_NAMES.indexOf(noteName);
+  return index >= 0 ? index : -1;
+}
+
+/**
+ * Gera as notas de uma escala a partir de uma tônica
+ */
+function getScaleNotes(tonic: string, scaleType: keyof typeof SCALE_INTERVALS): string[] {
+  const tonicIndex = noteToIndex(tonic);
+  if (tonicIndex < 0) return [];
+
+  const intervals = SCALE_INTERVALS[scaleType];
+  return intervals.map(interval => NOTE_NAMES[(tonicIndex + interval) % 12]);
+}
+
+/**
+ * Analisa as notas cantadas e verifica coerência com escalas musicais
+ * Retorna informações sobre qual escala melhor se encaixa
+ */
+function analyzeMusicalScale(notesDetected: string[]): {
+  bestScale: { tonic: string; type: string; matchPercentage: number } | null;
+  scaleCoherence: number; // 0-100: quão bem as notas se encaixam em uma escala
+  analysis: string;
+} {
+  if (!notesDetected || notesDetected.length < 3) {
+    return {
+      bestScale: null,
+      scaleCoherence: 50, // Sem dados suficientes, assume neutro
+      analysis: 'Poucas notas detectadas para análise de escala.',
+    };
+  }
+
+  // Extrai apenas os nomes das notas (sem oitava) e remove duplicatas
+  const uniqueNotes = [...new Set(notesDetected.map(extractNoteName))];
+  const noteSet = new Set(uniqueNotes);
+
+  let bestMatch = { tonic: '', type: '', matchPercentage: 0 };
+
+  // Testa cada tônica possível e cada tipo de escala
+  for (const tonic of NOTE_NAMES) {
+    for (const [scaleType, _] of Object.entries(SCALE_INTERVALS)) {
+      const scaleNotes = getScaleNotes(tonic, scaleType as keyof typeof SCALE_INTERVALS);
+      const scaleSet = new Set(scaleNotes);
+
+      // Conta quantas notas cantadas estão na escala
+      let notesInScale = 0;
+      for (const note of uniqueNotes) {
+        if (scaleSet.has(note)) notesInScale++;
+      }
+
+      const matchPercentage = (notesInScale / uniqueNotes.length) * 100;
+
+      if (matchPercentage > bestMatch.matchPercentage) {
+        bestMatch = { tonic, type: scaleType, matchPercentage };
+      }
+    }
+  }
+
+  // Calcula coerência baseada no melhor match
+  const scaleCoherence = Math.round(bestMatch.matchPercentage);
+
+  // Gera análise textual
+  let analysis: string;
+  const scaleTypeName = bestMatch.type === 'major' ? 'maior' :
+                        bestMatch.type === 'minor' ? 'menor' :
+                        bestMatch.type === 'pentatonic' ? 'pentatônica maior' :
+                        'pentatônica menor';
+
+  if (scaleCoherence >= 85) {
+    analysis = `Excelente! As notas cantadas se encaixam muito bem na escala de ${bestMatch.tonic} ${scaleTypeName}.`;
+  } else if (scaleCoherence >= 70) {
+    analysis = `Bom! A maioria das notas está dentro da escala de ${bestMatch.tonic} ${scaleTypeName}.`;
+  } else if (scaleCoherence >= 50) {
+    analysis = `As notas mostram alguma coerência com a escala de ${bestMatch.tonic} ${scaleTypeName}.`;
+  } else {
+    analysis = `As notas cantadas estão um pouco dispersas entre diferentes escalas.`;
+  }
+
+  return {
+    bestScale: bestMatch.matchPercentage > 0 ? bestMatch : null,
+    scaleCoherence,
+    analysis,
+  };
+}
+
 // --- FUNÇÕES AUXILIARES ---
 
 /**
@@ -169,33 +279,52 @@ export async function evaluateWithClaude(input: EvaluationInput): Promise<Perfor
   const lyricsCoverage = calculateLyricsCoverage(transcription, songDurationSeconds, recordingDuration);
   const lyricsBaseScore = calculateLyricsBaseScore(lyricsCoverage.coverage);
 
+  // Análise de escala musical
+  const scaleAnalysis = pitchStats?.notesDetected
+    ? analyzeMusicalScale(pitchStats.notesDetected)
+    : { bestScale: null, scaleCoherence: 50, analysis: 'Sem dados de notas.' };
+
   console.log(`📝 Análise de Letra: ${lyricsCoverage.wordCount} palavras detectadas, esperado ~${lyricsCoverage.expectedWords} (${lyricsCoverage.coverage.toFixed(1)}% cobertura, score base: ${lyricsBaseScore.toFixed(0)})`);
+  console.log(`🎵 Análise de Escala: ${scaleAnalysis.analysis} (coerência: ${scaleAnalysis.scaleCoherence}%)`);
 
   // 1. SYSTEM PROMPT OTIMIZADO: Focado em interpretação de contexto musical
-  const systemPrompt = `Você é o "KaraokeAI", um jurado de karaokê experiente, carismático e técnico.
+  // IMPORTANTE: Avaliação GENEROSA de tom - se cantou no tom a maior parte, já é bom!
+  const systemPrompt = `Você é o "KaraokeAI", um jurado de karaokê experiente, carismático e GENEROSO.
 
 SUA MISSÃO:
 Avaliar a performance cruzando os DADOS TÉCNICOS fornecidos com o GÊNERO MUSICAL da canção "${songTitle}" de "${artist}".
 
+⭐ FILOSOFIA DE AVALIAÇÃO DE TOM (MUITO IMPORTANTE):
+- Karaokê é DIVERSÃO, não competição profissional!
+- Se a pessoa cantou no tom a MAIOR PARTE do tempo, já merece nota BOA (70+)
+- Cantar em uma escala musical coerente é tão válido quanto acertar notas exatas
+- O importante é MANTER o tom, não necessariamente acertar cada nota
+- Transpor a música (cantar mais grave ou agudo) NÃO é erro, é adaptação válida
+- Pequenos desvios são NORMAIS e aceitáveis em karaokê amador
+
 COMO INTERPRETAR OS DADOS (Raciocínio Interno):
-1. **Identifique o Gênero:** Antes de dar a nota, lembre-se do estilo original (Rock, Sertanejo, Pop, Axé, Balada?).
-2. **Analise a Estabilidade (Pitch Stability):**
-   - Em Baladas/Pop Lento: Baixa estabilidade (<50%) geralmente é erro de sustentação.
-   - Em Axé/Rock/Ao Vivo: Baixa estabilidade pode ser energia, "rasgado" ou vibrato. Se a precisão for boa, NÃO penalize a estabilidade baixa.
-3. **Analise a Precisão (Pitch Accuracy):**
-   - >70% é excelente. Entre 50-70% é aceitável para amadores.
-   - Esta métrica já considera transposição (o usuário pode cantar em outra oitava).
-4. **IMPORTANTE - Letra (Lyrics Score):**
-   - O SCORE BASE de letra já foi calculado automaticamente: ${lyricsBaseScore.toFixed(0)}/100
-   - Este score é baseado na quantidade de palavras cantadas vs esperado para a duração da música
-   - Você pode ajustar ±10 pontos baseado na dicção e qualidade, mas RESPEITE o score base
-   - Se o score base é baixo (<50), a pessoa cantou pouco - NÃO dê nota alta de letra
-   - "Yeah", "Uhu", "Ah", "Ei" são sinais de animação, não erros de letra.
+1. **Identifique o Gênero:** Rock, Sertanejo, Pop, Axé, Balada?
+2. **Coerência de Escala (NOVO!):**
+   - Se as notas cantadas estão dentro de uma escala musical (maior, menor, pentatônica), isso é ÓTIMO
+   - Coerência de escala ${scaleAnalysis.scaleCoherence}% significa que as notas formam um conjunto harmônico
+   - Coerência ≥70% = cantor manteve o tom de forma consistente = nota mínima 75
+   - Coerência ≥50% = cantor teve boa noção de tom = nota mínima 65
+3. **Estabilidade (Pitch Stability):**
+   - Em Baladas/Pop Lento: Baixa estabilidade (<50%) pode ser erro de sustentação
+   - Em Axé/Rock/Ao Vivo: Baixa estabilidade pode ser energia/vibrato - NÃO penalize!
+4. **Precisão (Pitch Accuracy):**
+   - >60% já é BOM para karaokê amador!
+   - >70% é EXCELENTE
+   - Entre 40-60% é aceitável
+5. **IMPORTANTE - Letra (Lyrics Score):**
+   - O SCORE BASE de letra já foi calculado: ${lyricsBaseScore.toFixed(0)}/100
+   - Você pode ajustar ±10 pontos, mas RESPEITE o score base
 
 TOM DE VOZ:
-- Use gírias leves de música ("Soltou a voz", "Mandou bem", "Segurou o tom").
-- Seja encorajador, mas aponte onde melhorar sem ser técnico demais.
-- NUNCA mencione "JSON", "frequência", "algoritmo", "Hz" ou porcentagens no texto final.
+- Seja ENCORAJADOR e positivo
+- Use gírias leves ("Soltou a voz", "Mandou bem", "Segurou o tom")
+- Aponte onde melhorar de forma GENTIL e construtiva
+- NUNCA mencione "JSON", "frequência", "algoritmo", "Hz" ou porcentagens
 
 OUTPUT:
 Retorne APENAS um JSON válido com EXATAMENTE esta estrutura:
@@ -203,8 +332,8 @@ Retorne APENAS um JSON válido com EXATAMENTE esta estrutura:
   "overallScore": <número de 0 a 100>,
   "dimensions": {
     "pitch": {
-      "score": <número de 0 a 100>,
-      "detail": "<comentário sobre afinação e tom>"
+      "score": <número de 0 a 100 - lembre: seja generoso se cantou no tom a maior parte!>,
+      "detail": "<comentário POSITIVO sobre afinação e tom>"
     },
     "lyrics": {
       "score": <número próximo ao score base ${lyricsBaseScore.toFixed(0)}, ajuste ±10 máximo>,
@@ -215,7 +344,7 @@ Retorne APENAS um JSON válido com EXATAMENTE esta estrutura:
       "detail": "<comentário sobre energia e interpretação>"
     }
   },
-  "encouragement": "<mensagem motivacional geral>"
+  "encouragement": "<mensagem motivacional POSITIVA e encorajadora>"
 }`;
 
   // 2. CONSTRUÇÃO DO CONTEXTO TÉCNICO (Sem julgamento prévio, apenas dados)
@@ -225,13 +354,24 @@ Retorne APENAS um JSON válido com EXATAMENTE esta estrutura:
     const presencePct = Math.round((pitchStats.validSamples / pitchStats.totalSamples) * 100);
     const chorusText = pitchStats.chorusDetected ? 'Sim (Público/Backing vocals detectados)' : 'Não';
 
+    // Monta informação de escala
+    const scaleInfo = scaleAnalysis.bestScale
+      ? `${scaleAnalysis.bestScale.tonic} ${scaleAnalysis.bestScale.type} (${scaleAnalysis.scaleCoherence}% coerência)`
+      : 'Não identificada';
+
     technicalContext = `
 [DADOS DOS SENSORES - Use isso para calibrar sua avaliação]
-- Precisão Melódica (Accuracy): ${Math.round(pitchStats.pitchAccuracy)}% (Quão bem ele acertou as notas alvo)
-- Estabilidade da Nota (Stability): ${Math.round(pitchStats.pitchStability)}% (Quão "reta" foi a sustentação. Lembre-se: Vibrato reduz estabilidade mas é bom!)
+- Precisão Melódica (Accuracy): ${Math.round(pitchStats.pitchAccuracy)}% (Quão bem acertou as notas)
+- Estabilidade da Nota (Stability): ${Math.round(pitchStats.pitchStability)}% (Vibrato reduz mas é bom!)
 - Presença Vocal: ${presencePct}% do tempo da música
 - Coro Detectado: ${chorusText}
-- Notas alcançadas: ${pitchStats.notesDetected.length} notas diferentes
+- Notas cantadas: ${pitchStats.notesDetected.length} notas diferentes
+
+[ANÁLISE DE ESCALA MUSICAL - IMPORTANTE!]
+- Escala detectada: ${scaleInfo}
+- Coerência tonal: ${scaleAnalysis.scaleCoherence}%
+- Interpretação: ${scaleAnalysis.analysis}
+- LEMBRE-SE: Se a coerência é ≥70%, o cantor MANTEVE O TOM bem! Dê nota ≥75 para pitch.
     `;
   }
 
@@ -334,7 +474,7 @@ Gere o JSON de avaliação agora. Lembre-se: o score de letra deve ser próximo 
   } catch (error) {
     console.error('Erro ao avaliar com Claude:', error);
     // Retornar avaliação padrão segura em caso de falha na API ou Parsing
-    return createDefaultEvaluation(transcription, lyricsCoverage.coverage, lyricsBaseScore);
+    return createDefaultEvaluation(transcription, lyricsCoverage.coverage, lyricsBaseScore, scaleAnalysis.scaleCoherence);
   }
 }
 
@@ -343,7 +483,8 @@ Gere o JSON de avaliação agora. Lembre-se: o score de letra deve ser próximo 
 function createDefaultEvaluation(
   transcription: string,
   lyricsCoverage: number,
-  lyricsBaseScore: number
+  lyricsBaseScore: number,
+  scaleCoherence: number = 50
 ): PerformanceEvaluation {
   const wordCount = (transcription || '').split(' ').filter(w => w.trim()).length;
   const hasContent = wordCount > 5;
@@ -351,9 +492,20 @@ function createDefaultEvaluation(
   // Usa o score base calculado para lyrics
   const lyricsScore = Math.round(lyricsBaseScore);
 
-  // Calcula outros scores baseado na cobertura também
-  const pitchScore = hasContent ? Math.round(55 + lyricsCoverage * 0.35) : 30;
-  const energyScore = hasContent ? Math.round(60 + lyricsCoverage * 0.3) : 35;
+  // Calcula pitch score MAIS GENEROSO usando coerência de escala
+  // Se cantou no tom (coerência alta), dá nota boa!
+  let pitchScore: number;
+  if (scaleCoherence >= 70) {
+    pitchScore = Math.round(75 + (scaleCoherence - 70) * 0.5); // 75-90
+  } else if (scaleCoherence >= 50) {
+    pitchScore = Math.round(65 + (scaleCoherence - 50) * 0.5); // 65-75
+  } else if (hasContent) {
+    pitchScore = Math.round(50 + scaleCoherence * 0.3); // 50-65
+  } else {
+    pitchScore = 40;
+  }
+
+  const energyScore = hasContent ? Math.round(65 + lyricsCoverage * 0.25) : 45;
 
   // Calcula score geral com pesos
   const weightedScore =
@@ -361,14 +513,24 @@ function createDefaultEvaluation(
     lyricsScore * DIMENSION_WEIGHTS.lyrics +
     energyScore * DIMENSION_WEIGHTS.energy;
 
+  // Mensagens de pitch baseadas na coerência de escala (mais generosas!)
+  let pitchDetail: string;
+  if (scaleCoherence >= 70) {
+    pitchDetail = 'Mandou bem no tom! Você manteve a afinação de forma consistente.';
+  } else if (scaleCoherence >= 50) {
+    pitchDetail = 'Boa afinação! Você segurou o tom na maior parte da música.';
+  } else if (hasContent) {
+    pitchDetail = 'Você cantou com vontade! Continue praticando que a afinação vem.';
+  } else {
+    pitchDetail = 'Solte mais a voz! O karaokê é seu momento de brilhar.';
+  }
+
   return {
     overallScore: Math.round(weightedScore),
     dimensions: {
       pitch: {
         score: pitchScore,
-        detail: hasContent
-          ? 'Você cantou com desenvoltura! Continue praticando para refinar a afinação.'
-          : 'Parece que você cantou bem baixinho. Solte mais a voz!',
+        detail: pitchDetail,
       },
       lyrics: {
         score: lyricsScore,
@@ -376,7 +538,7 @@ function createDefaultEvaluation(
           ? 'Você acompanhou bem a letra da música!'
           : lyricsCoverage >= 40
           ? 'Você acompanhou parte da letra. Tente cantar mais trechos!'
-          : 'Parece que você não acompanhou muito a letra. Tente cantar junto na próxima!',
+          : 'Tente acompanhar mais a letra na próxima!',
       },
       energy: {
         score: energyScore,
@@ -385,8 +547,10 @@ function createDefaultEvaluation(
           : 'Solte a voz! O karaokê é seu momento de brilhar.',
       },
     },
-    encouragement: lyricsCoverage >= 50
-      ? 'Você está no caminho certo! Continue cantando e cada vez ficará melhor. 🎤'
-      : 'Não desista! Cante mais alto e acompanhe a letra. Estamos torcendo por você! 🌟',
+    encouragement: scaleCoherence >= 60
+      ? 'Muito bem! Você manteve o tom e arrasou! Continue assim! 🎤'
+      : lyricsCoverage >= 50
+      ? 'Você está no caminho certo! Continue cantando que cada vez fica melhor. 🎤'
+      : 'Continue praticando! O karaokê é sobre se divertir! 🌟',
   };
 }
