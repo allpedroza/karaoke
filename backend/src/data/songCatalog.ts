@@ -2379,6 +2379,46 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:45',
     genre: 'Rock Nacional'
+  },
+  {
+    code: '0238',
+    song: 'Aventureiro',
+    artist: 'Revelação',
+    youtubeId: 'ZxTAhZFzEDI',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:30',
+    genre: 'Pagode'
+  },
+  {
+    code: '0239',
+    song: 'Abandonado',
+    artist: 'Exaltasamba',
+    youtubeId: 'UcJfQJKASfY',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '04:00',
+    genre: 'Pagode'
+  },
+  {
+    code: '0240',
+    song: 'Telegrama',
+    artist: 'Exaltasamba',
+    youtubeId: '5db6f5wfzFQ',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:45',
+    genre: 'Pagode'
+  },
+  {
+    code: '0241',
+    song: 'Estrela',
+    artist: 'Exaltasamba',
+    youtubeId: 'yPPHZqvtA90',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:50',
+    genre: 'Pagode'
   }
 ];
 
