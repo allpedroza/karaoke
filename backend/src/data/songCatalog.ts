@@ -2282,142 +2282,32 @@ export const SONG_CATALOG: KaraokeSong[] = [
   },
   {
     code: '0228',
-    song: 'Preciso Desabafar',
-    artist: 'Exaltasamba',
-    youtubeId: '5Pu6c14XBt0',
+    song: 'Novos Tempos',
+    artist: 'Grupo Revelação',
+    youtubeId: 'd-Vvob6OLns',
     OriginalSongId: null,
     language: 'pt-BR',
-    duration: '03:30',
+    duration: '04:30',
     genre: 'Pagode'
   },
   {
     code: '0229',
-    song: 'Pra Gente Acordar',
-    artist: 'Os Gilsons',
-    youtubeId: '1Ky6YIjx0hw',
+    song: 'A Carta',
+    artist: 'Exaltasamba',
+    youtubeId: '2UWucD0fgkE',
     OriginalSongId: null,
     language: 'pt-BR',
-    duration: '03:30',
-    genre: 'MPB'
+    duration: '04:00',
+    genre: 'Pagode'
   },
   {
     code: '0230',
-    song: 'Tô Tranquilão',
-    artist: 'MC Sapão',
-    youtubeId: 'qlbWcjV7B7g',
+    song: 'Depois do Amor',
+    artist: 'Perla e Belo',
+    youtubeId: 'zisB_0SCYLA',
     OriginalSongId: null,
     language: 'pt-BR',
-    duration: '04:00',
-    genre: 'Funk'
-  },
-  {
-    code: '0231',
-    song: 'Zero (Deixa Eu Bagunçar Você)',
-    artist: 'Liniker',
-    youtubeId: '3emoWjfbhRg',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:30',
-    genre: 'MPB/Soul'
-  },
-  {
-    code: '0232',
-    song: 'Fico Assim Sem Você',
-    artist: 'Adriana Calcanhotto',
-    youtubeId: 'AFAxerjbI9Y',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:40',
-    genre: 'MPB'
-  },
-  {
-    code: '0233',
-    song: 'Beijo Sem',
-    artist: 'Adriana Calcanhotto',
-    youtubeId: 'tYRm-Bpg4Bc',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:20',
-    genre: 'MPB'
-  },
-  {
-    code: '0234',
-    song: 'Vem Cá',
-    artist: 'Pele Miflows',
-    youtubeId: '8zeB4L1azWM',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:30',
-    genre: 'Rap/Hip-Hop'
-  },
-  {
-    code: '0235',
-    song: 'A Carta',
-    artist: 'Exaltasamba',
-    youtubeId: 'nOZV28Da66w',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '04:00',
-    genre: 'Pagode'
-  },
-  {
-    code: '0236',
-    song: 'Novos Tempos',
-    artist: 'Revelação',
-    youtubeId: 'd-Vvob6OLns',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:30',
-    genre: 'Pagode'
-  },
-  {
-    code: '0237',
-    song: 'O Salto',
-    artist: 'O Rappa',
-    youtubeId: 'omPsw8c-poo',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:45',
-    genre: 'Rock Nacional'
-  },
-  {
-    code: '0238',
-    song: 'Aventureiro',
-    artist: 'Revelação',
-    youtubeId: 'ZxTAhZFzEDI',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:30',
-    genre: 'Pagode'
-  },
-  {
-    code: '0239',
-    song: 'Abandonado',
-    artist: 'Exaltasamba',
-    youtubeId: 'UcJfQJKASfY',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '04:00',
-    genre: 'Pagode'
-  },
-  {
-    code: '0240',
-    song: 'Telegrama',
-    artist: 'Exaltasamba',
-    youtubeId: '5db6f5wfzFQ',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:45',
-    genre: 'Pagode'
-  },
-  {
-    code: '0241',
-    song: 'Estrela',
-    artist: 'Exaltasamba',
-    youtubeId: 'yPPHZqvtA90',
-    OriginalSongId: null,
-    language: 'pt-BR',
-    duration: '03:50',
+    duration: '04:15',
     genre: 'Pagode'
   }
 ];

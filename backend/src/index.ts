@@ -36,7 +36,9 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   });
 });
 
-app.listen(PORT, () => {
+// Escutar em 0.0.0.0 para aceitar conexões de outros dispositivos na rede
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`🎤 Karaoke AI Backend running on port ${PORT}`);
   console.log(`📍 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`📱 Para acessar de outros dispositivos na rede, use o IP local da máquina`);
 });
