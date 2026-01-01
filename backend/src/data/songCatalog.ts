@@ -2339,6 +2339,16 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:20',
     genre: 'MPB'
+  },
+  {
+    code: '0234',
+    song: 'Vem Cá',
+    artist: 'Pele Miflows',
+    youtubeId: '8zeB4L1azWM',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:30',
+    genre: 'Rap/Hip-Hop'
   }
 ];
 
