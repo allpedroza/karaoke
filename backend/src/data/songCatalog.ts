@@ -2349,6 +2349,36 @@ export const SONG_CATALOG: KaraokeSong[] = [
     language: 'pt-BR',
     duration: '03:30',
     genre: 'Rap/Hip-Hop'
+  },
+  {
+    code: '0235',
+    song: 'A Carta',
+    artist: 'Exaltasamba',
+    youtubeId: 'nOZV28Da66w',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '04:00',
+    genre: 'Pagode'
+  },
+  {
+    code: '0236',
+    song: 'Novos Tempos',
+    artist: 'Revelação',
+    youtubeId: 'd-Vvob6OLns',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:30',
+    genre: 'Pagode'
+  },
+  {
+    code: '0237',
+    song: 'O Salto',
+    artist: 'O Rappa',
+    youtubeId: 'omPsw8c-poo',
+    OriginalSongId: null,
+    language: 'pt-BR',
+    duration: '03:45',
+    genre: 'Rock Nacional'
   }
 ];
 
