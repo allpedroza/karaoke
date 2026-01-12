@@ -2348,3 +2348,78 @@ export function searchSongs(query: string): KaraokeSong[] {
 export function getSongsByLanguage(language: KaraokeSong['language']): KaraokeSong[] {
   return SONG_CATALOG.filter(song => song.language === language);
 }
+
+// Obter o próximo código disponível
+export function getNextCode(): string {
+  if (SONG_CATALOG.length === 0) {
+    return '0001';
+  }
+
+  // Encontrar o maior código existente
+  const maxCode = SONG_CATALOG.reduce((max, song) => {
+    const codeNum = parseInt(song.code, 10);
+    return codeNum > max ? codeNum : max;
+  }, 0);
+
+  // Retornar próximo código com padding de zeros
+  return (maxCode + 1).toString().padStart(4, '0');
+}
+
+// Adicionar nova música ao catálogo
+export async function addSongToCatalog(song: KaraokeSong): Promise<boolean> {
+  try {
+    // Adicionar ao array em memória
+    SONG_CATALOG.push(song);
+
+    // Persistir no arquivo
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const { fileURLToPath } = await import('url');
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const filePath = path.join(__dirname, 'songCatalog.ts');
+
+    // Ler o arquivo atual
+    const fileContent = await fs.readFile(filePath, 'utf-8');
+
+    // Encontrar a posição onde inserir a nova música (antes do ];)
+    const closingBracketIndex = fileContent.lastIndexOf('];');
+    if (closingBracketIndex === -1) {
+      throw new Error('Não foi possível encontrar o final do array SONG_CATALOG');
+    }
+
+    // Formatar a nova música
+    const newSongEntry = `,
+  {
+    code: '${song.code}',
+    song: '${song.song.replace(/'/g, "\\'")}',
+    artist: '${song.artist.replace(/'/g, "\\'")}',
+    youtubeId: '${song.youtubeId}',
+    OriginalSongId: ${song.OriginalSongId ? `'${song.OriginalSongId}'` : 'null'},
+    language: '${song.language}',
+    duration: '${song.duration}',
+    genre: '${song.genre.replace(/'/g, "\\'")}'
+  }`;
+
+    // Inserir a nova música antes do ];
+    const newContent =
+      fileContent.substring(0, closingBracketIndex) +
+      newSongEntry +
+      '\n' +
+      fileContent.substring(closingBracketIndex);
+
+    // Escrever o arquivo atualizado
+    await fs.writeFile(filePath, newContent, 'utf-8');
+
+    console.log(`✅ Música ${song.code} - "${song.song}" por ${song.artist} adicionada com sucesso!`);
+    return true;
+  } catch (error) {
+    console.error('❌ Erro ao adicionar música ao catálogo:', error);
+    // Remover do array em caso de erro
+    const index = SONG_CATALOG.findIndex(s => s.code === song.code);
+    if (index > -1) {
+      SONG_CATALOG.splice(index, 1);
+    }
+    return false;
+  }
+}

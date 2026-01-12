@@ -1,11 +1,12 @@
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Plus } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface HeaderProps {
   onHomeClick: () => void;
+  onAddSong?: () => void;
 }
 
-export function Header({ onHomeClick }: HeaderProps) {
+export function Header({ onHomeClick, onAddSong }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -26,6 +27,17 @@ export function Header({ onHomeClick }: HeaderProps) {
           <span className="text-sm text-theme-muted">
             Powered by Claude AI
           </span>
+
+          {onAddSong && (
+            <button
+              onClick={onAddSong}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] hover:brightness-110 text-white font-medium text-sm transition-all shadow-md hover:shadow-lg"
+              title="Adicionar nova música"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Adicionar Música</span>
+            </button>
+          )}
 
           <button
             onClick={toggleTheme}
