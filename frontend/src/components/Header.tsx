@@ -1,12 +1,13 @@
-import { Sun, Moon, Plus } from 'lucide-react';
+import { Sun, Moon, Plus, Upload } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface HeaderProps {
   onHomeClick: () => void;
   onAddSong?: () => void;
+  onImportSongs?: () => void;
 }
 
-export function Header({ onHomeClick, onAddSong }: HeaderProps) {
+export function Header({ onHomeClick, onAddSong, onImportSongs }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -35,7 +36,18 @@ export function Header({ onHomeClick, onAddSong }: HeaderProps) {
               title="Adicionar nova música"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Adicionar Música</span>
+              <span className="hidden sm:inline">Adicionar</span>
+            </button>
+          )}
+
+          {onImportSongs && (
+            <button
+              onClick={onImportSongs}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:brightness-110 text-white font-medium text-sm transition-all shadow-md hover:shadow-lg"
+              title="Importar músicas em lote"
+            >
+              <Upload className="w-4 h-4" />
+              <span className="hidden sm:inline">Importar</span>
             </button>
           )}
 
