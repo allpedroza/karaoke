@@ -252,3 +252,82 @@ export async function getNextFromQueue(): Promise<{ item: QueueItemAPI; remainin
 
   return response.json();
 }
+
+// ============================================
+// ADICIONAR MÚSICAS
+// ============================================
+
+export interface NewSongData {
+  youtubeId: string;
+  artist: string;
+  song: string;
+  language: 'pt-BR' | 'en' | 'es';
+  genre: string;
+  duration: string;
+}
+
+// Obter o próximo código disponível
+export async function getNextSongCode(): Promise<string> {
+  const response = await fetch(`${API_BASE}/videos/next-code`);
+
+  if (!response.ok) {
+    throw new Error('Erro ao buscar próximo código');
+  }
+
+  const data = await response.json();
+  return data.code;
+}
+
+// Adicionar nova música ao catálogo
+export async function addNewSong(songData: NewSongData): Promise<KaraokeVideo> {
+  const response = await fetch(`${API_BASE}/videos/add`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(songData),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao adicionar música');
+  }
+
+  const result = await response.json();
+  return result.song;
+}
+
+// Importar músicas em lote
+export interface ImportSongData {
+  youtubeId: string;
+  artist: string;
+  song: string;
+  language: 'pt-BR' | 'en' | 'es';
+  genre: string;
+  duration: string;
+  lineNumber: number;
+}
+
+export interface ImportResult {
+  success: number;
+  failed: number;
+  errors: { line: number; error: string }[];
+  addedSongs: KaraokeVideo[];
+}
+
+export async function importSongs(songs: ImportSongData[]): Promise<ImportResult> {
+  const response = await fetch(`${API_BASE}/videos/import`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ songs }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Erro ao importar músicas');
+  }
+
+  return response.json();
+}

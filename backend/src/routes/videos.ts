@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { SONG_CATALOG, getSongByCode, searchSongs, getSongsByLanguage, KaraokeSong } from '../data/songCatalog.js';
+import { SONG_CATALOG, getSongByCode, searchSongs, getSongsByLanguage, KaraokeSong, addSongToCatalog, getNextCode } from '../data/songCatalog.js';
 import { hasMelodyMap } from '../data/database.js';
 import { processMelodyInBackground } from '../services/melodyService.js';
 
@@ -79,4 +79,182 @@ videosRoutes.get('/language/:lang', (req: Request, res: Response) => {
   const lang = req.params.lang as 'pt-BR' | 'en' | 'es';
   const songs = getSongsByLanguage(lang).map(song => toVideoFormat(song));
   res.json(songs);
+});
+
+// Obter o próximo código disponível
+videosRoutes.get('/next-code', (_req: Request, res: Response) => {
+  const nextCode = getNextCode();
+  res.json({ code: nextCode });
+});
+
+// Adicionar nova música ao catálogo
+videosRoutes.post('/add', async (req: Request, res: Response) => {
+  try {
+    const { youtubeId, artist, song, language, genre, duration } = req.body;
+
+    // Validações
+    if (!youtubeId || !artist || !song || !language || !genre || !duration) {
+      res.status(400).json({
+        error: 'Todos os campos são obrigatórios',
+        required: ['youtubeId', 'artist', 'song', 'language', 'genre', 'duration']
+      });
+      return;
+    }
+
+    // Validar formato do YouTube ID
+    if (!/^[a-zA-Z0-9_-]{11}$/.test(youtubeId)) {
+      res.status(400).json({ error: 'ID do YouTube inválido' });
+      return;
+    }
+
+    // Validar formato de duração (MM:SS)
+    if (!/^\d{1,2}:\d{2}$/.test(duration)) {
+      res.status(400).json({ error: 'Formato de duração inválido. Use MM:SS' });
+      return;
+    }
+
+    // Validar idioma
+    if (!['pt-BR', 'en', 'es'].includes(language)) {
+      res.status(400).json({ error: 'Idioma inválido. Use pt-BR, en ou es' });
+      return;
+    }
+
+    // Verificar se o YouTube ID já existe
+    const existingSong = SONG_CATALOG.find(s => s.youtubeId === youtubeId);
+    if (existingSong) {
+      res.status(409).json({
+        error: 'Esta música já existe no catálogo',
+        existingCode: existingSong.code
+      });
+      return;
+    }
+
+    // Adicionar música ao catálogo
+    const newSong: KaraokeSong = {
+      code: getNextCode(),
+      song: song.trim(),
+      artist: artist.trim(),
+      youtubeId: youtubeId.trim(),
+      OriginalSongId: null,
+      language: language as 'pt-BR' | 'en' | 'es',
+      duration: duration.trim(),
+      genre: genre.trim(),
+    };
+
+    const success = await addSongToCatalog(newSong);
+
+    if (success) {
+      res.status(201).json({
+        message: 'Música adicionada com sucesso!',
+        song: toVideoFormat(newSong)
+      });
+    } else {
+      res.status(500).json({ error: 'Erro ao salvar música no catálogo' });
+    }
+  } catch (error) {
+    console.error('Erro ao adicionar música:', error);
+    res.status(500).json({ error: 'Erro interno ao adicionar música' });
+  }
+});
+
+// Download do template CSV
+videosRoutes.get('/csv-template', (_req: Request, res: Response) => {
+  const template = `youtubeId,artist,song,language,genre,duration
+dQw4w9WgXcQ,Rick Astley,Never Gonna Give You Up,en,Pop,03:32
+jNQXAC9IVRw,Me First and the Gimme Gimmes,I Believe I Can Fly,en,Rock,02:45
+ZyhrYis509A,Charlie Brown Jr.,Céu Azul,pt-BR,Rock,03:45`;
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="karaoke-import-template.csv"');
+  res.send(template);
+});
+
+// Importar músicas em lote via CSV
+videosRoutes.post('/import', async (req: Request, res: Response) => {
+  try {
+    const { songs } = req.body;
+
+    if (!Array.isArray(songs) || songs.length === 0) {
+      res.status(400).json({ error: 'Lista de músicas inválida ou vazia' });
+      return;
+    }
+
+    const results = {
+      success: 0,
+      failed: 0,
+      errors: [] as { line: number; error: string }[],
+      addedSongs: [] as any[],
+    };
+
+    for (const songData of songs) {
+      const { youtubeId, artist, song, language, genre, duration, lineNumber } = songData;
+
+      // Validações
+      let hasError = false;
+      let errorMsg = '';
+
+      if (!youtubeId || !artist || !song || !language || !genre || !duration) {
+        errorMsg = 'Campos obrigatórios faltando';
+        hasError = true;
+      } else if (!/^[a-zA-Z0-9_-]{11}$/.test(youtubeId)) {
+        errorMsg = 'ID do YouTube inválido';
+        hasError = true;
+      } else if (!/^\d{1,2}:\d{2}$/.test(duration)) {
+        errorMsg = 'Formato de duração inválido';
+        hasError = true;
+      } else if (!['pt-BR', 'en', 'es'].includes(language)) {
+        errorMsg = 'Idioma inválido';
+        hasError = true;
+      } else {
+        // Verificar duplicata
+        const existingSong = SONG_CATALOG.find(s => s.youtubeId === youtubeId);
+        if (existingSong) {
+          errorMsg = `Música já existe (código ${existingSong.code})`;
+          hasError = true;
+        }
+      }
+
+      if (hasError) {
+        results.failed++;
+        results.errors.push({
+          line: lineNumber || 0,
+          error: errorMsg,
+        });
+        continue;
+      }
+
+      // Adicionar música
+      const newSong: KaraokeSong = {
+        code: getNextCode(),
+        song: song.trim(),
+        artist: artist.trim(),
+        youtubeId: youtubeId.trim(),
+        OriginalSongId: null,
+        language: language as 'pt-BR' | 'en' | 'es',
+        duration: duration.trim(),
+        genre: genre.trim(),
+      };
+
+      const success = await addSongToCatalog(newSong);
+
+      if (success) {
+        results.success++;
+        results.addedSongs.push(toVideoFormat(newSong));
+      } else {
+        results.failed++;
+        results.errors.push({
+          line: lineNumber || 0,
+          error: 'Erro ao salvar no catálogo',
+        });
+      }
+    }
+
+    res.status(200).json({
+      message: `Importação concluída: ${results.success} sucessos, ${results.failed} falhas`,
+      ...results,
+    });
+  } catch (error) {
+    console.error('Erro ao importar músicas:', error);
+    res.status(500).json({ error: 'Erro interno ao importar músicas' });
+  }
 });

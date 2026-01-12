@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { VideoSearch } from './components/VideoSearch';
 import { KaraokePlayer } from './components/KaraokePlayer';
 import { ResultsView } from './components/ResultsView';
 import { PlayerNameModal } from './components/PlayerNameModal';
+import { AddSongModal, NewSongData } from './components/AddSongModal';
+import { ImportSongsModal, ParsedSong } from './components/ImportSongsModal';
 import { RankingsPanel } from './components/RankingsPanel';
 import { TopSongsPanel } from './components/TopSongsPanel';
 import { TopSingersPanel } from './components/TopSingersPanel';
 import { KaraokeVideo, AppState, PerformanceData, QueueItem } from './types';
-import { evaluatePerformance, recordSession } from './services/api';
+import { evaluatePerformance, recordSession, addNewSong, getNextSongCode, importSongs } from './services/api';
 import { startDrumRollLoop, playScoreSound, stopAllSounds } from './services/soundEffects';
 
 function App() {
@@ -23,8 +25,18 @@ function App() {
   const [pendingVideo, setPendingVideo] = useState<KaraokeVideo | null>(null);
   const [playerName, setPlayerName] = useState('');
   const [songQueue, setSongQueue] = useState<QueueItem[]>([]);
+  const [showAddSongModal, setShowAddSongModal] = useState(false);
+  const [showImportSongsModal, setShowImportSongsModal] = useState(false);
+  const [nextSongCode, setNextSongCode] = useState('0231');
 
   const MAX_QUEUE_SIZE = 5;
+
+  // Buscar próximo código ao montar o componente
+  useEffect(() => {
+    getNextSongCode()
+      .then(code => setNextSongCode(code))
+      .catch(err => console.error('Erro ao buscar próximo código:', err));
+  }, []);
 
   // Quando seleciona um vídeo, mostra o modal de nome primeiro
   const handleVideoSelect = (video: KaraokeVideo) => {
@@ -164,9 +176,98 @@ function App() {
     });
   };
 
+  // Abrir modal de adicionar música
+  const handleOpenAddSongModal = () => {
+    setShowAddSongModal(true);
+  };
+
+  // Quando confirma a adição de música
+  const handleAddSongConfirm = async (songData: NewSongData) => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+    try {
+      await addNewSong(songData);
+      setShowAddSongModal(false);
+
+      // Atualizar próximo código
+      const newCode = await getNextSongCode();
+      setNextSongCode(newCode);
+
+      // Mostrar mensagem de sucesso
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: null
+      }));
+
+      // Recarregar a página para atualizar o catálogo
+      window.location.reload();
+    } catch (error) {
+      console.error('Erro ao adicionar música:', error);
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Erro ao adicionar música',
+        isLoading: false,
+      }));
+    }
+  };
+
+  // Quando cancela o modal de adicionar música
+  const handleAddSongCancel = () => {
+    setShowAddSongModal(false);
+  };
+
+  // Abrir modal de importar músicas
+  const handleOpenImportSongsModal = () => {
+    setShowImportSongsModal(true);
+  };
+
+  // Quando confirma a importação de músicas
+  const handleImportSongsConfirm = async (songs: ParsedSong[]) => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+    try {
+      const result = await importSongs(songs);
+      setShowImportSongsModal(false);
+
+      // Mostrar resultado
+      const message = `Importação concluída! ${result.success} músicas adicionadas${
+        result.failed > 0 ? `, ${result.failed} falharam` : ''
+      }`;
+
+      // Atualizar próximo código
+      const newCode = await getNextSongCode();
+      setNextSongCode(newCode);
+
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: null,
+      }));
+
+      // Mostrar mensagem de sucesso
+      alert(message);
+
+      // Recarregar a página para atualizar o catálogo
+      window.location.reload();
+    } catch (error) {
+      console.error('Erro ao importar músicas:', error);
+      setState(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Erro ao importar músicas',
+        isLoading: false,
+      }));
+    }
+  };
+
+  // Quando cancela o modal de importar músicas
+  const handleImportSongsCancel = () => {
+    setShowImportSongsModal(false);
+  };
+
   return (
     <div className="min-h-screen bg-theme transition-colors duration-300">
-      <Header onHomeClick={handleGoHome} />
+      <Header onHomeClick={handleGoHome} onAddSong={handleOpenAddSongModal} onImportSongs={handleOpenImportSongsModal} />
 
       <main className="container mx-auto px-4 py-8">
         {/* Error Banner */}
@@ -261,6 +362,21 @@ function App() {
           onCancel={handleNameCancel}
         />
       )}
+
+      {/* Modal de adicionar música */}
+      <AddSongModal
+        isOpen={showAddSongModal}
+        nextCode={nextSongCode}
+        onConfirm={handleAddSongConfirm}
+        onCancel={handleAddSongCancel}
+      />
+
+      {/* Modal de importar músicas */}
+      <ImportSongsModal
+        isOpen={showImportSongsModal}
+        onConfirm={handleImportSongsConfirm}
+        onCancel={handleImportSongsCancel}
+      />
     </div>
   );
 }
