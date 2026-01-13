@@ -88,6 +88,58 @@ export interface TopSinger {
   last_played: string;
 }
 
+export interface TopSingerExtended extends TopSinger {
+  total_singing_time_seconds: number;
+}
+
+export interface EvolutionEntry {
+  player_name: string;
+  first_avg: number;
+  last_avg: number;
+  improvement: number;
+  total_sessions: number;
+}
+
+export interface HotStreakEntry {
+  player_name: string;
+  streak_count: number;
+  best_score_in_streak: number;
+  streak_avg: number;
+}
+
+export interface GenreSpecialist {
+  genre: string;
+  player_name: string;
+  avg_score: number;
+  sessions_count: number;
+  title: string;
+}
+
+export interface GenreRankingEntry {
+  player_name: string;
+  song_title: string;
+  artist: string;
+  score: number;
+  created_at: string;
+  genre: string;
+}
+
+export interface SongRankingEntry {
+  player_name: string;
+  score: number;
+  created_at: string;
+}
+
+export interface SongRankingResponse {
+  song: { code: string; title: string; artist: string; genre: string } | null;
+  ranking: SongRankingEntry[];
+}
+
+export interface GenreCount {
+  genre: string;
+  count: number;
+}
+
 export interface SessionRecord {
   id: number;
   player_name: string;
@@ -144,6 +196,55 @@ export async function getTopSongs(): Promise<TopSong[]> {
 export async function getTopSingers(): Promise<TopSinger[]> {
   const response = await fetch(`${API_BASE}/rankings/top-singers`);
   if (!response.ok) throw new Error('Erro ao buscar top cantores');
+  return response.json();
+}
+
+// Top cantores com tempo total cantando (versão estendida)
+export async function getTopSingersExtended(limit: number = 10): Promise<TopSingerExtended[]> {
+  const response = await fetch(`${API_BASE}/rankings/top-singers-extended?limit=${limit}`);
+  if (!response.ok) throw new Error('Erro ao buscar top cantores estendido');
+  return response.json();
+}
+
+// Ranking de Evolução (quem mais melhorou)
+export async function getEvolutionRanking(limit: number = 10): Promise<EvolutionEntry[]> {
+  const response = await fetch(`${API_BASE}/rankings/evolution?limit=${limit}`);
+  if (!response.ok) throw new Error('Erro ao buscar ranking de evolução');
+  return response.json();
+}
+
+// Hot Streak (maior sequência de scores >= 80)
+export async function getHotStreakRanking(limit: number = 10): Promise<HotStreakEntry[]> {
+  const response = await fetch(`${API_BASE}/rankings/hot-streak?limit=${limit}`);
+  if (!response.ok) throw new Error('Erro ao buscar hot streaks');
+  return response.json();
+}
+
+// Especialistas por Gênero
+export async function getGenreSpecialists(): Promise<GenreSpecialist[]> {
+  const response = await fetch(`${API_BASE}/rankings/genre-specialists`);
+  if (!response.ok) throw new Error('Erro ao buscar especialistas');
+  return response.json();
+}
+
+// Gêneros disponíveis
+export async function getAvailableGenres(): Promise<GenreCount[]> {
+  const response = await fetch(`${API_BASE}/rankings/genres`);
+  if (!response.ok) throw new Error('Erro ao buscar gêneros');
+  return response.json();
+}
+
+// Ranking por gênero
+export async function getRankingByGenre(genre: string, limit: number = 10): Promise<GenreRankingEntry[]> {
+  const response = await fetch(`${API_BASE}/rankings/by-genre/${encodeURIComponent(genre)}?limit=${limit}`);
+  if (!response.ok) throw new Error('Erro ao buscar ranking por gênero');
+  return response.json();
+}
+
+// Ranking por música
+export async function getRankingBySong(songCode: string, limit: number = 10): Promise<SongRankingResponse> {
+  const response = await fetch(`${API_BASE}/rankings/by-song/${songCode}?limit=${limit}`);
+  if (!response.ok) throw new Error('Erro ao buscar ranking por música');
   return response.json();
 }
 

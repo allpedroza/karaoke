@@ -1,13 +1,14 @@
-import { Sun, Moon, Plus, Upload } from 'lucide-react';
+import { Sun, Moon, Plus, Upload, Trophy } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface HeaderProps {
   onHomeClick: () => void;
   onAddSong?: () => void;
   onImportSongs?: () => void;
+  onRankingClick?: () => void;
 }
 
-export function Header({ onHomeClick, onAddSong, onImportSongs }: HeaderProps) {
+export function Header({ onHomeClick, onAddSong, onImportSongs, onRankingClick }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -25,9 +26,20 @@ export function Header({ onHomeClick, onAddSong, onImportSongs }: HeaderProps) {
         </button>
 
         <nav className="flex items-center gap-4">
-          <span className="text-sm text-theme-muted">
+          <span className="text-sm text-theme-muted hidden md:inline">
             Powered by Claude AI
           </span>
+
+          {onRankingClick && (
+            <button
+              onClick={onRankingClick}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:brightness-110 text-white font-medium text-sm transition-all shadow-md hover:shadow-lg"
+              title="Ver rankings e estatísticas"
+            >
+              <Trophy className="w-4 h-4" />
+              <span className="hidden sm:inline">Rankings</span>
+            </button>
+          )}
 
           {onAddSong && (
             <button

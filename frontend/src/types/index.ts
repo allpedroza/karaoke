@@ -49,7 +49,7 @@ export interface RecordingState {
 }
 
 export interface AppState {
-  currentView: 'home' | 'karaoke' | 'results';
+  currentView: 'home' | 'karaoke' | 'results' | 'ranking';
   selectedVideo: KaraokeVideo | null;
   evaluation: PerformanceEvaluation | null;
   isLoading: boolean;

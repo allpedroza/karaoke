@@ -9,6 +9,7 @@ import { ImportSongsModal, ParsedSong } from './components/ImportSongsModal';
 import { RankingsPanel } from './components/RankingsPanel';
 import { TopSongsPanel } from './components/TopSongsPanel';
 import { TopSingersPanel } from './components/TopSingersPanel';
+import { RankingPage } from './components/RankingPage';
 import { KaraokeVideo, AppState, PerformanceData, QueueItem } from './types';
 import { evaluatePerformance, recordSession, addNewSong, getNextSongCode, importSongs } from './services/api';
 import { startDrumRollLoop, playScoreSound, stopAllSounds } from './services/soundEffects';
@@ -265,9 +266,18 @@ function App() {
     setShowImportSongsModal(false);
   };
 
+  // Ir para página de rankings
+  const handleRankingClick = () => {
+    setState(prev => ({
+      ...prev,
+      currentView: 'ranking',
+      error: null,
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-theme transition-colors duration-300">
-      <Header onHomeClick={handleGoHome} onAddSong={handleOpenAddSongModal} onImportSongs={handleOpenImportSongsModal} />
+      <Header onHomeClick={handleGoHome} onAddSong={handleOpenAddSongModal} onImportSongs={handleOpenImportSongsModal} onRankingClick={handleRankingClick} />
 
       <main className="container mx-auto px-4 py-8">
         {/* Error Banner */}
@@ -342,6 +352,11 @@ function App() {
             queue={songQueue}
             onPlayNextFromQueue={handlePlayNextFromQueue}
           />
+        )}
+
+        {/* Ranking View */}
+        {state.currentView === 'ranking' && (
+          <RankingPage onBack={handleGoHome} />
         )}
       </main>
 
