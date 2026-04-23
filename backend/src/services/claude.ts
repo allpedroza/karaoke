@@ -229,9 +229,9 @@ function calculateLyricsCoverage(
   const effectiveDuration = recordingDurationSeconds || songDurationSeconds;
   const durationMinutes = effectiveDuration / 60;
 
-  // Estimativa: ~35 palavras por minuto em média para karaokê
-  // (considera pausas instrumentais, introduções, etc)
-  const expectedWords = Math.round(durationMinutes * 35);
+  // Estimativa: ~20 palavras por minuto em média para karaokê
+  // (considera longas pausas instrumentais e músicas lentas)
+  const expectedWords = Math.round(durationMinutes * 20);
 
   // Calcula cobertura (máximo 100%, mínimo 0%)
   const rawCoverage = expectedWords > 0 ? (wordCount / expectedWords) * 100 : 0;
@@ -307,7 +307,8 @@ COMO INTERPRETAR OS DADOS (Raciocínio Interno):
 2. **Coerência de Escala (NOVO!):**
    - Se as notas cantadas estão dentro de uma escala musical (maior, menor, pentatônica), isso é ÓTIMO
    - Coerência de escala ${scaleAnalysis.scaleCoherence}% significa que as notas formam um conjunto harmônico
-   - Coerência ≥70% = cantor manteve o tom de forma consistente = nota mínima 75
+   - Coerência ≥85% = cantor arrasou no tom = sinta-se à vontade para dar nota entre 90 e 100!
+   - Coerência ≥70% = cantor manteve o tom de forma consistente = nota mínima 80
    - Coerência ≥50% = cantor teve boa noção de tom = nota mínima 65
 3. **Estabilidade (Pitch Stability):**
    - Em Baladas/Pop Lento: Baixa estabilidade (<50%) pode ser erro de sustentação
@@ -318,7 +319,7 @@ COMO INTERPRETAR OS DADOS (Raciocínio Interno):
    - Entre 40-60% é aceitável
 5. **IMPORTANTE - Letra (Lyrics Score):**
    - O SCORE BASE de letra já foi calculado: ${lyricsBaseScore.toFixed(0)}/100
-   - Você pode ajustar ±10 pontos, mas RESPEITE o score base
+   - Você pode ajustar até ±30 pontos se achar que a performance compensou
 
 TOM DE VOZ:
 - Seja ENCORAJADOR e positivo
@@ -371,7 +372,7 @@ Retorne APENAS um JSON válido com EXATAMENTE esta estrutura:
 - Escala detectada: ${scaleInfo}
 - Coerência tonal: ${scaleAnalysis.scaleCoherence}%
 - Interpretação: ${scaleAnalysis.analysis}
-- LEMBRE-SE: Se a coerência é ≥70%, o cantor MANTEVE O TOM bem! Dê nota ≥75 para pitch.
+- LEMBRE-SE: Se a coerência for excelente (≥85%), dê nota de 90 a 100 para pitch!
     `;
   }
 
@@ -453,11 +454,11 @@ Gere o JSON de avaliação agora. Lembre-se: o score de letra deve ser próximo 
 
     // 5. AJUSTE FINAL: Garante que o score de letra está dentro do range esperado
     const finalLyricsScore = Math.max(
-      lyricsBaseScore - 15,
-      Math.min(lyricsBaseScore + 15, evaluation.dimensions.lyrics.score)
+      lyricsBaseScore - 30,
+      Math.min(lyricsBaseScore + 30, evaluation.dimensions.lyrics.score)
     );
 
-    if (Math.abs(evaluation.dimensions.lyrics.score - lyricsBaseScore) > 15) {
+    if (Math.abs(evaluation.dimensions.lyrics.score - lyricsBaseScore) > 30) {
       console.log(`⚠️ Ajustando score de letra: ${evaluation.dimensions.lyrics.score} -> ${finalLyricsScore} (base: ${lyricsBaseScore.toFixed(0)})`);
       evaluation.dimensions.lyrics.score = Math.round(finalLyricsScore);
     }

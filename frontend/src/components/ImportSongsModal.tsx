@@ -168,7 +168,7 @@ export function ImportSongsModal({ isOpen, onConfirm, onCancel }: ImportSongsMod
       onClick={handleCancel}
     >
       <div
-        className={`rounded-2xl p-8 max-w-4xl w-full my-8 transition-all duration-300 border shadow-2xl ${
+        className={`rounded-2xl p-4 sm:p-8 max-w-4xl w-full m-4 sm:my-8 transition-all duration-300 border shadow-2xl ${
           isLight
             ? 'bg-gradient-to-br from-white to-slate-50 border-slate-200 shadow-[0_22px_60px_rgba(15,23,42,0.14)]'
             : 'bg-gradient-to-br from-[rgba(0,39,118,0.85)] to-[rgba(0,155,58,0.85)] border-white/10'
@@ -300,7 +300,7 @@ export function ImportSongsModal({ isOpen, onConfirm, onCancel }: ImportSongsMod
                   : 'bg-black/30 border-white/10'
               }`}
             >
-              <div className="max-h-64 overflow-y-auto">
+              <div className="max-h-64 overflow-y-auto overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className={`sticky top-0 ${isLight ? 'bg-slate-100' : 'bg-white/10'}`}>
                     <tr className={`${isLight ? 'text-slate-700' : 'text-white/90'}`}>
@@ -365,7 +365,7 @@ export function ImportSongsModal({ isOpen, onConfirm, onCancel }: ImportSongsMod
         )}
 
         {/* Buttons */}
-        <div className="flex gap-3 pt-6 border-t border-white/10">
+        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-white/10">
           <button
             type="button"
             onClick={handleCancel}

@@ -82,10 +82,13 @@ export async function startDrumRollLoop(): Promise<void> {
 
   // Tentar usar arquivo de áudio primeiro (com loop)
   const exists = await checkAudioFile('/sounds/drumroll.mp3');
+  
+  // Se stopDrumRoll foi chamado enquanto esperávamos a verificação do arquivo
+  if (!isDrumRollPlaying) return;
+
   if (exists) {
     drumRollAudio = new Audio('/sounds/drumroll.mp3');
     drumRollAudio.volume = 0.7;
-    drumRollAudio.loop = true;
     drumRollAudio.play().catch(() => {
       // Se falhar, usar fallback
       playDrumRollFallbackLoop();

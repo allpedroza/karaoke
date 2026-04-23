@@ -148,8 +148,8 @@ router.post('/sync', async (_req: Request, res: Response) => {
 
           // Mapeia o formato do Python para o formato do backend
           const notes: MelodyNote[] = melodyData.notes.map(note => ({
-            time: note.start,
-            duration: note.end - note.start,
+            start: note.start,
+            end: note.end,
             note: note.note,
             frequency: note.frequency,
             confidence: note.confidence,
@@ -282,8 +282,8 @@ router.post('/:songCode/process', async (req: Request, res: Response) => {
 
     // Mapeia o formato do Python para o formato do backend
     const notes: MelodyNote[] = result.notes.map(note => ({
-      time: note.start,
-      duration: note.end - note.start,
+      start: note.start,
+      end: note.end,
       note: note.note,
       frequency: note.frequency,
       confidence: note.confidence,
